@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "projects": {
+    "nest-and-nook": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.json",
+            "index": "src/index.html",
+            "styles": [
+              "src/styles.css"
+            ],
+            "outputPath": "dist/nest-and-nook",
+            "assets": [
+              {
+                "glob": "pdf.worker.min.mjs",
+                "input": "node_modules/pdfjs-dist/build",
+                "output": "/"
+              }
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "700kB",
+                  "maximumError": "1MB"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "nest-and-nook:build"
+          }
+        }
+      }
+    }
+  }
+}

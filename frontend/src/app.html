@@ -1,0 +1,102 @@
+<aside class="sidebar" [attr.inert]="settings||resetPrompt||previewUrl ? '' : null">
+  <a class="brand" href="/" aria-label="Nest and Nook home"><span>Nest <i>&</i> Nook<small>PROPERTY CARE</small></span></a>
+  <div class="workspace-label">STAFF TOOLS</div>
+  <nav aria-label="Main navigation"><button [class.active]="page==='studio'" (click)="selected.length?startDocuments():page='templates'"><span>▤</span> Create documents <span class="nav-dot"></span></button><button [class.active]="page==='templates'" (click)="page='templates'"><span>▦</span> Choose documents</button><button (click)="settings=true"><span>⚙</span> Company details</button></nav>
+  <div class="profile"><span class="avatar">NN</span><div>Nest & Nook<small>Property management</small></div></div>
+</aside>
+<div class="workspace" [attr.inert]="settings||resetPrompt||previewUrl ? '' : null">
+  <header class="topbar"><button class="text-button" (click)="signOut()">Sign out</button><div class="breadcrumb">Workspace <span>/</span> <strong>{{page==='studio'?'Create documents':'Choose documents'}}</strong></div><span class="privacy"><span class="green-dot"></span> No saved tenant records</span><button class="mobile-settings icon-btn" aria-label="Company details" (click)="settings=true">⚙</button></header>
+  <main>
+    <section class="page-heading"><div><h1>{{page==='studio'?(selected.length===1?selected[0].name:'Create documents'):'Choose documents'}}</h1><p>{{page==='studio'?'Complete the details for your selected documents.':'Choose one document or select several to prepare together.'}}</p></div><button class="button secondary new-tenancy" (click)="resetPrompt=true">＋ New tenancy</button></section>
+    <div class="notice error" role="alert" *ngIf="error">{{error}}</div><div class="notice success" role="status" *ngIf="status">{{status}}</div>
+    @if (page==='templates') {
+      <section class="library-grid">
+        @for(doc of docs;track doc.id){
+          <article class="card library-card" [class.selected-card]="doc.selected">
+            <label class="check-label"><input type="checkbox" [(ngModel)]="doc.selected" [attr.aria-label]="'Select '+doc.name"><span class="eyebrow">{{doc.tag}}</span></label>
+            <h2>{{doc.name}}</h2><p>{{doc.description}}</p>
+            <p class="subtle">{{doc.id==='rules'?'Download with blank acknowledgement details, or add a tenant name and IC.':doc.id==='move_in'?'Tenant details and inventory only.': 'Tenant details and tenancy terms. No move-in checklist.'}}</p>
+            <div class="document-actions">
+              @if(doc.id==='rules'){
+                <button class="button primary" [disabled]="busy" (click)="generate(['rules'],false,true,'pdf')">Download PDF</button>
+                <button class="button secondary" [disabled]="busy" (click)="generate(['rules'],false,true,'source')">Download Word</button>
+                <button class="text-button" (click)="startDocuments(doc.id)">Add tenant details →</button>
+              }@else{
+                <button class="button secondary" (click)="startDocuments(doc.id)">Create {{doc.name.toLowerCase()}} →</button>
+              }
+            </div>
+          </article>
+        }
+      </section>
+      <div class="selection-footer"><span>{{selected.length}} selected</span><button class="button primary" [disabled]="busy||!selected.length" (click)="startDocuments()">Continue with selected →</button></div>
+      <div class="mobile-draft chooser-draft"><span>Saved draft</span><button class="text-button" (click)="chooserDraft.click()">Load draft</button><input #chooserDraft type="file" accept=".json,application/json" hidden (change)="loadDraft($event)"></div>
+    } @else {
+    <button class="text-button change-documents" (click)="page='templates'">← Change documents</button><div class="studio-layout">
+      <section class="form-column">
+        <div class="mobile-draft"><span>Draft</span><button class="text-button" (click)="saveDraft()">Save draft</button><button class="text-button" (click)="mobileDraft.click()">Load draft</button><input #mobileDraft type="file" accept=".json,application/json" hidden (change)="loadDraft($event)"></div>
+        <nav class="stepper" aria-label="Document creation steps">@for (i of activeSteps;track i;let position=$index){<button (click)="go(i)" [class.current]="step===i" [class.done]="step>i" [attr.aria-current]="step===i?'step':null"><span>{{step>i?'✓':('0'+(position+1))}}</span><b>{{steps[i]}}</b></button>}</nav>
+        <form #form (submit)="$event.preventDefault();next(form)" autocomplete="off">
+          <article class="card form-card">
+            <div class="section-heading"><div><div class="eyebrow">STEP 0{{stepNumber}} OF 0{{activeSteps.length}}</div><h2>{{steps[step]}}</h2><p>{{step===0?'Enter the tenant’s personal and contact details.':step===1?'Enter the property, dates and payment amounts.':step===2?'Record inventory quantities and condition at handover.':'Check the details and download your selected documents.'}}</p></div><span class="section-icon">{{step===0?'♙':step===1?'⌂':step===2?'☷':'✓'}}</span></div>
+            @if(step===0){
+              <div class="mini-heading">PERSONAL INFORMATION <span>{{hasAgreement||hasMoveIn?'* Required':'Optional'}}</span></div>
+              <div class="field-grid">@for(f of visibleTenantFields;track f.key){<label [class.wide]="f.wide">{{f.label}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn)">*</span><input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn)" [placeholder]="f.placeholder||''" maxlength="200"></label>}</div>
+              @if(hasMoveIn){
+              <div class="divider"></div><h3>Emergency contact <span class="optional">Optional</span></h3><p class="section-description">Included in the tenant registration form.</p>
+              <div class="field-grid">@for(f of emergencyFields;track f.key){<label>{{f.label}}<input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" maxlength="200"></label>}</div>
+              }
+              @if(hasTenancy){
+              <details class="extra-fields"><summary>Guardian details <span>For tenants under 18</span></summary><div class="field-grid"><label>Guardian name<input name="guardian_name" [(ngModel)]="d['guardian_name']" maxlength="200"></label><label>Guardian IC / Passport<input name="guardian_id" [(ngModel)]="d['guardian_id']" maxlength="200"></label></div></details>
+              }
+            }
+            @if(step===1){
+              @if(hasTenancy){<div class="mini-heading">ROOM & AGREEMENT</div><div class="aircon-toggle" role="group" aria-label="Air conditioning"><button type="button" [class.chosen]="d['aircon']" [attr.aria-pressed]="d['aircon']" (click)="d['aircon']=true"><span>❄</span> With air conditioning <b>{{d['aircon']?'●':'○'}}</b></button><button type="button" [class.chosen]="!d['aircon']" [attr.aria-pressed]="!d['aircon']" (click)="d['aircon']=false"><span>☀</span> Without air conditioning <b>{{!d['aircon']?'●':'○'}}</b></button></div>
+              <p class="field-hint">Uses the full {{d['aircon']?'AC':'non-AC'}} template, including its payment dates and notice periods.</p>}
+              <div class="field-grid">@for(f of propertyFields;track f.key){<div [class.wide]="f.wide"><label>{{f.label}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn)">*</span>
+                @if(f.key==='address'){
+                  <select name="address" [(ngModel)]="d['address']" required><option value="" disabled>Select an address</option>@for(address of addresses;track address){<option [value]="address">{{address}}</option>}@if(d['address']&&!addresses.includes(d['address'])){<option [value]="d['address']">{{d['address']}} (from draft)</option>}</select>
+                }@else{<input [name]="f.key" [(ngModel)]="d[f.key]" (ngModelChange)="f.key==='start_date'?updateExpiry():f.key==='end_date'?(expiryMonths=0):null" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn)" [placeholder]="f.placeholder||''" [attr.min]="f.key==='end_date'?d['start_date']:null" maxlength="200">}
+                </label>
+                @if(f.key==='address'){
+                  <button type="button" class="text-button address-add" (click)="addingAddress=!addingAddress">{{addingAddress?'Cancel':'＋ Add address'}}</button>
+                  @if(addingAddress){<div class="address-editor"><label>New property address<textarea name="new_address" [(ngModel)]="newAddress" maxlength="600" rows="3"></textarea></label><button type="button" class="button secondary" [disabled]="savingAddress" (click)="addAddress()">{{savingAddress?'Saving…':'Save address'}}</button></div>}
+                  @if(addressError){<p class="field-error" role="alert">{{addressError}}</p>}
+                }
+                @if(f.key==='end_date'){<div class="term-buttons"><button type="button" [class.chosen]="expiryMonths===6" [attr.aria-pressed]="expiryMonths===6" (click)="chooseTerm(6)">6 months</button><button type="button" [class.chosen]="expiryMonths===12" [attr.aria-pressed]="expiryMonths===12" (click)="chooseTerm(12)">1 year</button></div><p class="field-hint">Ends the day before the anniversary of the move-in date. You can also choose a date.</p>}
+              </div>}</div>
+              <div class="divider"></div><h3>Rental & deposits <span class="optional">MYR</span></h3><p class="section-description">Enter the agreed amounts. Leave unused amounts blank; documents show a dash.</p><div class="field-grid">@for(f of moneyFields;track f.key){<label>{{f.label}}<div class="money-input"><span>RM</span><input [name]="f.key" [(ngModel)]="d[f.key]" type="number" min="0" max="1000000" step="0.01" inputmode="decimal"></div></label>}</div>
+              <div class="payment-total"><span>Total payable on offer letter<small>Deposits + advance rental + one-time fees</small></span><strong>{{total|currency:'MYR':'RM ':'1.2-2'}}</strong></div>
+              <p class="field-hint">The non-AC agreement has no access deposit or agreement fee row. The offer lists the agreement fee separately.</p>
+              <label class="block-field">Special conditions for the offer letter<textarea name="special_conditions" [(ngModel)]="d['special_conditions']" rows="3" maxlength="3000" placeholder="Any additional conditions agreed with the tenant"></textarea></label>
+            }
+            @if(step===2){
+              @if(!hasAgreement){<label class="block-field">Signing date <span class="required">*</span><input type="date" name="agreement_date" [(ngModel)]="d['agreement_date']" required></label>}
+
+              <div class="field-grid"><label>Room condition<select name="room_condition" [(ngModel)]="d['room_condition']"><option value="">Not recorded</option><option>Good</option><option>Fair</option><option>Damaged</option></select></label><label>Room remarks<input name="room_remarks" [(ngModel)]="d['room_remarks']" maxlength="80" placeholder="e.g. Light scuffs near door"></label><label>Makeup table drawer<select name="makeup_table_drawer" [(ngModel)]="d['makeup_table_drawer']"><option value="not_applicable">Not applicable</option><option value="with">With drawer</option><option value="without">Without drawer</option></select></label><label>Starting electricity meter reading<input name="meter_reading" [(ngModel)]="d['meter_reading']" maxlength="100" placeholder="e.g. 125.40 kWh"></label></div>
+              <div class="inventory-head"><h3>Room inventory</h3><span>{{inventory.length}} items</span></div><p class="section-description">Items start at quantity 1 and Good condition. Adjust items not supplied or damaged; use remarks for card and key numbers.</p>
+              <div class="inventory-list">@for(item of inventory;track $index;let i=$index){<div class="inventory-row"><div class="inventory-name">{{item.name}}</div><label>Qty<input type="number" min="0" max="100" step="1" required [attr.aria-label]="item.name+' quantity'" [name]="'qty'+i" [(ngModel)]="item.quantity" inputmode="numeric"></label><label>Condition<select [attr.aria-label]="item.name+' condition'" [name]="'condition'+i" [(ngModel)]="item.condition"><option>Not supplied</option><option>Good</option><option>Fair</option><option>Damaged</option></select></label><label class="remarks">Remarks<input [attr.aria-label]="item.name+' remarks'" [name]="'remarks'+i" [(ngModel)]="item.remarks" maxlength="300" placeholder="Optional"></label></div>}</div>
+            }
+            @if(step===3){
+              <div class="review-summary"><div><span>TENANT</span><strong>{{d['tenant_name']||'Not entered'}}</strong><small>{{d['tenant_id']||'-'}}</small></div><button type="button" class="text-button" (click)="go(0)">Edit</button>@if(hasAgreement){<div><span>PROPERTY</span><strong>{{d['property']||'Not entered'}}</strong><small>{{d['room']}} · {{d['aircon']?'With AC':'Without AC'}}</small></div><button type="button" class="text-button" (click)="go(1)">Edit</button><div><span>TENANCY</span><strong>{{d['start_date']|date:'d MMM yyyy'}} — {{d['end_date']?(d['end_date']|date:'d MMM yyyy'):'Expiry required'}}</strong><small>{{d['rent']|currency:'MYR':'RM '}} / month</small></div><button type="button" class="text-button" (click)="go(1)">Edit</button>}</div>
+              <h3>Documents to generate</h3><div class="document-options">@for(doc of selected;track doc.id){<div class="document-option checked"><div><strong>{{doc.name}}</strong><small>{{doc.description}}</small></div><button type="button" class="text-button" [disabled]="busy" (click)="generate([doc.id],true)" [attr.aria-label]="'Preview '+doc.name">Preview ↗</button></div>}</div>
+              @if(hasMoveIn){<button type="button" class="text-button" (click)="go(2)">Edit move-in checklist →</button>}
+              @if(hasOffer){
+              <details class="extra-fields"><summary>Offer letter enclosure <span>Original third page</span></summary><p class="field-hint">Included by default to retain the complete original. The supplied enclosure states that the company is a reporting institution and the tenant declined to provide ID. Include it only if both statements apply.</p><label class="check-label"><input type="checkbox" name="include_aml" [(ngModel)]="d['include_aml']">Include the supplied AML acknowledgement</label></details>}
+              <div class="divider"></div><div class="format-row"><div><h3>Download format</h3><p class="section-description">Original formats keeps the Word templates as .docx and the offer as PDF. Multiple documents download as a ZIP.</p></div><select aria-label="Download format" name="format" [(ngModel)]="format"><option value="pdf">PDF · Ready to print</option><option value="source">Original formats · Word / PDF</option></select></div>
+              <div class="review-note">Review the document previews and company details before signing. </div>
+            }
+          </article>
+          <div class="form-footer"><button type="button" class="button back-button" (click)="back()">← Back</button>@if(step<3){<button type="submit" class="button primary">Continue <span>→</span></button>}@else{<button type="button" class="button primary" [disabled]="busy||!selected.length" (click)="generate()">{{busy?'Preparing documents…':'Generate '+selected.length+' document'+(selected.length===1?'':'s')}} <span>↓</span></button>}</div>
+        </form>
+      </section>
+      <aside class="summary-column"><article class="pack-card"><div class="pack-top"><span class="eyebrow">DOCUMENT SUMMARY</span><span class="pill">{{selected.length}} {{selected.length===1?'document':'documents'}}</span></div><div class="pack-list">@for(doc of selected;track doc.id){<div [class.muted]="!doc.selected"><span>{{doc.selected?'✓':'−'}}</span>{{doc.name}}<small *ngIf="doc.id==='tenancy'">{{d['aircon']?'AC':'Non-AC'}}</small></div>}</div><div class="pack-bottom" *ngIf="hasAgreement"><span>Monthly rental<strong>{{d['rent']|currency:'MYR':'RM ':'1.2-2'}}</strong></span><span>Offer total<strong>{{total|currency:'MYR':'RM ':'1.2-2'}}</strong></span></div></article>
+        <article class="draft-card"><span>↳</span><div><h3>Draft files</h3><p>Save the current form to a file, or load a saved draft.</p><div><button class="text-button" (click)="saveDraft()">Save draft</button><span>·</span><button class="text-button" (click)="draftInput.click()">Load draft</button><input #draftInput type="file" accept=".json,application/json" hidden (change)="loadDraft($event)"></div></div></article><div class="privacy-note">Tenant details stay in this session unless you save a draft or download documents.</div>
+      </aside>
+    </div>
+    }
+    <footer class="page-footer"><span>Nest & Nook Property Care</span><span>Internal staff use</span></footer>
+  </main>
+</div>
+@if(settings){<div class="modal-backdrop" (click)="settings=false"><section class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="company-title" (click)="$event.stopPropagation()"><div class="modal-header"><div><h2 id="company-title">Company details</h2></div><button class="icon-btn" aria-label="Close company details" (click)="settings=false">✕</button></div><p>Pre-filled from your business card and AC agreement. These details appear in generated documents.</p><form #companyForm (submit)="$event.preventDefault();companyForm.reportValidity()&&(settings=false)"><div class="field-grid">@for(f of companyFields;track f.key){<label [class.wide]="f.wide">{{f.label}}<input [name]="'company_'+f.key" [(ngModel)]="d['company'][f.key]" required maxlength="200"></label>}</div><button class="button primary" type="submit">Done</button></form></section></div>}
+@if(resetPrompt){<div class="modal-backdrop"><section class="modal small-modal" role="alertdialog" aria-modal="true" aria-labelledby="reset-title"><h2 id="reset-title">Start a new tenancy?</h2><p>This clears the current form. Save a draft first if you need these details later.</p><div class="modal-actions"><button class="button secondary" (click)="resetPrompt=false">Keep editing</button><button class="button primary" (click)="reset()">Start new</button></div></section></div>}
+@if(previewUrl){<div class="modal-backdrop"><section class="modal preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title"><div class="modal-header"><h2 id="preview-title">{{previewTitle}}</h2><button class="icon-btn" aria-label="Close preview" (click)="closePreview()">✕</button></div><p><a [href]="previewUrl" target="_blank" rel="noopener">Open PDF in a new tab</a> or <a [href]="previewUrl" download="nest-and-nook-preview.pdf">download preview</a></p><div class="pdf-pages"><p role="status" *ngIf="previewLoading">Rendering document pages…</p><p role="alert" *ngIf="previewError">{{previewError}}</p>@for(page of previewPages;track page;let i=$index){<figure><img [src]="page" [alt]="previewTitle+' — page '+(i+1)"><figcaption>Page {{i+1}} of {{previewLoading?'…':previewPages.length}}</figcaption></figure>}</div></section></div>}

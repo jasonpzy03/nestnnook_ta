@@ -1,0 +1,11 @@
+.venv
+frontend/node_modules
+frontend/dist
+frontend/.angular
+__pycache__
+**/__pycache__
+tmp
+output
+.git
+
+.local/

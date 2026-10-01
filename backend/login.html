@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Staff sign in | Nest &amp; Nook</title><style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400&display=swap');
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:#fbfaf7;color:#172e46;font:16px 'DM Sans',Arial,sans-serif}
+main{width:100%;max-width:420px;padding:36px;background:white;border:1px solid #dadeda;border-top:3px solid #edc66d}
+.brand{font:32px Georgia,serif;color:#102c50;letter-spacing:-1px;margin-bottom:32px}
+.brand i{color:#b58a36}
+h1{font:400 30px 'Playfair Display',Georgia,serif;margin:0 0 12px}
+p{line-height:1.6;color:#65717b;font-size:14px}
+label{display:block;font-size:14px;font-weight:500;margin-top:24px}
+input,button{width:100%;min-height:50px;font:inherit;border-radius:2px;margin-top:10px}
+input{border:1px solid #abb6bf;padding:12px;color:#172e46;background:white}
+button{background:#102c50;color:white;border:0;font-weight:600;margin-top:20px;cursor:pointer}
+button:hover{background:#23466c}
+input:focus-visible,button:focus-visible{outline:2px solid #b88924;outline-offset:3px}
+.error:empty{display:none}.error{color:#9b2929;font-size:14px}
+@media(max-width:420px){main{padding:28px 22px}body{padding:18px}}
+</style></head><body><main><div class="brand">Nest <i>&amp;</i> Nook</div><h1>Staff sign in</h1><p>Nest &amp; Nook tenancy documents</p><p class="error" role="alert"><!--MESSAGE--></p><form method="post" action="/login"><label for="password">Staff password</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="1024" required autofocus><button type="submit">Sign in</button></form></main></body></html>

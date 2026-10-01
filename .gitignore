@@ -1,0 +1,12 @@
+node_modules/
+frontend/dist/
+.angular/
+.venv/
+__pycache__/
+.pytest_cache/
+output/
+tmp/
+*.log
+pytest-cache-files-*/
+
+.local/
