@@ -9,7 +9,19 @@ import json
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--generate', action='store_true', help='Generate an initial password in a private local text file')
+    parser.add_argument('--export-vercel',action='store_true',help='Export the current password hash to a private file for Vercel')
     args = parser.parse_args()
+    if args.export_vercel:
+        if args.generate:raise SystemExit('Choose either --generate or --export-vercel.')
+        if not CONFIG.exists():raise SystemExit('Configure the local password first.')
+        from .auth import StaffAuth
+        record=StaffAuth(CONFIG).record()
+        if not record:raise SystemExit('Password configuration is invalid.')
+        target=CONFIG.parent/'vercel-password-record.txt'
+        target.write_text(json.dumps(record,separators=(',',':')),encoding='utf-8')
+        os.chmod(target,0o600)
+        print('Copy this file into NEST_STAFF_PASSWORD_RECORD in Vercel:',target)
+        return
     if args.generate and CONFIG.exists():raise SystemExit('Access is already configured. Run without --generate to change the password.')
     if args.generate:password = secrets.token_urlsafe(18)
     else:

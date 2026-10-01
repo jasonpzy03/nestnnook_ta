@@ -2,9 +2,9 @@ from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import re
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response, FileResponse
-from fastapi.staticfiles import StaticFiles
 from .models import GenerateRequest,Company
 from .template_docx import INVENTORY_NAMES as INVENTORY, TemplateError
 from .renderers import pdf,docx
@@ -25,7 +25,7 @@ async def no_cache(request,call_next):
     response.headers['X-Robots-Tag']='noindex, nofollow'
     return response
 @app.get('/api/health')
-def health():return {'status':'ok'}
+def health():return {'status':'ok','word_pdf_available':os.name=='nt'}
 @app.get('/api/defaults')
 def defaults():return {'company':Company().model_dump(),'inventory':INVENTORY}
 @app.post('/api/generate')
@@ -52,4 +52,13 @@ def generate(req:GenerateRequest):
         name=f'{stem}-document-pack.zip';data=buf.getvalue();mime='application/zip'
     return Response(data,media_type=mime,headers={'Content-Disposition':f'attachment; filename="{name}"'})
 DIST=Path(__file__).resolve().parents[1]/'frontend/dist/nest-and-nook/browser'
-if DIST.exists():app.mount('/',StaticFiles(directory=DIST,html=True),name='website')
+# Serve through authenticated Python routes. StaticFiles/public assets may be
+# promoted to Vercel's CDN and would bypass the staff middleware.
+@app.get('/{asset_path:path}',include_in_schema=False)
+def website(asset_path:str):
+    target=(DIST/(asset_path or 'index.html')).resolve()
+    if not target.is_relative_to(DIST.resolve()) or not target.is_file():
+        raise HTTPException(404,'Not found')
+    if any(part.startswith('.') for part in Path(asset_path).parts):
+        raise HTTPException(404,'Not found')
+    return FileResponse(target)

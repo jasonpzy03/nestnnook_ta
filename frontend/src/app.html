@@ -18,7 +18,7 @@
             <p class="subtle">{{doc.id==='rules'?'Download with blank acknowledgement details, or add a tenant name and IC.':doc.id==='move_in'?'Tenant details and inventory only.': 'Tenant details and tenancy terms. No move-in checklist.'}}</p>
             <div class="document-actions">
               @if(doc.id==='rules'){
-                <button class="button primary" [disabled]="busy" (click)="generate(['rules'],false,true,'pdf')">Download PDF</button>
+                <button class="button primary" [disabled]="busy" (click)="generate(['rules'],false,true,'pdf')" *ngIf="wordPdfAvailable">Download PDF</button>
                 <button class="button secondary" [disabled]="busy" (click)="generate(['rules'],false,true,'source')">Download Word</button>
                 <button class="text-button" (click)="startDocuments(doc.id)">Add tenant details →</button>
               }@else{
@@ -78,11 +78,11 @@
             }
             @if(step===3){
               <div class="review-summary"><div><span>TENANT</span><strong>{{d['tenant_name']||'Not entered'}}</strong><small>{{d['tenant_id']||'-'}}</small></div><button type="button" class="text-button" (click)="go(0)">Edit</button>@if(hasAgreement){<div><span>PROPERTY</span><strong>{{d['property']||'Not entered'}}</strong><small>{{d['room']}} · {{d['aircon']?'With AC':'Without AC'}}</small></div><button type="button" class="text-button" (click)="go(1)">Edit</button><div><span>TENANCY</span><strong>{{d['start_date']|date:'d MMM yyyy'}} — {{d['end_date']?(d['end_date']|date:'d MMM yyyy'):'Expiry required'}}</strong><small>{{d['rent']|currency:'MYR':'RM '}} / month</small></div><button type="button" class="text-button" (click)="go(1)">Edit</button>}</div>
-              <h3>Documents to generate</h3><div class="document-options">@for(doc of selected;track doc.id){<div class="document-option checked"><div><strong>{{doc.name}}</strong><small>{{doc.description}}</small></div><button type="button" class="text-button" [disabled]="busy" (click)="generate([doc.id],true)" [attr.aria-label]="'Preview '+doc.name">Preview ↗</button></div>}</div>
+              <h3>Documents to generate</h3>@if(!wordPdfAvailable){<p class="field-hint">Letter of offer downloads as PDF. Other documents download as Word; PDF previews for those templates are available on the Windows host.</p>}<div class="document-options">@for(doc of selected;track doc.id){<div class="document-option checked"><div><strong>{{doc.name}}</strong><small>{{doc.description}}</small></div><button type="button" class="text-button" [disabled]="busy||(!wordPdfAvailable&&doc.id!=='offer')" (click)="generate([doc.id],true)" [attr.aria-label]="'Preview '+doc.name">Preview ↗</button></div>}</div>
               @if(hasMoveIn){<button type="button" class="text-button" (click)="go(2)">Edit move-in checklist →</button>}
               @if(hasOffer){
               <details class="extra-fields"><summary>Offer letter enclosure <span>Original third page</span></summary><p class="field-hint">Included by default to retain the complete original. The supplied enclosure states that the company is a reporting institution and the tenant declined to provide ID. Include it only if both statements apply.</p><label class="check-label"><input type="checkbox" name="include_aml" [(ngModel)]="d['include_aml']">Include the supplied AML acknowledgement</label></details>}
-              <div class="divider"></div><div class="format-row"><div><h3>Download format</h3><p class="section-description">Original formats keeps the Word templates as .docx and the offer as PDF. Multiple documents download as a ZIP.</p></div><select aria-label="Download format" name="format" [(ngModel)]="format"><option value="pdf">PDF · Ready to print</option><option value="source">Original formats · Word / PDF</option></select></div>
+              <div class="divider"></div><div class="format-row"><div><h3>Download format</h3><p class="section-description">Original formats keeps the Word templates as .docx and the offer as PDF. Multiple documents download as a ZIP.</p></div><select aria-label="Download format" name="format" [(ngModel)]="format"><option value="pdf" [disabled]="!wordPdfAvailable&&(hasTenancy||hasMoveIn||selected.length!==1||!hasOffer)">PDF · Ready to print</option><option value="source">Original formats · Word / PDF</option></select></div>
               <div class="review-note">Review the document previews and company details before signing. </div>
             }
           </article>

@@ -13,6 +13,7 @@ const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationali
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
 
+  wordPdfAvailable=true;
   addresses:string[]=[]; newAddress=''; addingAddress=false; savingAddress=false; addressError=''; expiryMonths=0;
   d = fresh(); step=0; page='templates'; settings=false; resetPrompt=false; busy=false; status=''; error=''; format='pdf'; ready=false;
   previewUrl=''; previewPages:string[]=[]; previewLoading=false; previewError=''; previewTitle=''; previewSession=0;
@@ -34,7 +35,7 @@ export class App implements OnInit, OnDestroy {
   get total(){return ['security_deposit','access_deposit','advance_rent','agreement_fee'].reduce((s,k)=>s+Number(this.d[k]||0),0)}
   get inventory():Inventory[]{return this.d['inventory'];}
   signOut(){if(!window.confirm('Sign out? Unsaved form details will be cleared.'))return;this.closePreview();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
-  async ngOnInit(){await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
+  async ngOnInit(){await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.ok){this.wordPdfAvailable=(await r.json()).word_pdf_available!==false;if(!this.wordPdfAvailable)this.format='source';}if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
   async loadAddresses(){try{const r=await fetch('/api/addresses');if(!r.ok)throw Error('Could not load saved addresses. Reload to try again.');this.addresses=(await r.json()).addresses;}catch(e){this.addressError=e instanceof Error?e.message:'Could not load addresses.';}}
   async addAddress(){
     const address=this.newAddress.trim();if(!address){this.addressError='Enter an address.';return;}
@@ -49,6 +50,7 @@ export class App implements OnInit, OnDestroy {
   startDocuments(id?:string){
     if(id)this.docs.forEach(doc=>doc.selected=doc.id===id);
     if(!this.selected.length){this.error='Choose at least one document.';return;}
+    if(!this.wordPdfAvailable&&this.selected.some(doc=>doc.id!=='offer'))this.format='source';
     this.page='studio';this.go(0);
   }
   back(){const index=this.activeSteps.indexOf(this.step);if(index>0)this.go(this.activeSteps[index-1]);else this.page='templates';}

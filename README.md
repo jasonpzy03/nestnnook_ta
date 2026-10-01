@@ -78,3 +78,7 @@ Run one backend worker: sessions and attempt limits are held in memory. For Dock
 This remains a local-network app. Authentication does not create a VPN or firewall restriction. For access beyond your trusted Wi-Fi, use a private VPN or an HTTPS deployment with access controls; do not forward this plain HTTP port to the internet. HTTPS requests receive Secure session cookies; set `NEST_SECURE_COOKIE=1` when using an HTTPS reverse proxy. Configure trusted proxy headers only for that proxy. Do not use the Angular development server for staff access; use the Python-served production build on port 8000.
 
 Saved property addresses are in `.local/addresses.json` on the server. No tenant records are stored. Expiry shortcuts end the day before the anniversary; when the anniversary day is missing (for example August 31 to February), expiry uses the target month’s last day. Old drafts omit the removed fee fields when loaded.
+
+## Vercel deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the combined Angular/FastAPI deployment, Upstash setup, password-hash export, and address migration. On Vercel, Redis stores sessions, rate limits and shared address options. The local Windows setup remains available. The Word templates still need conversion and PDF field mapping for full PDF generation on Vercel.
