@@ -1,0 +1,15 @@
+[project]
+name = "nestnnook-documents"
+version = "1.0.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.142.2",
+  "uvicorn==0.54.0",
+  "python-docx==1.2.0",
+  "reportlab==5.0.1",
+  "pypdf==6.19.0",
+  "pymupdf==1.28.2",
+]
+
+[tool.vercel]
+entrypoint = "backend.main:app"
