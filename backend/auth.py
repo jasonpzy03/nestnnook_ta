@@ -3,6 +3,7 @@ import ipaddress
 import hashlib
 import hmac
 import json
+import logging
 import os
 import secrets
 import time
@@ -58,7 +59,8 @@ class StaffAuth:
     async def dispatch(self, request, call_next):
         try:
             return await self._dispatch(request,call_next)
-        except StorageError:
+        except StorageError as exc:
+            logging.getLogger(__name__).error('Staff access/storage failure: %s',exc.code)
             return JSONResponse({'detail':'Staff access or cloud storage is temporarily unavailable. Try again later.'},503)
 
     async def _dispatch(self, request, call_next):

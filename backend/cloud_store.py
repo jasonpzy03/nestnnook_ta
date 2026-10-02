@@ -5,9 +5,12 @@ import os
 import re
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 from urllib.parse import urlsplit
+from urllib.error import HTTPError
 
 class StorageError(Exception):
-    pass
+    def __init__(self,message,code='storage_unavailable'):
+        super().__init__(message)
+        self.code=code
 
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -18,13 +21,17 @@ def cloud_enabled():
 
 class RedisStore:
     def __init__(self):
-        self.url=os.getenv('UPSTASH_REDIS_REST_URL','').rstrip('/')
-        self.token=os.getenv('UPSTASH_REDIS_REST_TOKEN','')
-        parsed=urlsplit(self.url)
+        self.url=os.getenv('UPSTASH_REDIS_REST_URL','').strip().rstrip('/')
+        self.token=os.getenv('UPSTASH_REDIS_REST_TOKEN','').strip()
+        if not self.url or not self.token:
+            raise StorageError('Cloud storage is not configured.','redis_credentials_missing')
+        try:parsed=urlsplit(self.url)
+        except ValueError:
+            raise StorageError('Cloud storage is not configured.','redis_rest_url_invalid') from None
         if parsed.scheme!='https' or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment or not self.token:
-            raise StorageError('Cloud storage is not configured.')
+            raise StorageError('Cloud storage is not configured.','redis_rest_url_invalid')
         prefix=os.getenv('NEST_REDIS_PREFIX','nestnnook:'+os.getenv('VERCEL_ENV','development'))
-        if not re.fullmatch(r'[a-zA-Z0-9:_-]{1,100}',prefix):raise StorageError('Invalid storage prefix.')
+        if not re.fullmatch(r'[a-zA-Z0-9:_-]{1,100}',prefix):raise StorageError('Invalid storage prefix.','redis_prefix_invalid')
         self.prefix=prefix
 
     def command(self,*args):
@@ -32,10 +39,18 @@ class RedisStore:
         try:
             with build_opener(NoRedirect).open(request,timeout=8) as response:
                 payload=json.load(response)
-            if not isinstance(payload,dict) or 'error' in payload or 'result' not in payload:raise ValueError()
+            if isinstance(payload,dict) and 'error' in payload:
+                raise StorageError('Cloud storage rejected the command.','redis_command_rejected')
+            if not isinstance(payload,dict) or 'result' not in payload:raise ValueError()
             return payload['result']
+        except StorageError:raise
+        except HTTPError as exc:
+            code={401:'redis_auth_failed',403:'redis_access_denied',429:'redis_rate_limited'}.get(exc.code,'redis_http_error')
+            raise StorageError('Cloud storage is temporarily unavailable.',code) from None
+        except (ValueError,UnicodeError):
+            raise StorageError('Cloud storage is temporarily unavailable.','redis_response_invalid') from None
         except Exception as exc:
-            raise StorageError('Cloud storage is temporarily unavailable.') from exc
+            raise StorageError('Cloud storage is temporarily unavailable.','redis_connection_failed') from None
 
     def key(self,kind,value=''):
         return self.prefix+':'+kind+(':'+hashlib.sha256(value.encode()).hexdigest() if value else '')

@@ -117,3 +117,33 @@ def test_http_errors_hide_credentials(monkeypatch):
     monkeypatch.setattr(cloud_store,'build_opener',lambda *_:Broken())
     with pytest.raises(StorageError,match='temporarily unavailable') as error:RedisStore().command('GET','test')
     assert 'secret-value' not in str(error.value)
+
+@pytest.mark.parametrize('status,code',[(401,'redis_auth_failed'),(403,'redis_access_denied'),(429,'redis_rate_limited'),(500,'redis_http_error')])
+def test_safe_http_diagnostics(monkeypatch,status,code):
+    from backend import cloud_store
+    from urllib.error import HTTPError
+    monkeypatch.setenv('UPSTASH_REDIS_REST_URL','https://test.upstash.io')
+    monkeypatch.setenv('UPSTASH_REDIS_REST_TOKEN','secret-value')
+    class Broken:
+        def open(self,*args,**kwargs):raise HTTPError('https://test.upstash.io',status,'secret-value',{},None)
+    monkeypatch.setattr(cloud_store,'build_opener',lambda *_:Broken())
+    with pytest.raises(StorageError) as error:RedisStore().command('GET','private-key')
+    assert error.value.code==code
+    assert 'secret-value' not in str(error.value)
+
+
+def test_missing_credentials_logged_safely(cloud,monkeypatch,caplog):
+    client,_=cloud
+    monkeypatch.delenv('UPSTASH_REDIS_REST_TOKEN')
+    response=client.get('/login')
+    assert response.status_code==503
+    assert 'redis_credentials_missing' in caplog.text
+    assert 'test-token' not in caplog.text
+    assert 'redis_credentials_missing' not in response.text
+
+
+def test_redis_credentials_trim_whitespace(monkeypatch):
+    monkeypatch.setenv('UPSTASH_REDIS_REST_URL',' https://test.upstash.io/\n')
+    monkeypatch.setenv('UPSTASH_REDIS_REST_TOKEN',' test-token\n')
+    store=RedisStore()
+    assert store.url=='https://test.upstash.io' and store.token=='test-token'

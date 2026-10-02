@@ -92,3 +92,22 @@ When a Word template changes, rebuild and visually verify the PDF mappings on Wi
 The Angular build and local tests cover local login compatibility, Redis operations using a Redis/Lua emulator, shared sessions, logout, expiry, password changes, rate limits, simultaneous address additions, namespace separation, storage failures, and frontend asset authentication. Live Upstash/Vercel integration still requires the account setup above.
 
 References: [Vercel FastAPI](https://vercel.com/docs/frameworks/backend/fastapi), [Upstash REST API](https://upstash.com/docs/redis/features/restapi), [Vercel client IP headers](https://vercel.com/docs/headers/request-headers).
+
+## Troubleshoot the staff access / cloud storage 503
+
+Check the failing deployment's environment (Production or Preview), then redeploy after correcting variables. This app requires `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` under those exact names. A connected database with only `KV_REST_API_URL` / `KV_REST_API_TOKEN` or prefixed names needs the same values added under the names this app reads. Use the HTTPS REST URL and read/write token from the same database.
+
+Runtime logs now report a safe diagnostic code, without credentials or Redis payloads:
+
+| Code | Check |
+| --- | --- |
+| `redis_credentials_missing` | Both required variables exist in this deployment's environment. |
+| `redis_rest_url_invalid` | The REST URL starts with `https://`, without quotes; do not use a `redis://` connection string. |
+| `redis_prefix_invalid` | Prefix uses only letters, digits, colon, underscore or hyphen, at most 100 characters. |
+| `redis_auth_failed` | URL and token belong to the same database; token is current. |
+| `redis_access_denied` / `redis_command_rejected` | Token allows reads, writes and Lua commands; database is active. |
+| `redis_rate_limited` | Upstash usage limits and database status. |
+| `redis_connection_failed` / `redis_http_error` | Database availability and network connectivity. |
+| `redis_response_invalid` | URL points to the Upstash REST endpoint. |
+
+Missing or invalid `NEST_STAFF_PASSWORD_RECORD` produces a separate staff-password configuration page. Share only diagnostic codes and variable names when troubleshooting, never their secret values.
