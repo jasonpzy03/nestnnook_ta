@@ -35,8 +35,7 @@ def generate(req:GenerateRequest):
     files=[]
     try:
         for kind in req.documents:
-            # The only source for the offer is PDF. Never reconstruct it as a Word document.
-            extension='pdf' if req.format=='pdf' or kind=='offer' else 'docx'
+            extension='pdf' if req.format=='pdf' else 'docx'
             render=pdf if extension=='pdf' else docx
             variant=('-ac' if req.details.aircon else '-noac') if kind=='tenancy' else ''
             files.append((f'{stem}-{kind}{variant}.{extension}',render(kind,req.details)))

@@ -19,7 +19,7 @@ Open http://localhost:8000. On a phone using the same Wi-Fi, open `http://<compu
 3. Complete inventory and condition fields only when the move-in form is selected.
 4. Preview and download the selected documents.
 
-**PDF** fills converted copies of the original Word templates and the original offer PDF. All document types work without Word at runtime. **Original formats** downloads filled `.docx` templates and the offer as `.pdf`. Multiple documents arrive in one ZIP. The offer has no supplied Word version.
+**PDF** fills converted copies of the Word templates. All document types work without Word at runtime. **Word** downloads filled `.docx` templates, including the offer. Multiple documents arrive in one ZIP. See [template editing instructions](agreements/README.md) for editing the offer and refreshing its PDF copy.
 
 On iPhone, choose **Share PDFs**, wait for preparation, then tap **Share PDFs** in the dialog and choose WhatsApp and the customer. Each document remains a separate PDF. The second tap opens the native share sheet directly, as required by mobile browsers. The app checks support for the actual files and offers individual Share/Download buttons as a fallback. Use the HTTPS deployment in Safari. WhatsApp availability and acceptance of multiple files depend on the installed app. Files stay in browser memory until the dialog closes; nothing is automatically sent or stored on the server. The Download action still provides the existing ZIP for multiple documents.
 
@@ -32,8 +32,8 @@ Company details are editable. Drafts are saved only when you choose Save draft. 
 - **Tenancy:** uses the selected AC or non-AC DOCX, preserving its separate clauses, tables, styles, signature sections and payment rows. Existing non-AC air-conditioning references remain as supplied. Company bank and signature details replace the personal landlord details in the non-AC template.
 - **House rules:** replaces tenant name and ID. Rules and original operational contacts remain unchanged.
 - **Move-in:** fills original registration tables and both copies of embedded inventory and bank text boxes. Sample inventory, damage notes and card numbers are cleared. Inventory defaults to quantity 1 and Good. The revised `1. Move in Form - quantity.docx` adds a separate Qty column in both text box copies; it is the active template because the original file was locked when editing. Unused fields and zero amounts print as a dash. Drawer selection updates the original checkbox mark.
-- **Offer:** edits variable regions of the original PDF. The original styling and signature boxes remain. Utilities, room transfer fee and other charges rows are removed; agreement fee has its own row. The transfer-fee clause and acknowledgement reference are removed and later headings renumbered. Nest & Nook branding replaces the previous company, and the sample officer signature is cleared.
-- **Enclosure:** the original third page is included by default. It states reporting-institution status and that the tenant declined to provide ID. Staff can exclude it where these statements do not apply.
+- **Offer:** fills `4. Letter of Offer to Rent.docx` using editable placeholders. Its converted PDF follows the same source. The offer wording, Nest & Nook branding, payment rows and blank signature spaces are retained; room transfer fees remain excluded from the offer only.
+- **Enclosure:** the optional acknowledgement is included by default in both formats. Its wording is retained from the original third page. Staff can exclude it where its statements do not apply.
 - **Payments:** each document retains its original rows. The non-AC tenancy has no access deposit or agreement fee row. Offer total = refundable room deposit + refundable access card deposit + advance rental + agreement fee. Rent and parking are not added again.
 
 PDF fields have fixed space. Entries that cannot fit produce an error identifying the field; shorten the entry or download Word format. Word text wraps within original cells, so preview long names, addresses and remarks before signing.
@@ -54,7 +54,7 @@ Tests check unchanged DOCX package parts and formatting properties, fixed clause
 ### Files
 
 - `backend/template_docx.py`: original DOCX field mapping
-- `backend/template_pdf.py`: original offer PDF field mapping
+- `backend/offer_docx.py`: editable offer placeholders; `scripts/build_offer_pdf.py`: offer PDF mapping
 - `backend/converted_pdf.py`: converted PDF field filling
 - `agreements/pdf/`: checked PDF backgrounds and field maps
 - `scripts/build_pdf_maps.py`: offline Word export and map rebuilding

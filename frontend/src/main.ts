@@ -54,7 +54,7 @@ export class App implements OnInit, OnDestroy {
   startDocuments(id?:string){
     if(id)this.docs.forEach(doc=>doc.selected=doc.id===id);
     if(!this.selected.length){this.error='Choose at least one document.';return;}
-    if(!this.wordPdfAvailable&&this.selected.some(doc=>doc.id!=='offer'))this.format='source';
+    if(!this.wordPdfAvailable)this.format='source';
     this.page='studio';this.go(0);
   }
   back(){const index=this.activeSteps.indexOf(this.step);if(index>0)this.go(this.activeSteps[index-1]);else this.page='templates';}

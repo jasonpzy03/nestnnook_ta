@@ -7,7 +7,7 @@ from fontTools import subset
 from fontTools.ttLib import TTFont
 import pymupdf as fitz
 from lxml import etree as E
-from backend.template_docx import ROOT,SOURCES,NS,cell,text
+from backend.template_docx import ROOT,SOURCES,NS,cell,text,header_parts,TemplateError
 
 FOLDER=ROOT/'agreements/pdf'
 parser=argparse.ArgumentParser(description=__doc__)
@@ -24,7 +24,9 @@ for key,source in SOURCES.items():
     doc=fitz.open(backup)
     with ZipFile(ROOT/'agreements'/source) as archive:
         root=E.fromstring(archive.read('word/document.xml'))
-        header=E.fromstring(archive.read('word/nest-header.xml'))
+        headers=[h for h in header_parts(archive,root).values() if h.xpath('//w:bookmarkStart[starts-with(@w:name,"NestHeader_")]',namespaces=NS)]
+        if len(headers)!=1:raise TemplateError(f'{source}: expected one company header with NestHeader bookmarks.')
+        header=headers[0]
     tables=root.find('w:body',NS).findall('w:tbl',NS)
     tree=root.getroottree();slots=[];drawer=None
     pdf_tables=[(i,t) for i,p in enumerate(doc) for t in p.find_tables().tables]
@@ -83,7 +85,7 @@ for key,source in SOURCES.items():
     margins=root.find('w:body/w:sectPr/w:pgMar',NS)
     left=int(margins.get('{'+NS['w']+'}left'))/20
     right=doc[0].rect.width-int(margins.get('{'+NS['w']+'}right'))/20
-    for mark in header.xpath('//w:bookmarkStart',namespaces=NS):
+    for mark in header.xpath('//w:bookmarkStart[starts-with(@w:name,"NestHeader_")]',namespaces=NS):
         field=mark.get('{'+NS['w']+'}name').removeprefix('NestHeader_')
         pi,r=locate(text(mark.getparent()))
         size={'name':11,'registration':12,'address':10.5,'phone':11.5}[field]
@@ -104,3 +106,8 @@ for key,source in SOURCES.items():
     clean=doc.tobytes(garbage=4,deflate=True);doc.close();path.write_bytes(clean)
     manifest={'source':source,'source_sha256':hashlib.sha256((ROOT/'agreements'/source).read_bytes()).hexdigest(),'pdf_sha256':hashlib.sha256(clean).hexdigest(),'slots':slots,'drawer':drawer}
     (FOLDER/(key+'.json')).write_text(json.dumps(manifest,indent=2),encoding='utf-8');print(key,len(slots),'mapped fields')
+
+# The offer uses editable placeholder paragraphs rather than legacy sample fields.
+if args.export:
+    from scripts.build_offer_pdf import build
+    build()

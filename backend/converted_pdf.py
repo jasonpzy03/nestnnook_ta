@@ -9,7 +9,7 @@ from .template_docx import ROOT,NS,TemplateError,fill_docx,text,date_text
 FOLDER=ROOT/'agreements/pdf'
 
 def available():
-    return all((FOLDER/(key+ext)).is_file() for key in ('ac','noac','rules','move_in') for ext in ('.pdf','.json'))
+    return all((FOLDER/(key+ext)).is_file() for key in ('ac','noac','rules','move_in','offer') for ext in ('.pdf','.json'))
 
 def field_value(slot,root,details):
     if slot['xpath']:
@@ -49,10 +49,11 @@ def fill_converted(kind,details,blank=False):
     except (OSError,ValueError,KeyError) as exc:raise TemplateError('Converted PDF template is missing. Rebuild the PDF templates.') from exc
     if hashlib.sha256(source).hexdigest()!=mapping['source_sha256'] or hashlib.sha256(data).hexdigest()!=mapping['pdf_sha256']:
         raise TemplateError('A document template changed. Rebuild and verify the PDF field map before generating PDFs.')
-    with ZipFile(BytesIO(fill_docx(kind,details))) as archive:root=E.fromstring(archive.read('word/document.xml'))
+    with ZipFile(BytesIO(fill_docx(kind,details.model_copy(update={'include_aml':True}) if kind=='offer' else details))) as archive:root=E.fromstring(archive.read('word/document.xml'))
     with fitz.open(stream=data,filetype='pdf') as doc:
         fonts={name:fitz.Font(fontbuffer=doc.extract_font(xref)[3]) for xref,_,_,_,name,*_ in doc[0].get_fonts() if name.startswith('NN')}
         for slot in mapping['slots']:
+            if kind=='offer' and not details.include_aml and slot['page']>=mapping['aml_page']:continue
             value=field_value(slot,root,details)
             # Downloadable blank copies retain company details, clause text and labels.
             if blank and slot['xpath'] and '/w:tbl[1]/' in slot['xpath'] and kind=='tenancy' and slot['xpath'].endswith('/w:tc[2]'):value='-'
@@ -68,12 +69,15 @@ def fill_converted(kind,details,blank=False):
             page.insert_font(fontname=alias,fontbuffer=font.buffer)
             y=rect.y0+font.ascender*size
             for row in rows:
-                x=rect.x0+(rect.width-font.text_length(row,fontsize=size))/2 if slot['align']==1 else rect.x0
+                width=font.text_length(row,fontsize=size)
+                x=rect.x0+(rect.width-width)/2 if slot['align']==1 else rect.x1-width if slot['align']==2 else rect.x0
                 page.insert_text((x,y),row,fontsize=size,fontname=alias)
                 y+=leading
         if key=='move_in' and details.makeup_table_drawer!='not_applicable':
             drawer=mapping['drawer'];x,y=drawer[details.makeup_table_drawer]
             doc[drawer['page']].draw_line((x,y+8),(x+8.8,y),width=.8)
+        if kind=='offer' and not details.include_aml:
+            doc.delete_pages(mapping['aml_page'],len(doc)-1)
         doc.set_metadata({})
         doc.subset_fonts()
         return doc.tobytes(garbage=4,deflate=True)

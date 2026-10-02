@@ -172,4 +172,42 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b88924; outline-
 @media(max-width:600px){.selection-footer .button{font-size:12px;padding:12px;white-space:normal}.library-card{padding:24px}.document-actions .button{flex:1}.document-actions .text-button{flex-basis:100%}}
 
 .export-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.share-all{width:100%;margin:8px 0 16px}.share-file-list{display:grid;gap:16px}.share-file{border-top:1px solid var(--border,#ddd);padding-top:14px}.share-file strong{display:block;overflow-wrap:anywhere;margin-bottom:10px}.share-file>div{display:flex;gap:10px;flex-wrap:wrap}.share-modal{max-height:90dvh;overflow-y:auto}.share-modal .modal-header h2{margin:0}
+
+/* Allow long address options to shrink within the form on mobile Safari. */
+app-root { display: block; min-width: 0; }
+.form-column, .form-column > form, .field-grid > *, .field-grid label {
+  min-width: 0;
+  max-width: 100%;
+}
+.form-column .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.property-address-select {
+  appearance: none;
+  -webkit-appearance: none;
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  font-size: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23142f46' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+.selected-property-address {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  color: var(--muted);
+}
+@media (max-width: 1000px) {
+  .studio-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .form-column .field-grid { grid-template-columns: minmax(0, 1fr); }
+}
 @media(max-width:600px){.export-actions{flex:1;flex-direction:column}.export-actions .button{width:100%}.share-file>div .button{flex:1;min-height:44px}}

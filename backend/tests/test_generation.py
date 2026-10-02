@@ -6,7 +6,7 @@ from lxml import etree as E
 from fastapi.testclient import TestClient
 from backend.main import app
 from backend.models import Details
-from backend.template_docx import fill_docx, ROOT, SOURCES, NS
+from backend.template_docx import fill_docx, ROOT, SOURCES, NS, header_parts
 from backend.template_pdf import fill_offer
 client=TestClient(app)
 @pytest.fixture(autouse=True)
@@ -43,7 +43,7 @@ def test_complete_source_pack(details,aircon):
             for stale in ['DI CHIA SENG','TENG YING YING','HII HUI CHIN','Shamsunder','VANGUARD','Vanguard','VAC','CIM','1102047977','931205-06-5090','961004-01-5879','PCR0033666']:
                 assert stale not in t,(name,stale)
             assert 'Alex Tan' in t and 'TEST-P12345' in t
-            if 'offer' in name:assert name.endswith('.pdf') and 'RM2,200.00' in t
+            if 'offer' in name:assert name.endswith('.docx') and 'RM2,200.00' in t
             if 'move_in' in name:assert t.count('CARD-123')==2
 @pytest.mark.parametrize('kind,key',[('tenancy','ac'),('tenancy','noac'),('rules','rules'),('move_in','move_in')])
 def test_original_structure_and_parts(details,kind,key):
@@ -51,8 +51,9 @@ def test_original_structure_and_parts(details,kind,key):
     data=fill_docx(kind,d)
     with ZipFile(ROOT/'agreements'/SOURCES[key]) as original, ZipFile(BytesIO(data)) as filled:
         assert original.namelist()==filled.namelist()
+        headers=header_parts(original,E.fromstring(original.read('word/document.xml')))
         for name in original.namelist():
-            if name not in ('word/document.xml','word/nest-header.xml'):assert original.read(name)==filled.read(name),name
+            if name!='word/document.xml' and name not in headers:assert original.read(name)==filled.read(name),name
         before=E.fromstring(original.read('word/document.xml'));after=xml(data)
         for tag in ['sectPr','tblPr','trPr','tcPr','pPr']:
             def props(tree):return [E.tostring(n,method='c14n') for n in tree.xpath('//w:'+tag,namespaces=NS)]
@@ -66,13 +67,12 @@ def test_original_structure_and_parts(details,kind,key):
                 if any(v in line for v in ['DI CHIA SENG','961004-01-5879','PUA ZHEN YING']):continue
                 assert line in output,line
 @pytest.mark.parametrize('include',[True,False])
-def test_offer_original_pages_artwork(details,include):
+def test_offer_word_based_pdf_pages(details,include):
     d=Details(**details);d.include_aml=include
     with fitz.open(stream=fill_offer(d),filetype='pdf') as result,fitz.open(ROOT/'agreements/letter of offer to rent.pdf') as original:
         assert len(result)==(3 if include else 2)
         for i,page in enumerate(result):
             assert page.rect==original[i].rect
-            if i==2:assert [{k:v for k,v in x.items() if k!='seqno'} for x in page.get_drawings()]==[{k:v for k,v in x.items() if k!='seqno'} for x in original[i].get_drawings()]
             assert not any(im['width']==751 and im['height']==321 for im in page.get_image_info())
         assert ('decided to not provide' in ' '.join(p.get_text() for p in result))==include
 @pytest.mark.parametrize('patch',[{'tenant_name':' '},{'end_date':'2026-01-01'},{'rent':-1},{'rent':'NaN'},{'rent':12.001},{'room':''},{'inventory':[{'name':'Key','quantity':-1}]}])
@@ -88,7 +88,7 @@ def test_decimal_totals_and_escaping(details):
 def test_overflow_is_reported(details):
     details['special_conditions']='A long condition. '*100
     r=client.post('/api/generate',json={'details':details,'documents':['offer']})
-    assert r.status_code==422 and 'too long for the original offer template' in r.json()['detail']
+    assert r.status_code==422 and 'too long for the PDF template' in r.json()['detail']
 def test_word_failure_has_no_rebuilt_fallback(details,monkeypatch):
     from backend import renderers
     monkeypatch.setattr(renderers.os,'name','posix')
@@ -264,3 +264,52 @@ def test_unit_prefix_in_property_address(details,address,expected):
         assert expected in text(fill_converted('tenancy',d))
     assert d.address==address
     assert d.company.address==Details().company.address
+
+
+@pytest.mark.parametrize('include', [True, False])
+def test_offer_word_download_and_optional_enclosure(details, include):
+    details['include_aml'] = include
+    r = client.post('/api/generate', json={'details': details, 'documents': ['offer'], 'format': 'source'})
+    assert r.status_code == 200, r.text
+    assert r.headers['content-disposition'].endswith('offer.docx"')
+    content = text(r.content)
+    assert 'Alex Tan' in content and 'RM2,200.00' in content
+    assert '{{' not in content
+    assert ('ENCLOSURE' in content) == include
+    assert ('decided to not provide' in content) == include
+    assert 'room transfer' not in content.lower()
+
+
+def test_offer_edits_are_used_and_pdf_requires_refresh(details, tmp_path, monkeypatch):
+    from backend import offer_docx, converted_pdf
+    from backend.template_docx import TemplateError
+    source = ROOT / 'agreements' / offer_docx.SOURCE
+    destination = tmp_path / 'agreements'
+    destination.mkdir()
+    with ZipFile(source) as before, ZipFile(destination / offer_docx.SOURCE, 'w') as after:
+        for item in before.infolist():
+            data = before.read(item.filename)
+            if item.filename == 'word/document.xml':
+                data = data.replace(b'TENANCY DETAILS &amp; PAYMENT BREAKDOWN', b'CUSTOM PAYMENT HEADING')
+            after.writestr(item, data)
+    monkeypatch.setattr(offer_docx, 'ROOT', tmp_path)
+    monkeypatch.setattr(converted_pdf, 'ROOT', tmp_path)
+    assert 'CUSTOM PAYMENT HEADING' in text(fill_docx('offer', Details(**details)))
+    with pytest.raises(TemplateError, match='template changed'):
+        fill_offer(Details(**details))
+
+
+def test_offer_fields_split_across_runs_and_literal_input(details, tmp_path, monkeypatch):
+    from backend import offer_docx
+    source = ROOT / 'agreements' / offer_docx.SOURCE
+    destination = tmp_path / 'agreements'
+    destination.mkdir()
+    with ZipFile(source) as before, ZipFile(destination / offer_docx.SOURCE, 'w') as after:
+        for item in before.infolist():
+            data = before.read(item.filename)
+            if item.filename == 'word/document.xml':
+                data = data.replace(b'{{tenant_name}}', b'{{tenant_</w:t></w:r><w:r><w:t>name}}')
+            after.writestr(item, data)
+    monkeypatch.setattr(offer_docx, 'ROOT', tmp_path)
+    details['tenant_name'] = 'Alex {{rent}} & <B>'
+    assert 'Alex {{rent}} & <B>' in text(fill_docx('offer', Details(**details)))

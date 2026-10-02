@@ -4,6 +4,7 @@ from datetime import timedelta, date
 from calendar import monthrange
 from io import BytesIO
 from pathlib import Path
+import posixpath
 from zipfile import ZipFile
 from lxml import etree as E
 from .models import Details
@@ -14,6 +15,22 @@ NS={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main','wp':'htt
 W='{'+NS['w']+'}'
 XML_SPACE='{http://www.w3.org/XML/1998/namespace}space'
 class TemplateError(ValueError):pass
+
+def header_parts(archive,root):
+    """Resolve referenced headers through OOXML relationships; Word renames parts on save."""
+    rel_ns='http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+    ids={ref.get('{'+rel_ns+'}id') for ref in root.xpath('//w:headerReference',namespaces=NS)}
+    relationships=E.fromstring(archive.read('word/_rels/document.xml.rels'))
+    parts={}
+    for rel in relationships:
+        if rel.get('Id') not in ids or not rel.get('Type','').endswith('/header'):continue
+        if rel.get('TargetMode')=='External':raise TemplateError('External Word headers are not supported.')
+        target=rel.get('Target','')
+        name=posixpath.normpath(target.lstrip('/') if target.startswith('/') else posixpath.join('word',target))
+        if not name.startswith('word/') or name not in archive.namelist():
+            raise TemplateError('A referenced Word header is missing from the template.')
+        parts[name]=E.fromstring(archive.read(name))
+    return parts
 
 def text(node):return ''.join(node.xpath('.//w:t/text()',namespaces=NS))
 def put(node,value):
@@ -72,11 +89,15 @@ def amount(v,zero='-'):return f'RM{v:,.2f}' if v else zero
 INVENTORY_NAMES=['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key']
 
 def fill_docx(kind,d:Details):
+    if kind=='offer':
+        from .offer_docx import fill_offer_docx
+        return fill_offer_docx(d)
     key=('ac' if d.aircon else 'noac') if kind=='tenancy' else kind
-    if key not in SOURCES:raise TemplateError('The offer letter is a PDF template and remains PDF.')
+    if key not in SOURCES:raise TemplateError('Unknown document template.')
     original=ROOT/'agreements'/SOURCES[key]
     with ZipFile(original) as archive:
         root=E.fromstring(archive.read('word/document.xml'))
+        headers=header_parts(archive,root)
         body=root.find('w:body',NS);tables=body.findall('w:tbl',NS)
         if kind=='tenancy':
             values={
@@ -161,8 +182,8 @@ def fill_docx(kind,d:Details):
         with ZipFile(out,'w') as result:
             for info in archive.infolist():
                 data=updated if info.filename=='word/document.xml' else archive.read(info.filename)
-                if info.filename=='word/nest-header.xml':
-                    header=E.fromstring(data)
+                if info.filename in headers:
+                    header=headers[info.filename]
                     for mark in header.xpath('//w:bookmarkStart',namespaces=NS):
                         name=mark.get(W+'name','')
                         if name.startswith('NestHeader_'):
