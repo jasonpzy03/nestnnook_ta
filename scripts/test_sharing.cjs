@@ -1,0 +1,28 @@
+const ts=require('../frontend/node_modules/typescript');
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const {File}=require('node:buffer');
+const exportsObject={};let requests=[],shared=[];
+let fetchImpl=async(url,options)=>{const data=JSON.parse(options.body);requests.push(data);return new Response(new Blob(['%PDF-test'],{type:'application/pdf'}),{headers:{'Content-Type':'application/pdf','Content-Disposition':`attachment; filename="Test-${data.documents[0]}.pdf"`}})};
+const nav={canShare:({files})=>files.every(f=>f.type==='application/pdf'),share:async(data)=>shared.push(data)};
+const source=ts.transpileModule(fs.readFileSync('frontend/src/main.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,experimentalDecorators:true}}).outputText;
+vm.runInNewContext(source,{exports:exportsObject,require:(name)=>name==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{}}:name==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:name==='./dates'?{expiryDate:()=>''}:{},window:{scrollTo(){}},navigator:nav,fetch:(...args)=>fetchImpl(...args),console,Date,File,Blob,AbortController,Error,crypto:require("node:crypto").webcrypto,Uint8Array});
+(async()=>{
+ const app=new exportsObject.App();app.d.tenant_name='Test';app.d.tenant_id='ID';app.d.property='16-03';app.d.room='2';app.d.address='Example';app.d.end_date='2027-10-01';
+ app.docs.forEach(d=>d.selected=['offer','rules'].includes(d.id));
+ await app.prepareShare();assert.equal(app.shareFiles.length,2);assert.equal(shared.length,0,'Preparation must not open a share sheet without a fresh tap');
+ assert(requests.every(r=>r.documents.length===1&&r.format==='pdf'));assert(app.shareFiles.every(f=>f.name.endsWith('.pdf')));
+ const reference=app.d.reference;assert.match(reference,/^NN-\d{8}-[A-F0-9]{10}$/);assert.equal(app.documentDetails(['offer']).reference,reference);assert.equal(app.documentDetails(['rules','offer']).reference,reference);
+ app.d.reference='CUSTOM-123';assert.equal(app.documentDetails(['offer']).reference,'CUSTOM-123');app.d.reference=reference;
+ const promise=app.sharePrepared();assert.equal(shared.length,1,'Share must be invoked immediately from the tap');await promise;assert.equal(shared[0].files.length,2);
+ nav.share=async()=>{const e=new Error('cancel');e.name='AbortError';throw e};await app.sharePrepared();assert.equal(app.shareError,'');assert.match(app.shareMessage,/cancelled/);assert.equal(app.shareFiles.length,2);
+ nav.canShare=()=>false;assert.equal(app.canShareFiles,false);app.closeShare();assert.equal(app.shareFiles.length,0);
+ let resolveFetch;
+ fetchImpl=()=>new Promise(resolve=>resolveFetch=resolve);
+ const preparing=app.prepareShare(['rules'],true);app.closeShare();resolveFetch(new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}}));await preparing;assert.equal(app.shareFiles.length,0);assert.equal(app.shareOpen,false);assert.equal(app.busy,false);
+ let count=0;fetchImpl=async()=>++count===1?new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}}):new Response(JSON.stringify({detail:'Too long'}),{status:422});
+ await app.prepareShare(['rules','offer']);assert.equal(app.shareFiles.length,0,'Never offer a partially generated set');assert.equal(app.shareError,'Too long');app.closeShare();
+ requests=[];fetchImpl=async(url,options)=>{const req=JSON.parse(options.body);requests.push(req);if(requests.length===1)app.d.company.name='CHANGED';return new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}})};
+ await app.prepareShare(['rules','offer']);assert.equal(requests[0].details.company.name,requests[1].details.company.name,'All files use one snapshot');
+ app.reset();assert.equal(app.shareFiles.length,0);assert.equal(app.shareOpen,false);assert.equal(app.d.reference,'');
+ console.log('Separate PDF preparation, immediate share invocation, cancellation, unsupported sharing, failed generation, snapshot and reset checks passed');
+})().catch(e=>{console.error(e);process.exitCode=1});
