@@ -1,5 +1,6 @@
 from datetime import date
 import builtins
+import re
 from decimal import Decimal
 from typing import Literal, Annotated
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
@@ -65,6 +66,17 @@ class Details(StrictModel):
         if self.end_date and self.start_date and self.end_date < self.start_date:
             raise ValueError('Expiry date must be on or after the commencement date.')
         return self
+    @builtins.property
+    def property_address(self):
+        address=self.address.strip();unit=self.property.strip()
+        if not unit:return address
+        if not address:return unit
+        # Recognise existing unit prefixes without mistaking 16-030 for 16-03.
+        bare=re.sub(r'^(?:unit\s+|no\.?\s+)?#?\s*','',unit,flags=re.I)
+        prefix=r'^(?:unit\s+|no\.?\s+)?#?\s*'+re.escape(bare)+r'(?=$|[\s,;])'
+        if bare and re.match(prefix,address,flags=re.I):return address
+        return f'{unit}, {address}'
+
     @builtins.property
     def total(self):
         return sum((self.security_deposit,self.access_deposit,self.advance_rent,self.agreement_fee),Decimal('0'))

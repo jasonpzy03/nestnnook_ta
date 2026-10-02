@@ -1,427 +1,520 @@
 {
   "source": "3. Room TA_AC.docx",
-  "source_sha256": "950f160dbad8f9ae9d2a7ecc6ec99bcc5c7a1253e535e5d566a0b194db42bab6",
-  "pdf_sha256": "42ddbbf92c1ec6285383263fe4a33de408b4acb5572b562b28be3934512be660",
+  "source_sha256": "5b14037c68672faa4b61a42528e61d257683f36a8d52d14d91559e053e8b1314",
+  "pdf_sha256": "a779faf6f9da1eafec8d8e21ce654deebfb37f1fdf1b9e348e26ccdeb29d52f5",
   "slots": [
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        86.11000569661458,
+        240.19002278645834,
         533.2785034179688,
-        103.80999755859375
+        257.77001953125
       ],
-      "label": "Table 1 row 1 column 2",
+      "label": "Date",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[1]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        104.30999755859375,
+        258.27001953125,
         533.2785034179688,
-        121.92999267578125
+        275.91998291015625
       ],
-      "label": "Table 1 row 2 column 2",
+      "label": "Room Type",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        122.42999267578125,
+        276.41998291015625,
         533.2785034179688,
-        175.21002197265625
+        329.20001220703125
       ],
-      "label": "Table 1 row 3 column 2",
+      "label": "Address",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        175.71002197265625,
+        329.70001220703125,
         533.2785034179688,
-        193.21002197265625
+        347.1999816894531
       ],
-      "label": "Table 1 row 4 column 2",
+      "label": "Commencement Date",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[4]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        193.71002197265625,
+        347.6999816894531,
         533.2785034179688,
-        211.33001708984375
+        365.3199920654297
       ],
-      "label": "Table 1 row 5 column 2",
+      "label": "Expiry Date",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[5]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        211.83001708984375,
+        365.8199920654297,
         533.2785034179688,
-        229.45001220703125
+        383.4399871826172
       ],
-      "label": "Table 1 row 6 column 2",
+      "label": "Tenure",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[6]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        229.95001220703125,
+        383.9399871826172,
         533.2785034179688,
-        247.57000732421875
+        401.5599822998047
       ],
-      "label": "Table 1 row 7 column 2",
+      "label": "Rental",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[7]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        248.07000732421875,
+        402.0599822998047,
         533.2785034179688,
-        265.5999755859375
+        419.5599822998047
       ],
-      "label": "Table 1 row 8 column 2",
+      "label": "Car Park Rental",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[8]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        266.0999755859375,
+        420.0599822998047,
         533.2785034179688,
-        283.719970703125
+        437.67999267578125
       ],
-      "label": "Table 1 row 9 column 2",
+      "label": "Room Deposit",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        284.219970703125,
+        438.17999267578125,
         533.2785034179688,
-        301.8399658203125
+        455.8199920654297
       ],
-      "label": "Table 1 row 10 column 2",
+      "label": "Access Card Deposit",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[10]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        302.3399658203125,
+        456.3199920654297,
         533.2785034179688,
-        337.71998596191406
+        491.69996643066406
       ],
-      "label": "Table 1 row 11 column 2",
+      "label": "Earnest Deposit (the Earnest Deposit shall form the 1st month Rental)",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[11]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        338.21998596191406,
+        492.19996643066406,
         533.2785034179688,
-        355.91998291015625
+        509.8999938964844
       ],
-      "label": "Table 1 row 12 column 2",
+      "label": "Agreement Fee",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[12]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         62.15261430006761,
-        266.0999755859375,
+        420.0599822998047,
         294.65000915527344,
-        283.719970703125
+        437.67999267578125
       ],
-      "label": "Table 1 row 9 column 1",
+      "label": "Room Deposit",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBold"
     },
     {
       "page": 0,
       "rect": [
         62.15261430006761,
-        284.219970703125,
+        438.17999267578125,
         294.65000915527344,
-        301.8399658203125
+        455.8199920654297
       ],
-      "label": "Table 1 row 10 column 1",
+      "label": "Access Card Deposit",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[10]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBold"
     },
     {
       "page": 2,
       "rect": [
         316.63002014160156,
-        93.510009765625,
-        543.852040608724,
-        111.25
+        258.27001953125,
+        543.8200378417969,
+        276.03997802734375
       ],
-      "label": "Table 3 row 1 column 2",
+      "label": "Beneficiary Name:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[1]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
         316.63002014160156,
-        111.75,
-        543.852040608724,
-        129.489990234375
+        276.53997802734375,
+        543.8200378417969,
+        294.15997314453125
       ],
-      "label": "Table 3 row 2 column 2",
+      "label": "Bank Name:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
         316.63002014160156,
-        129.989990234375,
-        543.852040608724,
-        147.72998046875
+        294.65997314453125,
+        543.8200378417969,
+        312.52001953125
       ],
-      "label": "Table 3 row 3 column 2",
+      "label": "Account Number:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.10399913787842,
-        316.02001953125,
-        301.79000091552734,
-        327.760009765625
+        66.14399909973145,
+        480.67999267578125,
+        301.6099853515625,
+        492.4199676513672
       ],
-      "label": "Table 3 row 3 column 1",
+      "label": "Name: TENG YING YING",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        307.79000091552734,
-        316.02001953125,
-        543.852040608724,
-        327.760009765625
+        307.6099853515625,
+        480.67999267578125,
+        543.8200378417969,
+        492.4199676513672
       ],
-      "label": "Table 3 row 3 column 2",
+      "label": "Name: TENG YING YING",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.10399913787842,
-        328.260009765625,
-        301.79000091552734,
-        339.99998474121094
+        66.14399909973145,
+        492.9199676513672,
+        301.6099853515625,
+        504.6599884033203
       ],
-      "label": "Table 3 row 4 column 1",
+      "label": "IC No.: 050718-08-0106",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        307.79000091552734,
-        328.260009765625,
-        543.852040608724,
-        339.99998474121094
+        307.6099853515625,
+        492.9199676513672,
+        543.8200378417969,
+        504.6599884033203
       ],
-      "label": "Table 3 row 4 column 2",
+      "label": "IC No.: 050718-08-0106",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.10399913787842,
-        340.49998474121094,
-        301.79000091552734,
-        352.4399820963542
+        66.14399909973145,
+        505.1599884033203,
+        301.6099853515625,
+        517.0199584960938
       ],
-      "label": "Table 3 row 5 column 1",
+      "label": "Date: 1 JULY 2026",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        307.79000091552734,
-        340.49998474121094,
-        543.852040608724,
-        352.4399820963542
+        307.6099853515625,
+        505.1599884033203,
+        543.8200378417969,
+        517.0199584960938
       ],
-      "label": "Table 3 row 5 column 2",
+      "label": "Date: 1 JULY 2026",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 2,
+      "page": 3,
       "rect": [
-        66.10399913787842,
-        507.0799865722656,
-        301.79000091552734,
-        518.8200073242188
+        66.14399909973145,
+        200.19000244140625,
+        301.9700164794922,
+        211.92999267578125
       ],
-      "label": "Table 3 row 3 column 1",
+      "label": "Name:",
       "xpath": "/w:document/w:body/w:tbl[4]/w:tr[3]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 2,
+      "page": 3,
       "rect": [
-        66.10399913787842,
-        519.3200073242188,
-        301.79000091552734,
-        531.0599975585938
+        66.14399909973145,
+        212.42999267578125,
+        301.9700164794922,
+        224.16998291015625
       ],
-      "label": "Table 3 row 4 column 1",
+      "label": "IC:",
       "xpath": "/w:document/w:body/w:tbl[4]/w:tr[4]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 2,
+      "page": 3,
       "rect": [
-        66.10399913787842,
-        531.5599975585938,
-        301.79000091552734,
-        543.4999796549479
+        66.14399909973145,
+        224.66998291015625,
+        301.9700164794922,
+        236.52996826171875
       ],
-      "label": "Table 3 row 5 column 1",
+      "label": "Date:",
       "xpath": "/w:document/w:body/w:tbl[4]/w:tr[5]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 2,
+      "page": 3,
       "rect": [
         68.5,
-        566.8,
+        259.7279968261719,
         532.0,
-        635.0
+        328.2279968261719
       ],
       "label": "Company privacy notice",
       "xpath": "/w:document/w:body/w:p[40]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 1,
       "rect": [
         86.5,
-        417.5,
+        570.3080444335938,
         532.0,
-        477.5
+        630.8080444335938
       ],
       "label": "Company tenancy clause",
       "xpath": "/w:document/w:body/w:p[22]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        137.32879943847655,
+        541.3200073242188,
+        150.9384002685547
+      ],
+      "label": "Company header name",
+      "xpath": null,
+      "value": "company.name",
+      "prefix": "",
+      "align": 1,
+      "size": 11,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        152.05997009277343,
+        541.3200073242188,
+        166.73997497558594
+      ],
+      "label": "Company header registration",
+      "xpath": null,
+      "value": "company.registration",
+      "prefix": "",
+      "align": 1,
+      "size": 12,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        167.91102905273436,
+        541.3200073242188,
+        180.9009552001953
+      ],
+      "label": "Company header address",
+      "xpath": null,
+      "value": "company.address",
+      "prefix": "",
+      "align": 1,
+      "size": 10.5,
+      "font": "NNHeaderSerif"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        181.93568725585936,
+        541.3200073242188,
+        195.9883270263672
+      ],
+      "label": "Company header phone",
+      "xpath": null,
+      "value": "company.phone",
+      "prefix": "TEL NO.: ",
+      "align": 1,
+      "size": 11.5,
+      "font": "NNHeaderSerif"
     }
-  ]
+  ],
+  "drawer": null
 }

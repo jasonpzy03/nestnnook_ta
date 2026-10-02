@@ -22,7 +22,7 @@ def staff_login(tmp_path, monkeypatch):
 
 @pytest.fixture
 def details():
-    return dict(tenant_name='Alex Tan',tenant_id='TEST-P12345',phone='+60 12-3456789',email='alex@example.test',property='Trellis Residences, 16-03',room='Room 2',address='16-03 Trellis Residences, Johor Bahru, Johor',agreement_date='2026-10-01',start_date='2026-10-10',end_date='2027-10-09',rent=1200,security_deposit=1200,access_deposit=150,advance_rent=800,agreement_fee=50,inventory=[dict(name='Access card',quantity=1,condition='Good',remarks='CARD-123')])
+    return dict(tenant_name='Alex Tan',tenant_id='TEST-P12345',phone='+60 12-3456789',email='alex@example.test',property='16-03',room='Room 2',address='16-03 Trellis Residences, Johor Bahru, Johor',agreement_date='2026-10-01',start_date='2026-10-10',end_date='2027-10-09',rent=1200,security_deposit=1200,access_deposit=150,advance_rent=800,agreement_fee=50,inventory=[dict(name='Access card',quantity=1,condition='Good',remarks='CARD-123')])
 def xml(data):
     with ZipFile(BytesIO(data)) as z:return E.fromstring(z.read('word/document.xml'))
 def text(data):
@@ -52,7 +52,7 @@ def test_original_structure_and_parts(details,kind,key):
     with ZipFile(ROOT/'agreements'/SOURCES[key]) as original, ZipFile(BytesIO(data)) as filled:
         assert original.namelist()==filled.namelist()
         for name in original.namelist():
-            if name!='word/document.xml':assert original.read(name)==filled.read(name),name
+            if name not in ('word/document.xml','word/nest-header.xml'):assert original.read(name)==filled.read(name),name
         before=E.fromstring(original.read('word/document.xml'));after=xml(data)
         for tag in ['sectPr','tblPr','trPr','tcPr','pPr']:
             def props(tree):return [E.tostring(n,method='c14n') for n in tree.xpath('//w:'+tag,namespaces=NS)]
@@ -164,7 +164,7 @@ def test_pdf_pack_without_word(details,aircon,monkeypatch):
             for stale in ['DI CHIA SENG','TENG YING YING','HII HUI CHIN','Shamsunder','VANGUARD','Vanguard','1102047977','961004-01-5879','PCR0033666']:
                 assert stale not in content,(name,stale)
             with fitz.open(stream=data,filetype='pdf') as doc:
-                assert len(doc)==(3 if 'tenancy' in name or 'offer' in name else 1)
+                assert len(doc)==((4 if aircon else 3) if 'tenancy' in name else 3 if 'offer' in name else 2)
             if 'tenancy' in name:
                 assert '150' in content and 'transfer' in content.lower()
                 assert 'Refundable Room Deposit' in content
@@ -182,9 +182,9 @@ def test_pdf_drawer_mark(details,choice,count):
     from backend.converted_pdf import fill_converted
     data=fill_converted('move_in',Details(**details,makeup_table_drawer=choice))
     with fitz.open(stream=data,filetype='pdf') as doc:
-        marks=[drawing for drawing in doc[0].get_drawings() if fitz.Rect(62,307,82,340).contains(drawing['rect']) and any(item[0]=='l' and item[1].x!=item[2].x and item[1].y!=item[2].y for item in drawing['items'])]
+        marks=[drawing for drawing in doc[1].get_drawings() if fitz.Rect(62,141,82,176).contains(drawing['rect']) and any(item[0]=='l' and item[1].x!=item[2].x and item[1].y!=item[2].y for item in drawing['items'])]
         assert len(marks)==count
-        if marks:assert abs(marks[0]['rect'].y0-(313.5 if choice=='with' else 325.2))<.1
+        if marks:assert abs(marks[0]['rect'].y0-(148.1 if choice=='with' else 159.8))<1
 
 
 def test_converted_pdf_overflow(details):
@@ -208,3 +208,59 @@ def test_converted_pdf_rejects_stale_background(details,tmp_path,monkeypatch):
     monkeypatch.setattr(converted_pdf,'FOLDER',tmp_path)
     with pytest.raises(ValueError,match='template changed'):
         converted_pdf.fill_converted('rules',Details(**details))
+
+
+@pytest.mark.parametrize('kind,aircon',[('tenancy',True),('tenancy',False),('rules',True),('move_in',True)])
+def test_company_header_in_word_and_pdf(details,kind,aircon):
+    from backend.renderers import pdf
+    details.update(aircon=aircon,company={'name':'TEST PROPERTY COMPANY','registration':'TEST-SSM-123','address':'123 Example Street, Johor','phone':'+60 123456789'})
+    d=Details(**details)
+    with ZipFile(BytesIO(fill_docx(kind,d))) as z:
+        h=E.fromstring(z.read('word/nest-header.xml'))
+        content=''.join(h.xpath('//w:t/text()',namespaces=NS))
+        for value in details['company'].values():assert value in content
+        assert 'NEST & NOOK PROPERTY CARE' not in content
+        assert 'word/media/nest-header-logo.jpg' in z.namelist()
+    with fitz.open(stream=pdf(kind,d),filetype='pdf') as result:
+        content=result[0].get_text(clip=fitz.Rect(0,0,620,210))
+        for value in details['company'].values():assert value in content
+        assert result[0].get_images()
+        assert 'NEST & NOOK PROPERTY CARE' not in content
+
+
+def test_offer_auto_invoice_number(details):
+    import re
+    d=Details(**details)
+    result=text(fill_offer(d))
+    assert re.fullmatch(r'NN-20261001-[A-F0-9]{10}',d.reference)
+    assert 'Invoice Number: '+d.reference in result
+    reference=d.reference
+    assert reference in text(fill_offer(d))
+    assert d.reference==reference
+    another=Details(**details)
+    fill_offer(another)
+    assert another.reference!=reference
+
+
+def test_offer_keeps_manual_invoice_number(details):
+    d=Details(**details,reference='MY-OFFER-007')
+    assert 'Invoice Number: MY-OFFER-007' in text(fill_offer(d))
+    assert d.reference=='MY-OFFER-007'
+
+
+@pytest.mark.parametrize('address,expected',[
+    ('Trellis Residences, Johor','16-03, Trellis Residences, Johor'),
+    ('16-03, Trellis Residences','16-03, Trellis Residences'),
+    ('#16-03 Trellis Residences','#16-03 Trellis Residences'),
+    ('Unit 16-03, Trellis Residences','Unit 16-03, Trellis Residences'),
+    ('16-030, Trellis Residences','16-03, 16-030, Trellis Residences'),
+])
+def test_unit_prefix_in_property_address(details,address,expected):
+    from backend.converted_pdf import fill_converted
+    d=Details(**{**details,'property':'16-03','address':address})
+    for aircon in [True,False]:
+        d.aircon=aircon
+        assert expected in text(fill_docx('tenancy',d))
+        assert expected in text(fill_converted('tenancy',d))
+    assert d.address==address
+    assert d.company.address==Details().company.address

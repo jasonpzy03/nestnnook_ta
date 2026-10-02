@@ -48,3 +48,13 @@ To rebuild after editing a Word source, install development dependencies and run
 ```
 
 Review field coordinates when source layout changes. Render representative filled PDFs and inspect every page before committing the backgrounds and maps together. Source and background SHA-256 checks block generation if either changes without an updated map. Native intermediate exports are in `tmp/pdfs/`; running without `--export` reuses them. The downloadable blank copies in `output/pdf/` include the company details and dash placeholders; raw backgrounds are internal generator assets.
+
+Offer revision: fixed vector underlines beneath variable reference, tenant and signing-date fields are removed during generation. Table borders, signing spaces and fixed enclosure heading styling remain.
+
+## Full company headers
+
+At the user's request, all four active Word templates now have a first-page header matching the offer's stacked logo, company name, registration, address and phone. The source business-card image is cropped through OOXML image properties; no new logo artwork is used. `word/nest-header.xml` contains semantic bookmarks for the editable company fields. Generation changes this header part as well as document.xml.
+
+The move-in check-in section starts on page two. Bank table rows stay together, and the AC guardian section and privacy notice stay together. All original clause text, including both tenancy transfer-fee clauses, is retained. PDF backgrounds were re-exported in Word and remapped to the new pages, using table structure and text anchors. Header fields use the same company input as the offer. Fixed PDF counts: AC tenancy 4, non-AC tenancy 3, rules 2, move-in 2. Word pagination can vary with entered text.
+
+The pre-header templates, backgrounds, maps and generator code are backed up in `backups/before-company-headers-2026-10-02/`, with a SHA-256 manifest and restore notes. Backups are excluded from Git, Docker and Vercel uploads. Current source and PDF hashes are recorded in `agreements/pdf/*.json`; hashes earlier in this document describe historical versions.

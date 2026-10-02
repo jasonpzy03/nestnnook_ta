@@ -1,37 +1,104 @@
 {
   "source": "2. House Rules.docx",
-  "source_sha256": "2f8f47260527a8afd4ee5f5368b0c601d3058f5d878ca9474bd8ad8320a0c640",
-  "pdf_sha256": "b5c91ef0834bebb5251c151ab1d4260cc80db82ba69b8f501f8de8db43e4323c",
+  "source_sha256": "2febd2be952cbb4ffe250515d21843a5aa146b1d3179db79fbe56aae3cd75a1a",
+  "pdf_sha256": "6d59cebe31e90a17afea7ba97610bb23f73d70793ececebd1f0e9fe83cd1efe0",
   "slots": [
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         98.4,
-        679.7,
+        177.69801635742186,
         516.0,
-        691.6
+        190.271142578125
       ],
-      "label": "Tenant name",
+      "label": "Tenant tenant_name",
       "xpath": null,
       "value": "tenant_name",
       "prefix": "Name : ",
       "align": 0,
-      "size": 10
+      "size": 10,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         98.4,
-        691.6,
+        189.3379699707031,
         516.0,
-        704.0
+        201.91109619140624
       ],
-      "label": "Tenant ID",
+      "label": "Tenant tenant_id",
       "xpath": null,
       "value": "tenant_id",
       "prefix": "NRIC: ",
       "align": 0,
-      "size": 10
+      "size": 10,
+      "font": "NNBody"
+    },
+    {
+      "page": 0,
+      "rect": [
+        90.0,
+        137.32879943847655,
+        522.0,
+        150.9384002685547
+      ],
+      "label": "Company header name",
+      "xpath": null,
+      "value": "company.name",
+      "prefix": "",
+      "align": 1,
+      "size": 11,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        90.0,
+        152.05997009277343,
+        522.0,
+        166.73997497558594
+      ],
+      "label": "Company header registration",
+      "xpath": null,
+      "value": "company.registration",
+      "prefix": "",
+      "align": 1,
+      "size": 12,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        90.0,
+        167.91102905273436,
+        522.0,
+        180.9009552001953
+      ],
+      "label": "Company header address",
+      "xpath": null,
+      "value": "company.address",
+      "prefix": "",
+      "align": 1,
+      "size": 10.5,
+      "font": "NNHeaderSerif"
+    },
+    {
+      "page": 0,
+      "rect": [
+        90.0,
+        181.93568725585936,
+        522.0,
+        195.9883270263672
+      ],
+      "label": "Company header phone",
+      "xpath": null,
+      "value": "company.phone",
+      "prefix": "TEL NO.: ",
+      "align": 1,
+      "size": 11.5,
+      "font": "NNHeaderSerif"
     }
-  ]
+  ],
+  "drawer": null
 }

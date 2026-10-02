@@ -9,11 +9,15 @@ interface Field { key: string; label: string; type?: string; required?: boolean;
 interface Inventory { name: string; quantity: number; condition: string; remarks: string; }
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key'];
-const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,rent:0,parking:0,security_deposit:0,access_deposit:0,advance_rent:0,agreement_fee:0,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
+const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
 
   wordPdfAvailable=true;
+  shareOpen=false; sharePreparing=false; sharing=false; shareMessage=''; shareError=''; shareFiles:File[]=[];
+  private shareAbort?:AbortController;
+  get canShareFiles(){return this.supportsShare(this.shareFiles);}
+  supportsShare(files:File[]){try{return files.length>0&&typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files});}catch{return false;}}
   addresses:string[]=[]; newAddress=''; addingAddress=false; savingAddress=false; addressError=''; expiryMonths=0;
   d = fresh(); step=0; page='templates'; settings=false; resetPrompt=false; busy=false; status=''; error=''; format='pdf'; ready=false;
   previewUrl=''; previewPages:string[]=[]; previewLoading=false; previewError=''; previewTitle=''; previewSession=0;
@@ -21,7 +25,7 @@ export class App implements OnInit, OnDestroy {
   docs=[{id:'tenancy',name:'Tenancy agreement',description:'AC or non-AC tenancy agreement.',selected:false,tag:'AGREEMENT'}, {id:'rules',name:'House rules',description:'House guidelines and tenant acknowledgement.',selected:false,tag:'GUIDELINES'}, {id:'move_in',name:'Move-in form',description:'Registration, emergency contact and inventory.',selected:false,tag:'CHECK-IN'}, {id:'offer',name:'Letter of offer',description:'Offer to rent and payment breakdown.',selected:false,tag:'OFFER LETTER'}];
   tenantFields:Field[]=[{key:'tenant_name',label:'Full name',required:true,placeholder:'As shown on IC or passport',wide:true},{key:'tenant_id',label:'IC / Passport number',required:true,placeholder:'e.g. 900101-01-1234'},{key:'nationality',label:'Nationality'},{key:'phone',label:'Phone number',type:'tel',placeholder:'+60'},{key:'email',label:'Email address',type:'email',placeholder:'tenant@example.com'},{key:'occupation',label:'Occupation',placeholder:'e.g. Software engineer'},{key:'employer',label:'Company / Employer'},{key:'vehicle',label:'Vehicle registration',placeholder:'If applicable'}];
   emergencyFields:Field[]=[{key:'emergency_name',label:'Contact name'},{key:'emergency_relationship',label:'Relationship'},{key:'emergency_phone',label:'Phone number',type:'tel'},{key:'emergency_id',label:'IC / Passport number'}];
-  propertyFields:Field[]=[{key:'property',label:'Unit number',required:true,placeholder:'e.g. A7-1-2404'},{key:'room',label:'Room number',required:true,placeholder:'e.g. 06'},{key:'address',label:'Property address',required:true,wide:true},{key:'agreement_date',label:'Agreement / Signing date',type:'date',required:true},{key:'start_date',label:'Move-in / Commencement date',type:'date',required:true},{key:'end_date',label:'Expiry date',type:'date',required:true},{key:'reference',label:'Offer reference',placeholder:'e.g. NN-2026-001'}];
+  propertyFields:Field[]=[{key:'property',label:'Unit number',required:true,placeholder:'e.g. A7-1-2404'},{key:'room',label:'Room number',required:true,placeholder:'e.g. 06'},{key:'address',label:'Property address',required:true,wide:true},{key:'agreement_date',label:'Agreement / Signing date',type:'date',required:true},{key:'start_date',label:'Move-in / Commencement date',type:'date',required:true},{key:'end_date',label:'Expiry date',type:'date',required:true},{key:'reference',label:'Invoice number',placeholder:'Generated automatically if left blank'}];
   moneyFields:Field[]=[{key:'rent',label:'Monthly room rental'},{key:'parking',label:'Monthly car park rental'},{key:'security_deposit',label:'Refundable room deposit'},{key:'access_deposit',label:'Refundable access card deposit'},{key:'advance_rent',label:'Advance / Pro-rated rental'},{key:'agreement_fee',label:'Agreement fee'}];
   companyFields:Field[]=[{key:'name',label:'Company name'},{key:'registration',label:'SSM registration number'},{key:'address',label:'Company address',wide:true},{key:'contact',label:'Contact person'},{key:'phone',label:'Phone number'},{key:'email',label:'Email address'},{key:'bank',label:'Bank name'},{key:'account_name',label:'Beneficiary name'},{key:'account_number',label:'Account number'}];
   get hasMoveIn(){return this.selected.some(x=>x.id==='move_in');}
@@ -34,7 +38,7 @@ export class App implements OnInit, OnDestroy {
   get selected(){return this.docs.filter(x=>x.selected)}
   get total(){return ['security_deposit','access_deposit','advance_rent','agreement_fee'].reduce((s,k)=>s+Number(this.d[k]||0),0)}
   get inventory():Inventory[]{return this.d['inventory'];}
-  signOut(){if(!window.confirm('Sign out? Unsaved form details will be cleared.'))return;this.closePreview();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
+  signOut(){if(!window.confirm('Sign out? Unsaved form details will be cleared.'))return;this.closePreview();this.closeShare();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
   async ngOnInit(){await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.ok){this.wordPdfAvailable=(await r.json()).word_pdf_available!==false;if(!this.wordPdfAvailable)this.format='source';}if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
   async loadAddresses(){try{const r=await fetch('/api/addresses');if(!r.ok)throw Error('Could not load saved addresses. Reload to try again.');this.addresses=(await r.json()).addresses;}catch(e){this.addressError=e instanceof Error?e.message:'Could not load addresses.';}}
   async addAddress(){
@@ -69,8 +73,12 @@ export class App implements OnInit, OnDestroy {
     if(moveIn&&!this.d['agreement_date']){this.go(2);this.error='Enter the signing date.';return false;}
     return true;
   }
-  async generate(ids?:string[],preview=false,blankRules=false,outputFormat?:string){
-    this.error='';this.status='';const documentIds=ids||this.selected.map(x=>x.id);if(!blankRules&&!this.validate(documentIds))return;
+  documentDetails(documentIds:string[],blankRules=false){
+    if(documentIds.includes('offer')&&!String(this.d['reference']||'').trim()){
+      const bytes=crypto.getRandomValues(new Uint8Array(5));
+      const suffix=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+      this.d['reference']=`NN-${(this.d['agreement_date']||today()).replaceAll('-','')}-${suffix}`;
+    }
     const agreement=documentIds.some(id=>['tenancy','offer'].includes(id));
     const moveIn=documentIds.includes('move_in');
     const fields=agreement?this.tenantFields.concat(this.propertyFields,this.moneyFields):moveIn?this.tenantFields.concat(this.emergencyFields):this.tenantFields.filter(f=>['tenant_name','tenant_id'].includes(f.key));
@@ -79,6 +87,11 @@ export class App implements OnInit, OnDestroy {
     if(agreement)for(const key of ['aircon','guardian_name','guardian_id','special_conditions','include_aml'])details[key]=this.d[key];
     if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
     if(agreement)for(const f of this.moneyFields)details[f.key]=this.d[f.key]||0;
+    return JSON.parse(JSON.stringify(details));
+  }
+  async generate(ids?:string[],preview=false,blankRules=false,outputFormat?:string){
+    this.error='';this.status='';const documentIds=ids||this.selected.map(x=>x.id);if(!blankRules&&!this.validate(documentIds))return;
+    const details=this.documentDetails(documentIds,blankRules);
     this.busy=true;
     try{
       const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({details,documents:documentIds,format:preview?'pdf':outputFormat||this.format})});
@@ -88,6 +101,51 @@ export class App implements OnInit, OnDestroy {
       else{const filename=response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]||'nest-and-nook-documents.zip';this.download(blob,filename);this.status='Documents generated. Check your downloads.';window.scrollTo({top:0,behavior:'smooth'});}
       this.ready=true;
     }catch(e){this.error=e instanceof Error?e.message:'The server is unavailable. Please try again.';window.scrollTo({top:0,behavior:'smooth'});}finally{this.busy=false;}
+  }
+  async prepareShare(ids?:string[],blankRules=false){
+    if(this.busy)return;
+    this.error='';this.status='';
+    const documentIds=ids||this.selected.map(doc=>doc.id);
+    if(!blankRules&&!this.validate(documentIds))return;
+    const details=this.documentDetails(documentIds,blankRules);
+    this.closeShare();
+    const controller=new AbortController();this.shareAbort=controller;
+    this.shareOpen=true;this.sharePreparing=true;this.busy=true;
+    try{
+      const files:File[]=[];
+      for(const id of documentIds){
+        const response=await fetch('/api/generate',{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({details,documents:[id],format:'pdf'})});
+        if(!response.ok){const err=await response.json();throw Error(typeof err.detail==='string'?err.detail:'Could not prepare PDFs. Check the form details and try again.');}
+        if(!response.headers.get('Content-Type')?.startsWith('application/pdf'))throw Error('The server did not return a PDF. Sign in again and retry.');
+        const blob=await response.blob();
+        const name=response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]||`nest-and-nook-${id}.pdf`;
+        files.push(new File([blob],name,{type:'application/pdf'}));
+      }
+      if(controller.signal.aborted)return;
+      this.shareFiles=files;
+    }catch(e){
+      if(!controller.signal.aborted)this.shareError=e instanceof Error?e.message:'Could not prepare PDFs. Try again.';
+    }finally{
+      if(this.shareAbort===controller){this.sharePreparing=false;this.busy=false;}
+    }
+  }
+  async sharePrepared(files:File[]=this.shareFiles){
+    if(this.sharing||!this.supportsShare(files))return;
+    this.sharing=true;this.shareError='';this.shareMessage='';
+    try{
+      // Files are already prepared: invoke sharing directly from this button tap on iOS.
+      await navigator.share({files});
+      this.shareMessage='Share sheet closed. You can share the PDFs again if needed.';
+    }catch(e){
+      if(e instanceof Error&&e.name==='AbortError')this.shareMessage='Sharing cancelled. Your PDFs are still ready.';
+      else this.shareError='Could not share these PDFs together. Try sharing one below, or save it to Files.';
+    }finally{this.sharing=false;}
+  }
+  closeShare(){
+    this.shareAbort?.abort();this.shareAbort=undefined;
+    if(this.sharePreparing)this.busy=false;
+    this.shareOpen=false;this.sharePreparing=false;this.sharing=false;
+    this.shareFiles=[];this.shareMessage='';this.shareError='';
   }
   download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
   saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:this.d,documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
@@ -103,12 +161,20 @@ export class App implements OnInit, OnDestroy {
         else if(key==='inventory'){
           if(!Array.isArray(src.inventory)||src.inventory.length>30)throw Error('Invalid inventory in draft.');
           base.inventory=src.inventory.map((i:any)=>{if(typeof i.name!=='string'||i.name.length>200||!Number.isInteger(i.quantity)||i.quantity<0||i.quantity>100||!['Not supplied','Good','Fair','Damaged'].includes(i.condition)||typeof i.remarks!=='string'||i.remarks.length>300)throw Error('Invalid inventory in draft.');return {name:i.name,quantity:i.quantity,condition:i.condition,remarks:i.remarks};});
-        }else if(src[key]!==undefined){if(this.moneyFields.some(f=>f.key===key)&&src[key]===null){base[key]=0;continue;}if(typeof src[key]!==typeof base[key]||(typeof src[key]==='string'&&src[key].length>3000))throw Error('Invalid field in draft: '+key);base[key]=src[key];}
+        }else if(src[key]!==undefined){
+          if(this.moneyFields.some(f=>f.key===key)){
+            const value=src[key];
+            if(value===null||value===''){base[key]=null;continue;}
+            if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>1000000)throw Error('Invalid amount in draft: '+key);
+            base[key]=value;continue;
+          }
+          if(typeof src[key]!==typeof base[key]||(typeof src[key]==='string'&&src[key].length>3000))throw Error('Invalid field in draft: '+key);base[key]=src[key];
+        }
       }
       this.d=base;this.expiryMonths=0;if(Array.isArray(parsed.documents))this.docs.forEach(doc=>doc.selected=parsed.documents.includes(doc.id));this.page=this.selected.length?'studio':'templates';this.go(0);this.status='Draft loaded. Review the details before generating documents.';
     }catch(e){this.error=e instanceof Error?e.message:'Unable to read draft.';}finally{input.value='';}
   }
-  reset(){this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.resetPrompt=false;this.go(0);this.closePreview();}
+  reset(){this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.resetPrompt=false;this.go(0);this.closePreview();}
   async renderPreview(blob:Blob){
     this.previewLoading=true;this.previewError='';const session=this.previewSession;
     let pdfDocument:any;
@@ -132,8 +198,8 @@ export class App implements OnInit, OnDestroy {
   closePreview(){this.previewSession++;if(this.previewUrl)URL.revokeObjectURL(this.previewUrl);this.previewPages.forEach(url=>URL.revokeObjectURL(url));this.previewPages=[];this.previewUrl='';this.previewLoading=false;this.previewError='';}
   @HostListener('document:keydown', ['$event'])
   modalKeyboard(event:KeyboardEvent){
-    if(!this.settings&&!this.resetPrompt&&!this.previewUrl)return;
-    if(event.key==='Escape'){this.settings=false;this.resetPrompt=false;this.closePreview();}
+    if(!this.settings&&!this.resetPrompt&&!this.previewUrl&&!this.shareOpen)return;
+    if(event.key==='Escape'){this.settings=false;this.resetPrompt=false;this.closePreview();if(!this.sharing)this.closeShare();}
     if(event.key==='Tab'){
       const items=Array.from(document.querySelectorAll<HTMLElement>('.modal button:not([disabled]), .modal input, .modal select, .modal a[href], .modal textarea'));
       const first=items[0],last=items[items.length-1];
@@ -142,6 +208,6 @@ export class App implements OnInit, OnDestroy {
       else if(!event.shiftKey&&(document.activeElement===last||!items.includes(document.activeElement as HTMLElement))){event.preventDefault();first.focus();}
     }
   }
-  ngOnDestroy(){this.closePreview();}
+  ngOnDestroy(){this.closePreview();this.closeShare();}
 }
 bootstrapApplication(App).catch(console.error);

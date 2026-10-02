@@ -170,3 +170,6 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b88924; outline-
 .chooser-draft{display:flex;margin:16px 0;gap:18px;align-items:center}
 .change-documents{margin-bottom:18px}
 @media(max-width:600px){.selection-footer .button{font-size:12px;padding:12px;white-space:normal}.library-card{padding:24px}.document-actions .button{flex:1}.document-actions .text-button{flex-basis:100%}}
+
+.export-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.share-all{width:100%;margin:8px 0 16px}.share-file-list{display:grid;gap:16px}.share-file{border-top:1px solid var(--border,#ddd);padding-top:14px}.share-file strong{display:block;overflow-wrap:anywhere;margin-bottom:10px}.share-file>div{display:flex;gap:10px;flex-wrap:wrap}.share-modal{max-height:90dvh;overflow-y:auto}.share-modal .modal-header h2{margin:0}
+@media(max-width:600px){.export-actions{flex:1;flex-direction:column}.export-actions .button{width:100%}.share-file>div .button{flex:1;min-height:44px}}

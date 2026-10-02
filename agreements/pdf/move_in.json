@@ -1,1582 +1,1762 @@
 {
   "source": "1. Move in Form - quantity.docx",
-  "source_sha256": "9f5d79d3974f1aeb078454e0a1292b339ef6396da67d9b373ccf01d982c52341",
-  "pdf_sha256": "f9f27c590648fbff1f5f09bbff549e63269425313115510a72e34cfa22c77692",
+  "source_sha256": "f181716cc189b6f146c704dde5c3905061b0640ad7eb1e6cd5a651cb6282e6a2",
+  "pdf_sha256": "bf55e7d3f591ddd5b62df54df4602feeaf6c5c992710c8b91dbeb05eec07556c",
   "slots": [
     {
       "page": 0,
       "rect": [
         169.5800018310547,
-        81.1500244140625,
+        238.35003662109375,
         312.69000752766925,
-        95.4100341796875
+        252.6400146484375
       ],
-      "label": "Table 1 row 1 column 2",
+      "label": "Tenant Name:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[1]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         421.63002014160156,
-        81.1500244140625,
-        561.2519775390625,
-        95.4100341796875
+        238.35003662109375,
+        560.5000305175781,
+        252.6400146484375
       ],
-      "label": "Table 1 row 1 column 4",
+      "label": "Tenant Name:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[1]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         169.5800018310547,
-        95.9100341796875,
+        253.1400146484375,
         312.69000752766925,
-        110.16998291015625
+        267.52001953125
       ],
-      "label": "Table 1 row 2 column 2",
+      "label": "Nationality:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         421.63002014160156,
-        95.9100341796875,
-        561.2519775390625,
-        110.16998291015625
+        253.1400146484375,
+        560.5000305175781,
+        267.52001953125
       ],
-      "label": "Table 1 row 2 column 4",
+      "label": "Nationality:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[2]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         169.5800018310547,
-        110.66998291015625,
+        268.02001953125,
         312.69000752766925,
-        125.04998779296875
+        282.2799835205078
       ],
-      "label": "Table 1 row 3 column 2",
+      "label": "Email:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         421.63002014160156,
-        110.66998291015625,
-        561.2519775390625,
-        125.04998779296875
+        268.02001953125,
+        560.5000305175781,
+        282.2799835205078
       ],
-      "label": "Table 1 row 3 column 4",
+      "label": "Email:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[3]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         169.5800018310547,
-        125.54998779296875,
+        282.7799835205078,
         312.69000752766925,
-        139.80999755859375
+        297.1599884033203
       ],
-      "label": "Table 1 row 4 column 2",
+      "label": "Company:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[4]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         421.63002014160156,
-        125.54998779296875,
-        561.2519775390625,
-        139.80999755859375
+        282.7799835205078,
+        560.5000305175781,
+        297.1599884033203
       ],
-      "label": "Table 1 row 4 column 4",
+      "label": "Company:",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[4]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         169.5800018310547,
-        176.62198486328126,
+        334.02001953125,
         312.69000752766925,
-        191.04998779296875
+        348.2799835205078
       ],
-      "label": "Table 1 row 1 column 2",
+      "label": "Name:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[1]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         421.63002014160156,
-        176.62198486328126,
-        561.2519775390625,
-        191.04998779296875
+        334.02001953125,
+        560.5000305175781,
+        348.2799835205078
       ],
-      "label": "Table 1 row 1 column 4",
+      "label": "Name:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[1]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         169.5800018310547,
-        191.54998779296875,
+        348.7799835205078,
         312.69000752766925,
-        205.85799560546874
+        363.1599884033203
       ],
-      "label": "Table 1 row 2 column 2",
+      "label": "Relationship:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         421.63002014160156,
-        191.54998779296875,
-        561.2519775390625,
-        205.85799560546874
+        348.7799835205078,
+        560.5000305175781,
+        363.1599884033203
       ],
-      "label": "Table 1 row 2 column 4",
+      "label": "Relationship:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[2]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        250.260009765625,
+        85.1099853515625,
         249.40999603271484,
-        262.84002685546875
+        97.69000244140625
       ],
-      "label": "Table 1 row 2 column 2",
+      "label": "Condition of Room",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        250.260009765625,
+        85.1099853515625,
         330.42999267578125,
-        262.84002685546875
+        97.69000244140625
       ],
-      "label": "Table 1 row 2 column 3",
+      "label": "Condition of Room",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[2]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        250.260009765625,
+        85.1099853515625,
         379.87001037597656,
-        262.84002685546875
+        97.69000244140625
       ],
-      "label": "Table 1 row 2 column 4",
+      "label": "Condition of Room",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[2]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        250.260009765625,
-        561.2519775390625,
-        262.84002685546875
+        85.1099853515625,
+        561.4703952955163,
+        97.69000244140625
       ],
-      "label": "Table 1 row 2 column 5",
+      "label": "Condition of Room",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[2]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        263.34002685546875,
+        98.19000244140625,
         249.40999603271484,
-        274.84002685546875
+        109.69000244140625
       ],
-      "label": "Table 1 row 3 column 2",
+      "label": "Bedframe/Divan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        263.34002685546875,
+        98.19000244140625,
         330.42999267578125,
-        274.84002685546875
+        109.69000244140625
       ],
-      "label": "Table 1 row 3 column 3",
+      "label": "Bedframe/Divan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[3]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        263.34002685546875,
+        98.19000244140625,
         379.87001037597656,
-        274.84002685546875
+        109.69000244140625
       ],
-      "label": "Table 1 row 3 column 4",
+      "label": "Bedframe/Divan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[3]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        263.34002685546875,
-        561.2519775390625,
-        274.84002685546875
+        98.19000244140625,
+        561.4703952955163,
+        109.69000244140625
       ],
-      "label": "Table 1 row 3 column 5",
+      "label": "Bedframe/Divan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[3]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        275.34002685546875,
+        110.19000244140625,
         249.40999603271484,
-        286.83998107910156
+        121.69000244140625
       ],
-      "label": "Table 1 row 4 column 2",
+      "label": "Mattress",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[4]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        275.34002685546875,
+        110.19000244140625,
         330.42999267578125,
-        286.83998107910156
+        121.69000244140625
       ],
-      "label": "Table 1 row 4 column 3",
+      "label": "Mattress",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[4]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        275.34002685546875,
+        110.19000244140625,
         379.87001037597656,
-        286.83998107910156
+        121.69000244140625
       ],
-      "label": "Table 1 row 4 column 4",
+      "label": "Mattress",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[4]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        275.34002685546875,
-        561.2519775390625,
-        286.83998107910156
+        110.19000244140625,
+        561.4703952955163,
+        121.69000244140625
       ],
-      "label": "Table 1 row 4 column 5",
+      "label": "Mattress",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[4]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        287.33998107910156,
+        122.19000244140625,
         249.40999603271484,
-        298.83998107910156
+        133.69000244140625
       ],
-      "label": "Table 1 row 5 column 2",
+      "label": "Pillow",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[5]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        287.33998107910156,
+        122.19000244140625,
         330.42999267578125,
-        298.83998107910156
+        133.69000244140625
       ],
-      "label": "Table 1 row 5 column 3",
+      "label": "Pillow",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[5]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        287.33998107910156,
+        122.19000244140625,
         379.87001037597656,
-        298.83998107910156
+        133.69000244140625
       ],
-      "label": "Table 1 row 5 column 4",
+      "label": "Pillow",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[5]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        287.33998107910156,
-        561.2519775390625,
-        298.83998107910156
+        122.19000244140625,
+        561.4703952955163,
+        133.69000244140625
       ],
-      "label": "Table 1 row 5 column 5",
+      "label": "Pillow",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[5]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        299.33998107910156,
+        134.19000244140625,
         249.40999603271484,
-        345.6400146484375
+        180.6099853515625
       ],
-      "label": "Table 1 row 6 column 2",
+      "label": "Makeup Tablewith drawerwithout drawer",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[6]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        299.33998107910156,
+        134.19000244140625,
         330.42999267578125,
-        345.6400146484375
+        180.6099853515625
       ],
-      "label": "Table 1 row 6 column 3",
+      "label": "Makeup Tablewith drawerwithout drawer",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[6]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        299.33998107910156,
+        134.19000244140625,
         379.87001037597656,
-        345.6400146484375
+        180.6099853515625
       ],
-      "label": "Table 1 row 6 column 4",
+      "label": "Makeup Tablewith drawerwithout drawer",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[6]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        299.33998107910156,
-        561.2519775390625,
-        345.6400146484375
+        134.19000244140625,
+        561.4703952955163,
+        180.6099853515625
       ],
-      "label": "Table 1 row 6 column 5",
+      "label": "Makeup Tablewith drawerwithout drawer",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[6]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        346.1400146484375,
+        181.1099853515625,
         249.40999603271484,
-        358.11997985839844
+        192.97003173828125
       ],
-      "label": "Table 1 row 7 column 2",
+      "label": "Chair",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[7]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        346.1400146484375,
+        181.1099853515625,
         330.42999267578125,
-        358.11997985839844
+        192.97003173828125
       ],
-      "label": "Table 1 row 7 column 3",
+      "label": "Chair",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[7]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        346.1400146484375,
+        181.1099853515625,
         379.87001037597656,
-        358.11997985839844
+        192.97003173828125
       ],
-      "label": "Table 1 row 7 column 4",
+      "label": "Chair",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[7]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        346.1400146484375,
-        561.2519775390625,
-        358.11997985839844
+        181.1099853515625,
+        561.4703952955163,
+        192.97003173828125
       ],
-      "label": "Table 1 row 7 column 5",
+      "label": "Chair",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[7]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        358.61997985839844,
+        193.47003173828125,
         249.40999603271484,
-        370.11997985839844
+        204.97003173828125
       ],
-      "label": "Table 1 row 8 column 2",
+      "label": "Plant Deco",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[8]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        358.61997985839844,
+        193.47003173828125,
         330.42999267578125,
-        370.11997985839844
+        204.97003173828125
       ],
-      "label": "Table 1 row 8 column 3",
+      "label": "Plant Deco",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[8]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        358.61997985839844,
+        193.47003173828125,
         379.87001037597656,
-        370.11997985839844
+        204.97003173828125
       ],
-      "label": "Table 1 row 8 column 4",
+      "label": "Plant Deco",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[8]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        358.61997985839844,
-        561.2519775390625,
-        370.11997985839844
+        193.47003173828125,
+        561.4703952955163,
+        204.97003173828125
       ],
-      "label": "Table 1 row 8 column 5",
+      "label": "Plant Deco",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[8]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        370.61997985839844,
+        205.47003173828125,
         249.40999603271484,
-        382.96002197265625
+        217.80999755859375
       ],
-      "label": "Table 1 row 9 column 2",
+      "label": "Curtain",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[9]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        370.61997985839844,
+        205.47003173828125,
         330.42999267578125,
-        382.96002197265625
+        217.80999755859375
       ],
-      "label": "Table 1 row 9 column 3",
+      "label": "Curtain",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[9]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        370.61997985839844,
+        205.47003173828125,
         379.87001037597656,
-        382.96002197265625
+        217.80999755859375
       ],
-      "label": "Table 1 row 9 column 4",
+      "label": "Curtain",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[9]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        370.61997985839844,
-        561.2519775390625,
-        382.96002197265625
+        205.47003173828125,
+        561.4703952955163,
+        217.80999755859375
       ],
-      "label": "Table 1 row 9 column 5",
+      "label": "Curtain",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[9]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        383.46002197265625,
+        218.30999755859375,
         249.40999603271484,
-        394.96002197265625
+        229.80999755859375
       ],
-      "label": "Table 1 row 10 column 2",
+      "label": "Wardrobe",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[10]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        383.46002197265625,
+        218.30999755859375,
         330.42999267578125,
-        394.96002197265625
+        229.80999755859375
       ],
-      "label": "Table 1 row 10 column 3",
+      "label": "Wardrobe",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[10]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        383.46002197265625,
+        218.30999755859375,
         379.87001037597656,
-        394.96002197265625
+        229.80999755859375
       ],
-      "label": "Table 1 row 10 column 4",
+      "label": "Wardrobe",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[10]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        383.46002197265625,
-        561.2519775390625,
-        394.96002197265625
+        218.30999755859375,
+        561.4703952955163,
+        229.80999755859375
       ],
-      "label": "Table 1 row 10 column 5",
+      "label": "Wardrobe",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[10]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        395.46002197265625,
+        230.30999755859375,
         249.40999603271484,
-        406.96002197265625
+        241.80999755859375
       ],
-      "label": "Table 1 row 11 column 2",
+      "label": "Wall Deco Frame",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[11]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        395.46002197265625,
+        230.30999755859375,
         330.42999267578125,
-        406.96002197265625
+        241.80999755859375
       ],
-      "label": "Table 1 row 11 column 3",
+      "label": "Wall Deco Frame",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[11]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        395.46002197265625,
+        230.30999755859375,
         379.87001037597656,
-        406.96002197265625
+        241.80999755859375
       ],
-      "label": "Table 1 row 11 column 4",
+      "label": "Wall Deco Frame",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[11]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        395.46002197265625,
-        561.2519775390625,
-        406.96002197265625
+        230.30999755859375,
+        561.4703952955163,
+        241.80999755859375
       ],
-      "label": "Table 1 row 11 column 5",
+      "label": "Wall Deco Frame",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[11]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        407.46002197265625,
+        242.30999755859375,
         249.40999603271484,
-        418.97999572753906
+        253.84002685546875
       ],
-      "label": "Table 1 row 12 column 2",
+      "label": "Rubbish Bin",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[12]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        407.46002197265625,
+        242.30999755859375,
         330.42999267578125,
-        418.97999572753906
+        253.84002685546875
       ],
-      "label": "Table 1 row 12 column 3",
+      "label": "Rubbish Bin",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[12]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        407.46002197265625,
+        242.30999755859375,
         379.87001037597656,
-        418.97999572753906
+        253.84002685546875
       ],
-      "label": "Table 1 row 12 column 4",
+      "label": "Rubbish Bin",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[12]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        407.46002197265625,
-        561.2519775390625,
-        418.97999572753906
+        242.30999755859375,
+        561.4703952955163,
+        253.84002685546875
       ],
-      "label": "Table 1 row 12 column 5",
+      "label": "Rubbish Bin",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[12]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        419.47999572753906,
+        254.34002685546875,
         249.40999603271484,
-        430.97999572753906
+        265.84002685546875
       ],
-      "label": "Table 1 row 13 column 2",
+      "label": "Blanket",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[13]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        419.47999572753906,
+        254.34002685546875,
         330.42999267578125,
-        430.97999572753906
+        265.84002685546875
       ],
-      "label": "Table 1 row 13 column 3",
+      "label": "Blanket",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[13]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        419.47999572753906,
+        254.34002685546875,
         379.87001037597656,
-        430.97999572753906
+        265.84002685546875
       ],
-      "label": "Table 1 row 13 column 4",
+      "label": "Blanket",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[13]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        419.47999572753906,
-        561.2519775390625,
-        430.97999572753906
+        254.34002685546875,
+        561.4703952955163,
+        265.84002685546875
       ],
-      "label": "Table 1 row 13 column 5",
+      "label": "Blanket",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[13]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        431.47999572753906,
+        266.34002685546875,
         249.40999603271484,
-        442.97999572753906
+        277.84002685546875
       ],
-      "label": "Table 1 row 14 column 2",
+      "label": "Mattress Cover",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[14]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        431.47999572753906,
+        266.34002685546875,
         330.42999267578125,
-        442.97999572753906
+        277.84002685546875
       ],
-      "label": "Table 1 row 14 column 3",
+      "label": "Mattress Cover",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[14]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        431.47999572753906,
+        266.34002685546875,
         379.87001037597656,
-        442.97999572753906
+        277.84002685546875
       ],
-      "label": "Table 1 row 14 column 4",
+      "label": "Mattress Cover",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[14]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        431.47999572753906,
-        561.2519775390625,
-        442.97999572753906
+        266.34002685546875,
+        561.4703952955163,
+        277.84002685546875
       ],
-      "label": "Table 1 row 14 column 5",
+      "label": "Mattress Cover",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[14]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        443.47999572753906,
+        278.34002685546875,
         249.40999603271484,
-        455.9399871826172
+        290.8000183105469
       ],
-      "label": "Table 1 row 15 column 2",
+      "label": "Aircond",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[15]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        443.47999572753906,
+        278.34002685546875,
         330.42999267578125,
-        455.9399871826172
+        290.8000183105469
       ],
-      "label": "Table 1 row 15 column 3",
+      "label": "Aircond",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[15]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        443.47999572753906,
+        278.34002685546875,
         379.87001037597656,
-        455.9399871826172
+        290.8000183105469
       ],
-      "label": "Table 1 row 15 column 4",
+      "label": "Aircond",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[15]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        443.47999572753906,
-        561.2519775390625,
-        455.9399871826172
+        278.34002685546875,
+        561.4703952955163,
+        290.8000183105469
       ],
-      "label": "Table 1 row 15 column 5",
+      "label": "Aircond",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[15]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        456.4399871826172,
+        291.3000183105469,
         249.40999603271484,
-        467.9399871826172
+        302.8000183105469
       ],
-      "label": "Table 1 row 16 column 2",
+      "label": "Aircond Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[16]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        456.4399871826172,
+        291.3000183105469,
         330.42999267578125,
-        467.9399871826172
+        302.8000183105469
       ],
-      "label": "Table 1 row 16 column 3",
+      "label": "Aircond Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[16]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        456.4399871826172,
+        291.3000183105469,
         379.87001037597656,
-        467.9399871826172
+        302.8000183105469
       ],
-      "label": "Table 1 row 16 column 4",
+      "label": "Aircond Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[16]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        456.4399871826172,
-        561.2519775390625,
-        467.9399871826172
+        291.3000183105469,
+        561.4703952955163,
+        302.8000183105469
       ],
-      "label": "Table 1 row 16 column 5",
+      "label": "Aircond Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[16]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        468.4399871826172,
+        303.3000183105469,
         249.40999603271484,
-        479.9399871826172
+        314.8000183105469
       ],
-      "label": "Table 1 row 17 column 2",
+      "label": "Ceiling Fan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[17]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        468.4399871826172,
+        303.3000183105469,
         330.42999267578125,
-        479.9399871826172
+        314.8000183105469
       ],
-      "label": "Table 1 row 17 column 3",
+      "label": "Ceiling Fan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[17]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        468.4399871826172,
+        303.3000183105469,
         379.87001037597656,
-        479.9399871826172
+        314.8000183105469
       ],
-      "label": "Table 1 row 17 column 4",
+      "label": "Ceiling Fan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[17]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        468.4399871826172,
-        561.2519775390625,
-        479.9399871826172
+        303.3000183105469,
+        561.4703952955163,
+        314.8000183105469
       ],
-      "label": "Table 1 row 17 column 5",
+      "label": "Ceiling Fan",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[17]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        480.4399871826172,
+        315.3000183105469,
         249.40999603271484,
-        491.9399871826172
+        326.8000183105469
       ],
-      "label": "Table 1 row 18 column 2",
+      "label": "Fan Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[18]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        480.4399871826172,
+        315.3000183105469,
         330.42999267578125,
-        491.9399871826172
+        326.8000183105469
       ],
-      "label": "Table 1 row 18 column 3",
+      "label": "Fan Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[18]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        480.4399871826172,
+        315.3000183105469,
         379.87001037597656,
-        491.9399871826172
+        326.8000183105469
       ],
-      "label": "Table 1 row 18 column 4",
+      "label": "Fan Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[18]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        480.4399871826172,
-        561.2519775390625,
-        491.9399871826172
+        315.3000183105469,
+        561.4703952955163,
+        326.8000183105469
       ],
-      "label": "Table 1 row 18 column 5",
+      "label": "Fan Remote",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[18]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        492.4399871826172,
+        327.3000183105469,
         249.40999603271484,
-        504.7799835205078
+        339.6400146484375
       ],
-      "label": "Table 1 row 19 column 2",
+      "label": "Access Card",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[19]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        492.4399871826172,
+        327.3000183105469,
         330.42999267578125,
-        504.7799835205078
+        339.6400146484375
       ],
-      "label": "Table 1 row 19 column 3",
+      "label": "Access Card",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[19]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        492.4399871826172,
+        327.3000183105469,
         379.87001037597656,
-        504.7799835205078
+        339.6400146484375
       ],
-      "label": "Table 1 row 19 column 4",
+      "label": "Access Card",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[19]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        492.4399871826172,
-        561.2519775390625,
-        504.7799835205078
+        327.3000183105469,
+        561.4703952955163,
+        339.6400146484375
       ],
-      "label": "Table 1 row 19 column 5",
+      "label": "Access Card",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[19]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        505.2799835205078,
+        340.1400146484375,
         249.40999603271484,
-        516.7799682617188
+        351.6400146484375
       ],
-      "label": "Table 1 row 20 column 2",
+      "label": "Room Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[20]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        505.2799835205078,
+        340.1400146484375,
         330.42999267578125,
-        516.7799682617188
+        351.6400146484375
       ],
-      "label": "Table 1 row 20 column 3",
+      "label": "Room Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[20]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        505.2799835205078,
+        340.1400146484375,
         379.87001037597656,
-        516.7799682617188
+        351.6400146484375
       ],
-      "label": "Table 1 row 20 column 4",
+      "label": "Room Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[20]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        505.2799835205078,
-        561.2519775390625,
-        516.7799682617188
+        340.1400146484375,
+        561.4703952955163,
+        351.6400146484375
       ],
-      "label": "Table 1 row 20 column 5",
+      "label": "Room Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[20]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        517.2799682617188,
+        352.1400146484375,
         249.40999603271484,
-        528.7799682617188
+        363.6400146484375
       ],
-      "label": "Table 1 row 21 column 2",
+      "label": "Main Door Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[21]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        517.2799682617188,
+        352.1400146484375,
         330.42999267578125,
-        528.7799682617188
+        363.6400146484375
       ],
-      "label": "Table 1 row 21 column 3",
+      "label": "Main Door Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[21]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        517.2799682617188,
+        352.1400146484375,
         379.87001037597656,
-        528.7799682617188
+        363.6400146484375
       ],
-      "label": "Table 1 row 21 column 4",
+      "label": "Main Door Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[21]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        517.2799682617188,
-        561.2519775390625,
-        528.7799682617188
+        352.1400146484375,
+        561.4703952955163,
+        363.6400146484375
       ],
-      "label": "Table 1 row 21 column 5",
+      "label": "Main Door Key",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[21]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         225.40999603271484,
-        529.2799682617188,
+        364.1400146484375,
         249.40999603271484,
-        541.1799875895182
+        376.0399856567383
       ],
-      "label": "Table 1 row 22 column 2",
+      "label": "Starting Electricity Meter Reading",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[22]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         255.40999603271484,
-        529.2799682617188,
+        364.1400146484375,
         330.42999267578125,
-        541.1799875895182
+        376.0399856567383
       ],
-      "label": "Table 1 row 22 column 3",
+      "label": "Starting Electricity Meter Reading",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[22]/w:tc[3]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         336.42999267578125,
-        529.2799682617188,
+        364.1400146484375,
         379.87001037597656,
-        541.1799875895182
+        376.0399856567383
       ],
-      "label": "Table 1 row 22 column 4",
+      "label": "Starting Electricity Meter Reading",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[22]/w:tc[4]",
       "value": null,
       "prefix": "",
       "align": 1,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         385.87001037597656,
-        529.2799682617188,
-        561.2519775390625,
-        541.1799875895182
+        364.1400146484375,
+        561.4703952955163,
+        376.0399856567383
       ],
-      "label": "Table 1 row 22 column 5",
+      "label": "Starting Electricity Meter Reading",
       "xpath": "/w:document/w:body/w:p[8]/w:r[1]/mc:AlternateContent/mc:Choice/w:drawing/wp:anchor/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:tbl/w:tr[22]/w:tc[5]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         193.0,
-        571.5,
+        406.3666931152344,
         451.0,
-        582.0
+        416.7466735839844
       ],
       "label": "company.account_name",
       "xpath": null,
       "value": "company.account_name",
       "prefix": "Account Name: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBank"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         193.0,
-        582.4,
+        417.04668579101565,
         451.0,
-        593.5
+        427.4266662597656
       ],
       "label": "company.account_number",
       "xpath": null,
       "value": "company.account_number",
       "prefix": "Account Number: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBank"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         229.0,
-        593.5,
+        428.206689453125,
         451.0,
-        604.0
+        438.586669921875
       ],
       "label": "company.bank",
       "xpath": null,
       "value": "company.bank",
       "prefix": "",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBank"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         86.5,
-        706.6,
+        541.3480102539063,
         310.0,
-        718.4
+        553.8211059570312
       ],
       "label": "tenant_name",
       "xpath": null,
       "value": "tenant_name",
       "prefix": "Name: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBold"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         86.5,
-        718.4,
+        553.2280151367188,
         310.0,
-        730.3
+        565.7011108398438
       ],
       "label": "tenant_id",
       "xpath": null,
       "value": "tenant_id",
       "prefix": "NRIC No.: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBold"
     },
     {
-      "page": 0,
-      "rect": [
-        86.5,
-        730.3,
-        310.0,
-        742.2
-      ],
-      "label": "signing_date",
-      "xpath": null,
-      "value": "signing_date",
-      "prefix": "Date: ",
-      "align": 0,
-      "size": 9
-    },
-    {
-      "page": 0,
+      "page": 1,
       "rect": [
         338.5,
-        706.6,
+        541.3480102539063,
         550.0,
-        718.4
+        553.8211059570312
       ],
       "label": "company.name",
       "xpath": null,
       "value": "company.name",
       "prefix": "Name: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBold"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
         338.5,
-        718.4,
+        553.2280151367188,
         550.0,
-        730.3
+        565.7011108398438
       ],
       "label": "company.registration",
       "xpath": null,
       "value": "company.registration",
       "prefix": "SSM No.: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBold"
     },
     {
-      "page": 0,
+      "page": 1,
       "rect": [
-        338.5,
-        730.3,
-        550.0,
-        742.2
+        86.5,
+        564.9880249023438,
+        310.0,
+        577.4611206054688
       ],
       "label": "signing_date",
       "xpath": null,
       "value": "signing_date",
       "prefix": "Date: ",
       "align": 0,
-      "size": 9
+      "size": 9,
+      "font": "NNBold"
+    },
+    {
+      "page": 1,
+      "rect": [
+        338.5,
+        564.9880249023438,
+        550.0,
+        577.4611206054688
+      ],
+      "label": "signing_date",
+      "xpath": null,
+      "value": "signing_date",
+      "prefix": "Date: ",
+      "align": 0,
+      "size": 9,
+      "font": "NNBold"
+    },
+    {
+      "page": 0,
+      "rect": [
+        72.0,
+        135.0488311767578,
+        558.0,
+        148.65843200683594
+      ],
+      "label": "Company header name",
+      "xpath": null,
+      "value": "company.name",
+      "prefix": "",
+      "align": 1,
+      "size": 11,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        72.0,
+        149.78000183105468,
+        558.0,
+        164.4600067138672
+      ],
+      "label": "Company header registration",
+      "xpath": null,
+      "value": "company.registration",
+      "prefix": "",
+      "align": 1,
+      "size": 12,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        72.0,
+        165.6310607910156,
+        558.0,
+        178.62098693847656
+      ],
+      "label": "Company header address",
+      "xpath": null,
+      "value": "company.address",
+      "prefix": "",
+      "align": 1,
+      "size": 10.5,
+      "font": "NNHeaderSerif"
+    },
+    {
+      "page": 0,
+      "rect": [
+        72.0,
+        179.65565795898436,
+        558.0,
+        193.7082977294922
+      ],
+      "label": "Company header phone",
+      "xpath": null,
+      "value": "company.phone",
+      "prefix": "TEL NO.: ",
+      "align": 1,
+      "size": 11.5,
+      "font": "NNHeaderSerif"
     }
-  ]
+  ],
+  "drawer": {
+    "page": 1,
+    "with": [
+      68,
+      147.84000244140626
+    ],
+    "without": [
+      68,
+      159.54000244140624
+    ]
+  }
 }

@@ -14,12 +14,16 @@ Open http://localhost:8000. On a phone using the same Wi-Fi, open `http://<compu
 
 ## Generate documents
 
-1. Choose the documents needed. House rules can be downloaded directly; other selections show only their required steps.
+1. Choose the documents needed. Each card has a Create button. House rules asks for optional tenant details, then review; other selections show only their required steps.
 2. Choose AC or non-AC, enter unit and room numbers, select a saved property address, and enter dates and payments. Add address saves an option for all staff devices. The 6 months / 1 year buttons calculate expiry from move-in; changing move-in recalculates the selected term.
 3. Complete inventory and condition fields only when the move-in form is selected.
 4. Preview and download the selected documents.
 
 **PDF** fills converted copies of the original Word templates and the original offer PDF. All document types work without Word at runtime. **Original formats** downloads filled `.docx` templates and the offer as `.pdf`. Multiple documents arrive in one ZIP. The offer has no supplied Word version.
+
+On iPhone, choose **Share PDFs**, wait for preparation, then tap **Share PDFs** in the dialog and choose WhatsApp and the customer. Each document remains a separate PDF. The second tap opens the native share sheet directly, as required by mobile browsers. The app checks support for the actual files and offers individual Share/Download buttons as a fallback. Use the HTTPS deployment in Safari. WhatsApp availability and acceptance of multiple files depend on the installed app. Files stay in browser memory until the dialog closes; nothing is automatically sent or stored on the server. The Download action still provides the existing ZIP for multiple documents.
+
+Offer invoice numbers are generated automatically when blank, for example `NN-20261002-A1B2C3D4E5`. The date uses the signing date and the suffix is random, not sequential. The same number is retained for previews, downloads and sharing within the current form, and included in saved drafts. Start a new tenancy for a new offer; manually entered invoice numbers are preserved.
 
 Company details are editable. Drafts are saved only when you choose Save draft. Reloading the page clears unsaved entries. PDF generation runs in memory; the app keeps no tenant records. Saved drafts and downloads contain the entered personal information.
 
@@ -45,7 +49,7 @@ npm run build
 
 Run `npm start` in `frontend` for Angular development on port 4200 (API proxy to 8000). Python serves the production build on port 8000.
 
-Tests check unchanged DOCX package parts and formatting properties, fixed clauses, sample-data removal, PDF page geometry and drawing preservation, exact decimal totals, validation and overflow errors. Sample exports were rendered with installed Microsoft Word and inspected: move-in and house rules are one page each; both tenancy variants are three pages; the complete offer is three pages.
+Tests check unchanged DOCX package parts and formatting properties, fixed clauses, sample-data removal, PDF page geometry and drawing preservation, exact decimal totals, validation and overflow errors. Sample exports were rendered with installed Microsoft Word and inspected: the full company header is on the first page of each document. Fixed PDFs are two pages for move-in and house rules, four for AC tenancy, three for non-AC tenancy, and three for the complete offer. Word pagination varies with entered text.
 
 ### Files
 

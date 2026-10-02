@@ -1,6 +1,7 @@
 """Edit only variable regions of the original offer PDF; preserve all other page objects."""
 from pathlib import Path
 import re
+import secrets
 import pymupdf as fitz
 from .template_docx import ROOT,TemplateError,tenure
 
@@ -50,7 +51,17 @@ def source_line(page,y):
     return ' '.join(lines)
 
 def fill_offer(d):
+    if not d.reference.strip():
+        d.reference=f'NN-{d.agreement_date:%Y%m%d}-{secrets.token_hex(5).upper()}'
     doc=fitz.open(ROOT/'agreements/letter of offer to rent.pdf');e=OfferEditor(doc)
+    # Source field underlines are independent paths that do not move with filled text.
+    # Table borders are wider; enclosure headings have fixed text and retain their styling.
+    for page in list(doc)[:2]:
+        for drawing in page.get_drawings():
+            rect=drawing['rect']
+            if drawing['type']=='s' and rect.height<.1 and 2<rect.width<200:
+                page.add_redact_annot(rect+(-2,-2,2,2),fill=False,cross_out=False)
+        page.apply_redactions(images=0,graphics=1,text=1)
     # Remove the sample officer signature everywhere, leaving blank signing spaces.
     signature_xrefs={info['xref'] for p in doc for info in p.get_image_info(xrefs=True) if info['width']==751 and info['height']==321}
     for xref in signature_xrefs:doc[0].delete_image(xref)
@@ -69,7 +80,7 @@ def fill_offer(d):
     e.add(0,(72,192.7,540,204.8),d.company.address,202.4,10.5,'times-bold','center',label='Company address')
     e.add(0,(72,206.6,540,219.7),'TEL NO.: '+d.company.phone,217,11.5,'times-bold','center',label='Company phone')
     invoice=doc[0].search_for('Invoice Number:INV-0560')[0]
-    e.add(0,(invoice.x0,236.2,540,249),'Invoice Number: '+(d.reference or '-'),246.2,10,'arial',label='Offer reference')
+    e.add(0,(280,236.2,540,249),'Invoice Number: '+d.reference,246.2,10,'arial',label='Invoice number')
     opening=f'I/We, {d.tenant_name} (IC/Passport No.: {d.tenant_id}), hereby offer to rent the premises stated below on an “as is where is basis”, subject to the Terms and Conditions contained in this Letter of Offer.'
     e.add(0,(72,280,540,303.4),opening,288.6,9.5,lines=2,leading=12.6,label='Tenant name and ID')
     # Keep the payment table footprint with the requested rows.

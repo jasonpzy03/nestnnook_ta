@@ -81,7 +81,7 @@ def fill_docx(kind,d:Details):
         if kind=='tenancy':
             values={
                 'Date':date_text(d.agreement_date,d.aircon),'Room Type':f'{d.room} {d.property}',
-                'Address':d.address,'Commencement Date':date_text(d.start_date,d.aircon),
+                'Address':d.property_address,'Commencement Date':date_text(d.start_date,d.aircon),
                 'Expiry Date':date_text(d.end_date,d.aircon),'Tenure':tenure(d),
                 'Rental':amount(d.rent),'Car Park Rental':amount(d.parking),
                 'Room Deposit':amount(d.security_deposit),'Access Card Deposit':amount(d.access_deposit),
@@ -160,5 +160,14 @@ def fill_docx(kind,d:Details):
         out=BytesIO()
         with ZipFile(out,'w') as result:
             for info in archive.infolist():
-                result.writestr(info,updated if info.filename=='word/document.xml' else archive.read(info.filename))
+                data=updated if info.filename=='word/document.xml' else archive.read(info.filename)
+                if info.filename=='word/nest-header.xml':
+                    header=E.fromstring(data)
+                    for mark in header.xpath('//w:bookmarkStart',namespaces=NS):
+                        name=mark.get(W+'name','')
+                        if name.startswith('NestHeader_'):
+                            field=name.removeprefix('NestHeader_')
+                            put(mark.getparent(),('TEL NO.: ' if field=='phone' else '')+getattr(d.company,field))
+                    data=E.tostring(header,xml_declaration=True,encoding='UTF-8',standalone=True)
+                result.writestr(info,data)
         return out.getvalue()

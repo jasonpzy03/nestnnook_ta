@@ -59,7 +59,7 @@ def fill_converted(kind,details,blank=False):
             if blank and slot['value']=='signing_date':value='Date: -'
             if blank and kind=='tenancy' and slot['xpath'] and '/w:tbl[3]/w:tr[5]/' in slot['xpath']:value='Date: -'
             rect=fitz.Rect(slot['rect']);page=doc[slot['page']]
-            alias='NNBank' if key=='move_in' and slot['value'] and slot['value'].startswith('company.') and rect.y0<605 else 'NNBold' if (key=='move_in' and rect.y0>700) or (kind=='tenancy' and '/w:tbl[1]/' in (slot['xpath'] or '') and slot['xpath'].endswith('/w:tc[1]')) else 'NNBody'
+            alias=slot.get('font','NNBody')
             font=fonts[alias]
             if any(not font.has_glyph(ord(c)) for c in value if not c.isspace()):
                 alias='NNUnicode';font=fonts.setdefault(alias,fitz.Font('cjk'))
@@ -72,8 +72,8 @@ def fill_converted(kind,details,blank=False):
                 page.insert_text((x,y),row,fontsize=size,fontname=alias)
                 y+=leading
         if key=='move_in' and details.makeup_table_drawer!='not_applicable':
-            y=313.5 if details.makeup_table_drawer=='with' else 325.2
-            doc[0].draw_line((68,y+8),(76.8,y),width=.8)
+            drawer=mapping['drawer'];x,y=drawer[details.makeup_table_drawer]
+            doc[drawer['page']].draw_line((x,y+8),(x+8.8,y),width=.8)
         doc.set_metadata({})
         doc.subset_fonts()
         return doc.tobytes(garbage=4,deflate=True)

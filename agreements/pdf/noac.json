@@ -1,367 +1,456 @@
 {
   "source": "3. Room TA_NOAC.docx",
-  "source_sha256": "6854aa61aed46d2ca7d774443b937a665edc768ad688c97c309928f0c0e454aa",
-  "pdf_sha256": "2d0fb7fe077efa8dd9a69151928beec1bc6f8f44da9d872ab889b575b78851ed",
+  "source_sha256": "ea7e391bbd1778f2343fe2cf8538b78d6b8e9f01182c5be372b0822211efd19d",
+  "pdf_sha256": "6c98d95639abfadf616b2ce45472da2a00d31515250f569afcf0389097670d10",
   "slots": [
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        86.11000569661458,
+        240.19002278645834,
         533.2818603515625,
-        103.80999755859375
+        257.77001953125
       ],
-      "label": "Table 1 row 1 column 2",
+      "label": "Date",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[1]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        104.30999755859375,
+        258.27001953125,
         533.2818603515625,
-        121.92999267578125
+        275.91998291015625
       ],
-      "label": "Table 1 row 2 column 2",
+      "label": "Room Type",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        122.42999267578125,
+        276.41998291015625,
         533.2818603515625,
-        175.21002197265625
+        329.20001220703125
       ],
-      "label": "Table 1 row 3 column 2",
+      "label": "Address",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        175.71002197265625,
+        329.70001220703125,
         533.2818603515625,
-        193.21002197265625
+        347.1999816894531
       ],
-      "label": "Table 1 row 4 column 2",
+      "label": "Commencement Date",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[4]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        193.71002197265625,
+        347.6999816894531,
         533.2818603515625,
-        211.33001708984375
+        365.3199920654297
       ],
-      "label": "Table 1 row 5 column 2",
+      "label": "Expiry Date",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[5]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        211.83001708984375,
+        365.8199920654297,
         533.2818603515625,
-        229.45001220703125
+        383.4399871826172
       ],
-      "label": "Table 1 row 6 column 2",
+      "label": "Tenure",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[6]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        229.95001220703125,
+        383.9399871826172,
         533.2818603515625,
-        247.57000732421875
+        401.5599822998047
       ],
-      "label": "Table 1 row 7 column 2",
+      "label": "Rental",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[7]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        248.07000732421875,
+        402.0599822998047,
         533.2818603515625,
-        265.5999755859375
+        419.5599822998047
       ],
-      "label": "Table 1 row 8 column 2",
+      "label": "Car Park Rental",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[8]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        266.0999755859375,
+        420.0599822998047,
         533.2818603515625,
-        283.719970703125
+        437.67999267578125
       ],
-      "label": "Table 1 row 9 column 2",
+      "label": "Room Deposit",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         300.65000915527344,
-        284.219970703125,
+        438.17999267578125,
         533.2818603515625,
-        319.6799723307292
+        473.6599833170573
       ],
-      "label": "Table 1 row 10 column 2",
+      "label": "Earnest Deposit (the Earnest Deposit shall form the 1st month Rental)",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[10]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 0,
       "rect": [
         62.14908981323242,
-        266.0999755859375,
+        420.0599822998047,
         294.65000915527344,
-        283.719970703125
+        437.67999267578125
       ],
-      "label": "Table 1 row 9 column 1",
+      "label": "Room Deposit",
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBold"
     },
     {
-      "page": 1,
+      "page": 2,
       "rect": [
         316.63002014160156,
-        594.7199910481771,
-        543.8800430297852,
-        612.4199829101562
+        58.0899658203125,
+        543.852040608724,
+        75.83001708984375
       ],
-      "label": "Table 2 row 1 column 2",
+      "label": "Beneficiary Name:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[1]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 1,
+      "page": 2,
       "rect": [
         316.63002014160156,
-        612.9199829101562,
-        543.8800430297852,
-        630.6899719238281
+        76.33001708984375,
+        543.852040608724,
+        94.0899658203125
       ],
-      "label": "Table 2 row 2 column 2",
+      "label": "Bank Name:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[2]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
-      "page": 1,
+      "page": 2,
       "rect": [
         316.63002014160156,
-        631.1899719238281,
-        543.8800430297852,
-        649.0099894205729
+        94.5899658203125,
+        543.852040608724,
+        112.33001708984375
       ],
-      "label": "Table 2 row 3 column 2",
+      "label": "Account Number:",
       "xpath": "/w:document/w:body/w:tbl[2]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.14399909973145,
-        141.510009765625,
+        66.10399913787842,
+        316.02001953125,
         301.9700164794922,
-        153.25
+        327.760009765625
       ],
-      "label": "Table 3 row 3 column 1",
+      "label": "Name: HII HUI CHIN",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
         307.9700164794922,
-        141.510009765625,
-        543.8200378417969,
-        153.25
+        316.02001953125,
+        543.852040608724,
+        327.760009765625
       ],
-      "label": "Table 3 row 3 column 2",
+      "label": "Name: HII HUI CHIN",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.14399909973145,
-        153.75,
+        66.10399913787842,
+        328.260009765625,
         301.9700164794922,
-        165.6099853515625
+        339.99998474121094
       ],
-      "label": "Table 3 row 4 column 1",
+      "label": "Passport No.: 021120-13-0372",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
         307.9700164794922,
-        153.75,
-        543.8200378417969,
-        165.6099853515625
+        328.260009765625,
+        543.852040608724,
+        339.99998474121094
       ],
-      "label": "Table 3 row 4 column 2",
+      "label": "Passport No.: 021120-13-0372",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.14399909973145,
-        166.1099853515625,
+        66.10399913787842,
+        340.49998474121094,
         301.9700164794922,
-        177.8499755859375
+        352.4399820963542
       ],
-      "label": "Table 3 row 5 column 1",
+      "label": "Date: 13 April 2026",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
         307.9700164794922,
-        166.1099853515625,
-        543.8200378417969,
-        177.8499755859375
+        340.49998474121094,
+        543.852040608724,
+        352.4399820963542
       ],
-      "label": "Table 3 row 5 column 2",
+      "label": "Date: 13 April 2026",
       "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[2]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.14399909973145,
-        332.5799865722656,
+        66.10399913787842,
+        507.0799865722656,
         301.9700164794922,
-        344.4399871826172
+        518.8200073242188
       ],
-      "label": "Table 3 row 3 column 1",
+      "label": "Name:",
       "xpath": "/w:document/w:body/w:tbl[4]/w:tr[3]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.14399909973145,
-        344.9399871826172,
+        66.10399913787842,
+        519.3200073242188,
         301.9700164794922,
-        356.6799774169922
+        531.0599975585938
       ],
-      "label": "Table 3 row 4 column 1",
+      "label": "IC:",
       "xpath": "/w:document/w:body/w:tbl[4]/w:tr[4]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
-        66.14399909973145,
-        357.1799774169922,
+        66.10399913787842,
+        531.5599975585938,
         301.9700164794922,
-        368.91998291015625
+        543.4999796549479
       ],
-      "label": "Table 3 row 5 column 1",
+      "label": "Date:",
       "xpath": "/w:document/w:body/w:tbl[4]/w:tr[5]/w:tc[1]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
     },
     {
       "page": 2,
       "rect": [
         68.5,
-        392.4,
+        566.5880126953125,
         532.0,
-        458.0
+        635.0880126953125
       ],
       "label": "Company privacy notice",
       "xpath": "/w:document/w:body/w:p[38]",
       "value": null,
       "prefix": "",
       "align": 0,
-      "size": 9.5
+      "size": 9.5,
+      "font": "NNBody"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        137.32879943847655,
+        541.3200073242188,
+        150.9384002685547
+      ],
+      "label": "Company header name",
+      "xpath": null,
+      "value": "company.name",
+      "prefix": "",
+      "align": 1,
+      "size": 11,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        152.05997009277343,
+        541.3200073242188,
+        166.73997497558594
+      ],
+      "label": "Company header registration",
+      "xpath": null,
+      "value": "company.registration",
+      "prefix": "",
+      "align": 1,
+      "size": 12,
+      "font": "NNHeaderSans"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        167.91102905273436,
+        541.3200073242188,
+        180.9009552001953
+      ],
+      "label": "Company header address",
+      "xpath": null,
+      "value": "company.address",
+      "prefix": "",
+      "align": 1,
+      "size": 10.5,
+      "font": "NNHeaderSerif"
+    },
+    {
+      "page": 0,
+      "rect": [
+        54.0,
+        181.93568725585936,
+        541.3200073242188,
+        195.9883270263672
+      ],
+      "label": "Company header phone",
+      "xpath": null,
+      "value": "company.phone",
+      "prefix": "TEL NO.: ",
+      "align": 1,
+      "size": 11.5,
+      "font": "NNHeaderSerif"
     }
-  ]
+  ],
+  "drawer": null
 }
