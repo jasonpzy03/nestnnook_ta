@@ -1,0 +1,367 @@
+{
+  "source": "3. Room TA_NOAC.docx",
+  "source_sha256": "6854aa61aed46d2ca7d774443b937a665edc768ad688c97c309928f0c0e454aa",
+  "pdf_sha256": "2d0fb7fe077efa8dd9a69151928beec1bc6f8f44da9d872ab889b575b78851ed",
+  "slots": [
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        86.11000569661458,
+        533.2818603515625,
+        103.80999755859375
+      ],
+      "label": "Table 1 row 1 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[1]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        104.30999755859375,
+        533.2818603515625,
+        121.92999267578125
+      ],
+      "label": "Table 1 row 2 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[2]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        122.42999267578125,
+        533.2818603515625,
+        175.21002197265625
+      ],
+      "label": "Table 1 row 3 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[3]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        175.71002197265625,
+        533.2818603515625,
+        193.21002197265625
+      ],
+      "label": "Table 1 row 4 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[4]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        193.71002197265625,
+        533.2818603515625,
+        211.33001708984375
+      ],
+      "label": "Table 1 row 5 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[5]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        211.83001708984375,
+        533.2818603515625,
+        229.45001220703125
+      ],
+      "label": "Table 1 row 6 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[6]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        229.95001220703125,
+        533.2818603515625,
+        247.57000732421875
+      ],
+      "label": "Table 1 row 7 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[7]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        248.07000732421875,
+        533.2818603515625,
+        265.5999755859375
+      ],
+      "label": "Table 1 row 8 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[8]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        266.0999755859375,
+        533.2818603515625,
+        283.719970703125
+      ],
+      "label": "Table 1 row 9 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        300.65000915527344,
+        284.219970703125,
+        533.2818603515625,
+        319.6799723307292
+      ],
+      "label": "Table 1 row 10 column 2",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[10]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 0,
+      "rect": [
+        62.14908981323242,
+        266.0999755859375,
+        294.65000915527344,
+        283.719970703125
+      ],
+      "label": "Table 1 row 9 column 1",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 1,
+      "rect": [
+        316.63002014160156,
+        594.7199910481771,
+        543.8800430297852,
+        612.4199829101562
+      ],
+      "label": "Table 2 row 1 column 2",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[1]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 1,
+      "rect": [
+        316.63002014160156,
+        612.9199829101562,
+        543.8800430297852,
+        630.6899719238281
+      ],
+      "label": "Table 2 row 2 column 2",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[2]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 1,
+      "rect": [
+        316.63002014160156,
+        631.1899719238281,
+        543.8800430297852,
+        649.0099894205729
+      ],
+      "label": "Table 2 row 3 column 2",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[3]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        66.14399909973145,
+        141.510009765625,
+        301.9700164794922,
+        153.25
+      ],
+      "label": "Table 3 row 3 column 1",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        307.9700164794922,
+        141.510009765625,
+        543.8200378417969,
+        153.25
+      ],
+      "label": "Table 3 row 3 column 2",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        66.14399909973145,
+        153.75,
+        301.9700164794922,
+        165.6099853515625
+      ],
+      "label": "Table 3 row 4 column 1",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        307.9700164794922,
+        153.75,
+        543.8200378417969,
+        165.6099853515625
+      ],
+      "label": "Table 3 row 4 column 2",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        66.14399909973145,
+        166.1099853515625,
+        301.9700164794922,
+        177.8499755859375
+      ],
+      "label": "Table 3 row 5 column 1",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        307.9700164794922,
+        166.1099853515625,
+        543.8200378417969,
+        177.8499755859375
+      ],
+      "label": "Table 3 row 5 column 2",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[2]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        66.14399909973145,
+        332.5799865722656,
+        301.9700164794922,
+        344.4399871826172
+      ],
+      "label": "Table 3 row 3 column 1",
+      "xpath": "/w:document/w:body/w:tbl[4]/w:tr[3]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        66.14399909973145,
+        344.9399871826172,
+        301.9700164794922,
+        356.6799774169922
+      ],
+      "label": "Table 3 row 4 column 1",
+      "xpath": "/w:document/w:body/w:tbl[4]/w:tr[4]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        66.14399909973145,
+        357.1799774169922,
+        301.9700164794922,
+        368.91998291015625
+      ],
+      "label": "Table 3 row 5 column 1",
+      "xpath": "/w:document/w:body/w:tbl[4]/w:tr[5]/w:tc[1]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    },
+    {
+      "page": 2,
+      "rect": [
+        68.5,
+        392.4,
+        532.0,
+        458.0
+      ],
+      "label": "Company privacy notice",
+      "xpath": "/w:document/w:body/w:p[38]",
+      "value": null,
+      "prefix": "",
+      "align": 0,
+      "size": 9.5
+    }
+  ]
+}

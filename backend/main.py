@@ -2,7 +2,6 @@ from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import re
-import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response, FileResponse
 from .models import GenerateRequest,Company
@@ -25,7 +24,9 @@ async def no_cache(request,call_next):
     response.headers['X-Robots-Tag']='noindex, nofollow'
     return response
 @app.get('/api/health')
-def health():return {'status':'ok','word_pdf_available':os.name=='nt'}
+def health():
+    from .converted_pdf import available
+    return {'status':'ok','word_pdf_available':available()}
 @app.get('/api/defaults')
 def defaults():return {'company':Company().model_dump(),'inventory':INVENTORY}
 @app.post('/api/generate')

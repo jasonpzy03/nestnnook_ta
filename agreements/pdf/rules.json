@@ -1,0 +1,37 @@
+{
+  "source": "2. House Rules.docx",
+  "source_sha256": "2f8f47260527a8afd4ee5f5368b0c601d3058f5d878ca9474bd8ad8320a0c640",
+  "pdf_sha256": "b5c91ef0834bebb5251c151ab1d4260cc80db82ba69b8f501f8de8db43e4323c",
+  "slots": [
+    {
+      "page": 0,
+      "rect": [
+        98.4,
+        679.7,
+        516.0,
+        691.6
+      ],
+      "label": "Tenant name",
+      "xpath": null,
+      "value": "tenant_name",
+      "prefix": "Name : ",
+      "align": 0,
+      "size": 10
+    },
+    {
+      "page": 0,
+      "rect": [
+        98.4,
+        691.6,
+        516.0,
+        704.0
+      ],
+      "label": "Tenant ID",
+      "xpath": null,
+      "value": "tenant_id",
+      "prefix": "NRIC: ",
+      "align": 0,
+      "size": 10
+    }
+  ]
+}

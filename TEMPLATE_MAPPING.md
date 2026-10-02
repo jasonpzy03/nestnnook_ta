@@ -33,3 +33,18 @@ Automated tests compare all untouched Word parts, original paragraph/table/cell/
 The active move-in source is `agreements/1. Move in Form - quantity.docx`, derived from the original with a separate Qty column in both embedded table copies. Total width and page geometry remain unchanged. The original was locked and has been retained. Deposit labels now say refundable. Blank optional fields use dashes. Offer payment table keeps its original footprint with ten rows; utilities, transfer fee and other charges are removed, agreement fee is separate. Transfer-fee clause and acknowledgement references are removed; subsequent headings are renumbered and the gap is closed. These are authorised deviations from the earlier preservation record.
 
 Revised move-in template SHA-256: `9f5d79d3974f1aeb078454e0a1292b339ef6396da67d9b373ccf01d982c52341`. The new template has distinct default quantities and Good Condition values; sample damage remarks are cleared.
+
+## Converted PDF templates
+
+`agreements/pdf/` contains Word-exported backgrounds and JSON field maps for AC tenancy, non-AC tenancy, house rules and move-in. Original DOCX files are unchanged by conversion. The backgrounds retain the original pages, fixed clauses, tables and artwork; only mapped text and the sample drawer mark are cleared. Both tenancy agreements retain their room-transfer fee clauses.
+
+At runtime, `backend/converted_pdf.py` reuses the existing DOCX filling logic, reads mapped values from that in-memory XML, and writes them into the PDF. Original fonts are embedded, with a Unicode fallback for names. Text may wrap and shrink to 7 pt within its assigned area; entries that still do not fit are rejected. These are completed, printable PDFs, with data entered through the website.
+
+To rebuild after editing a Word source, install development dependencies and run on Windows with Word installed:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.build_pdf_maps --export
+.\.venv\Scripts\python.exe -m pytest backend/tests -q -p no:cacheprovider
+```
+
+Review field coordinates when source layout changes. Render representative filled PDFs and inspect every page before committing the backgrounds and maps together. Source and background SHA-256 checks block generation if either changes without an updated map. Native intermediate exports are in `tmp/pdfs/`; running without `--export` reuses them. The downloadable blank copies in `output/pdf/` include the company details and dash placeholders; raw backgrounds are internal generator assets.

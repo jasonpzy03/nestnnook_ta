@@ -54,7 +54,7 @@ The Python function serves the built frontend after checking staff authenticatio
 - Sign in with your existing staff password.
 - Add an address, reload, then confirm the same address appears from a second signed-in device.
 - Sign out and confirm the API returns 401 again.
-- Download an offer PDF and a Word document.
+- Download each document as PDF (including both tenancy variants), and check a Word download.
 
 Missing Redis credentials or password configuration block access. A Redis outage returns 503; it never silently switches to local files or in-memory cloud sessions. A successful local build is not proof of a successful hosted deployment; these checks require the configured live services.
 
@@ -81,9 +81,11 @@ Enter the destination REST URL and token when prompted. The token is hidden. The
 
 ## PDF template status
 
-The supplied tenancy, house-rules, and move-in templates are still DOCX files. Vercel cannot run the current Microsoft Word converter. On Linux, the UI defaults to Word downloads for these documents and disables their PDF previews. The offer continues to generate PDF.
+All document types now generate PDF from the supplied templates without Microsoft Word at runtime. Both tenancy variants, house rules and move-in use checked PDF backgrounds and field maps in `agreements/pdf/`. The offer uses its existing PDF mapping. Word downloads remain available.
 
-Converting the other templates to PDF and mapping their fields is a separate pending task. That must be completed and checked before claiming all-PDF generation works on Vercel.
+Commit the entire `agreements/pdf/` folder together with the backend changes and redeploy. The existing `agreements/**` include rule bundles these files. No additional Vercel environment variables are needed for PDF generation.
+
+When a Word template changes, rebuild and visually verify the PDF mappings on Windows with Microsoft Word installed; see `TEMPLATE_MAPPING.md`. Generation checks template hashes and refuses stale mappings. Long values that cannot fit produce an error instead of clipped text.
 
 ## Checks run during implementation
 

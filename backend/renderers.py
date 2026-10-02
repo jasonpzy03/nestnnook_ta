@@ -1,4 +1,4 @@
-"""Generate documents by filling original templates, then export Word copies using Word."""
+"""Generate documents from original Word templates and mapped PDF backgrounds."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Lock
@@ -28,4 +28,5 @@ def word_pdf(data):
         return target.read_bytes()
 
 def pdf(kind,details):
-    return fill_offer(details) if kind=='offer' else word_pdf(fill_docx(kind,details))
+    from .converted_pdf import fill_converted
+    return fill_offer(details) if kind=='offer' else fill_converted(kind,details)

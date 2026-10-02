@@ -146,3 +146,65 @@ def test_agreements_still_require_tenancy_details(documents):
 def test_move_in_requires_identity_and_date():
     response=client.post('/api/generate',json={'details':{},'documents':['move_in'],'format':'source'})
     assert response.status_code==422
+
+@pytest.mark.parametrize('aircon',[True,False])
+def test_pdf_pack_without_word(details,aircon,monkeypatch):
+    from backend import renderers
+    def no_word(*args):raise AssertionError('Runtime must not invoke Word')
+    monkeypatch.setattr(renderers,'word_pdf',no_word)
+    details['aircon']=aircon
+    response=client.post('/api/generate',json={'details':details,'documents':['tenancy','rules','move_in','offer'],'format':'pdf'})
+    assert response.status_code==200,response.text
+    with ZipFile(BytesIO(response.content)) as pack:
+        assert len(pack.namelist())==4
+        for name in pack.namelist():
+            data=pack.read(name);content=text(data)
+            assert name.endswith('.pdf')
+            assert 'Alex Tan' in content and 'TEST-P12345' in content
+            for stale in ['DI CHIA SENG','TENG YING YING','HII HUI CHIN','Shamsunder','VANGUARD','Vanguard','1102047977','961004-01-5879','PCR0033666']:
+                assert stale not in content,(name,stale)
+            with fitz.open(stream=data,filetype='pdf') as doc:
+                assert len(doc)==(3 if 'tenancy' in name or 'offer' in name else 1)
+            if 'tenancy' in name:
+                assert '150' in content and 'transfer' in content.lower()
+                assert 'Refundable Room Deposit' in content
+            if 'move_in' in name:assert 'CARD-123' in content
+
+
+def test_rules_pdf_without_details():
+    response=client.post('/api/generate',json={'details':{},'documents':['rules'],'format':'pdf'})
+    assert response.status_code==200,response.text
+    assert 'Name : -' in text(response.content)
+
+
+@pytest.mark.parametrize('choice,count',[('not_applicable',0),('with',1),('without',1)])
+def test_pdf_drawer_mark(details,choice,count):
+    from backend.converted_pdf import fill_converted
+    data=fill_converted('move_in',Details(**details,makeup_table_drawer=choice))
+    with fitz.open(stream=data,filetype='pdf') as doc:
+        marks=[drawing for drawing in doc[0].get_drawings() if fitz.Rect(62,307,82,340).contains(drawing['rect']) and any(item[0]=='l' and item[1].x!=item[2].x and item[1].y!=item[2].y for item in drawing['items'])]
+        assert len(marks)==count
+        if marks:assert abs(marks[0]['rect'].y0-(313.5 if choice=='with' else 325.2))<.1
+
+
+def test_converted_pdf_overflow(details):
+    details['address']='Long address '*45
+    response=client.post('/api/generate',json={'details':details,'documents':['tenancy'],'format':'pdf'})
+    assert response.status_code==422
+    assert 'too long for the PDF template' in response.json()['detail']
+
+
+def test_converted_pdf_unicode(details):
+    from backend.converted_pdf import fill_converted
+    details['tenant_name']='陈小明'
+    assert '陈小明' in text(fill_converted('rules',Details(**details)))
+
+
+def test_converted_pdf_rejects_stale_background(details,tmp_path,monkeypatch):
+    from backend import converted_pdf
+    mapping=(converted_pdf.FOLDER/'rules.json').read_bytes()
+    (tmp_path/'rules.json').write_bytes(mapping)
+    (tmp_path/'rules.pdf').write_bytes(b'changed background')
+    monkeypatch.setattr(converted_pdf,'FOLDER',tmp_path)
+    with pytest.raises(ValueError,match='template changed'):
+        converted_pdf.fill_converted('rules',Details(**details))
