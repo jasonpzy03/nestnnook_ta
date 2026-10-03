@@ -110,8 +110,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b88924; outline-
   border-color: #b58a36; background: #fbf6e9; color: var(--navy);
 }
 .term-buttons button { min-height: 44px; }
-.money-input input { padding-left: 40px; }
-.money-input > span { top: 16px; }
+/* Keep space for RM when mobile field rules reset input padding. */
+.money-input > input[type="number"] { padding-left: 44px; }
+.money-input > span { top: 16px; pointer-events: none; }
 .payment-total { background: #f0f1ed; border-left: 3px solid var(--gold); border-radius: 2px; }
 .payment-total span { font-size: 13px; }
 .payment-total small { color: var(--muted); font-size: 11px; }

@@ -1,104 +1,92 @@
 {
+  "version": 2,
   "source": "2. House Rules.docx",
-  "source_sha256": "2febd2be952cbb4ffe250515d21843a5aa146b1d3179db79fbe56aae3cd75a1a",
-  "pdf_sha256": "ac0134855253494606b378ec0859c9dcce4e1becc832374ccb80368a38ac55ba",
+  "source_sha256": "4f5ebf620dcbc356401ebb2e2534abb47d81e9f548114132f368e719fe46c677",
+  "pdf_sha256": "650e1d87116b480fe332d89ab158f8e40351fb43b366531936f8099298fff171",
   "slots": [
     {
+      "expression": "Name : {{tenant_name}} ",
+      "label": "tenant_name",
+      "size": 10.0,
+      "align": 0,
+      "font": "NNBody",
       "page": 1,
       "rect": [
-        98.4,
-        177.69801635742186,
-        516.0,
-        190.271142578125
-      ],
-      "label": "Tenant tenant_name",
-      "xpath": null,
-      "value": "tenant_name",
-      "prefix": "Name : ",
-      "align": 0,
-      "size": 10,
-      "font": "NNBody"
+        98.42400360107422,
+        178.32623291015625,
+        516.0240036010742,
+        190.87623291015626
+      ]
     },
     {
+      "expression": "NRIC: {{tenant_id}}",
+      "label": "tenant_id",
+      "size": 10.0,
+      "align": 0,
+      "font": "NNBody",
       "page": 1,
       "rect": [
-        98.4,
-        189.3379699707031,
-        516.0,
-        201.91109619140624
-      ],
-      "label": "Tenant tenant_id",
-      "xpath": null,
-      "value": "tenant_id",
-      "prefix": "NRIC: ",
-      "align": 0,
-      "size": 10,
-      "font": "NNBody"
+        98.42400360107422,
+        189.7261962890625,
+        516.0240036010742,
+        202.2761962890625
+      ]
     },
     {
+      "expression": "{{company.name}}",
+      "label": "company.name",
+      "size": 11.0,
+      "align": 1,
+      "font": "NNHeaderSans",
       "page": 0,
       "rect": [
-        90.0,
-        137.32879943847655,
-        522.0,
-        150.9384002685547
-      ],
-      "label": "Company header name",
-      "xpath": null,
-      "value": "company.name",
-      "prefix": "",
-      "align": 1,
-      "size": 11,
-      "font": "NNHeaderSans"
+        90.02400207519531,
+        137.62879943847656,
+        522.0240020751953,
+        151.22879943847656
+      ]
     },
     {
+      "expression": "{{company.registration}}",
+      "label": "company.registration",
+      "size": 12.0,
+      "align": 1,
+      "font": "NNHeaderSans",
       "page": 0,
       "rect": [
-        90.0,
-        152.05997009277343,
-        522.0,
-        166.73997497558594
-      ],
-      "label": "Company header registration",
-      "xpath": null,
-      "value": "company.registration",
-      "prefix": "",
-      "align": 1,
-      "size": 12,
-      "font": "NNHeaderSans"
+        90.02400207519531,
+        152.35997009277344,
+        522.0240020751953,
+        167.05997009277343
+      ]
     },
     {
-      "page": 0,
-      "rect": [
-        90.0,
-        167.91102905273436,
-        522.0,
-        180.9009552001953
-      ],
-      "label": "Company header address",
-      "xpath": null,
-      "value": "company.address",
-      "prefix": "",
-      "align": 1,
+      "expression": "{{company.address}}",
+      "label": "company.address",
       "size": 10.5,
-      "font": "NNHeaderSerif"
-    },
-    {
+      "align": 1,
+      "font": "NNHeaderSerif",
       "page": 0,
       "rect": [
-        90.0,
-        181.93568725585936,
-        522.0,
-        195.9883270263672
-      ],
-      "label": "Company header phone",
-      "xpath": null,
-      "value": "company.phone",
-      "prefix": "TEL NO.: ",
-      "align": 1,
+        90.02400207519531,
+        168.06320190429688,
+        522.0240020751953,
+        181.06320190429688
+      ]
+    },
+    {
+      "expression": "TEL NO.: {{company.phone}}",
+      "label": "company.phone",
       "size": 11.5,
-      "font": "NNHeaderSerif"
+      "align": 1,
+      "font": "NNHeaderSerif",
+      "page": 0,
+      "rect": [
+        90.02400207519531,
+        182.19439697265625,
+        522.0240020751953,
+        196.24439697265626
+      ]
     }
-  ],
-  "drawer": null
+  ]
 }

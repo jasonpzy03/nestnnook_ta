@@ -5,6 +5,7 @@ import hashlib,json
 import pymupdf as fitz
 from lxml import etree as E
 from .template_docx import ROOT,NS,TemplateError,fill_docx,text,date_text
+from .placeholders import fields_for,substitute
 
 FOLDER=ROOT/'agreements/pdf'
 
@@ -12,9 +13,9 @@ def available():
     return all((FOLDER/(key+ext)).is_file() for key in ('ac','noac','rules','move_in','offer') for ext in ('.pdf','.json'))
 
 def field_value(slot,root,details):
-    if slot['xpath']:
+    if slot.get('xpath'):
         namespaces={**NS,**{k:v for k,v in root.nsmap.items() if k}}
-        found=root.xpath(slot['xpath'],namespaces=namespaces)
+        found=root.xpath(slot.get('xpath'),namespaces=namespaces)
         if len(found)!=1:raise TemplateError('The Word template structure changed. Rebuild the PDF field map.')
         return text(found[0]) or '-'
     key=slot['value']
@@ -49,16 +50,19 @@ def fill_converted(kind,details,blank=False):
     except (OSError,ValueError,KeyError) as exc:raise TemplateError('Converted PDF template is missing. Rebuild the PDF templates.') from exc
     if hashlib.sha256(source).hexdigest()!=mapping['source_sha256'] or hashlib.sha256(data).hexdigest()!=mapping['pdf_sha256']:
         raise TemplateError('A document template changed. Rebuild and verify the PDF field map before generating PDFs.')
-    with ZipFile(BytesIO(fill_docx(kind,details.model_copy(update={'include_aml':True}) if kind=='offer' else details))) as archive:root=E.fromstring(archive.read('word/document.xml'))
+    fields=fields_for(kind,details)
+    root=None
+    if mapping.get('version')!=2:
+        with ZipFile(BytesIO(fill_docx(kind,details.model_copy(update={'include_aml':True}) if kind=='offer' else details))) as archive:root=E.fromstring(archive.read('word/document.xml'))
     with fitz.open(stream=data,filetype='pdf') as doc:
         fonts={name:fitz.Font(fontbuffer=doc.extract_font(xref)[3]) for xref,_,_,_,name,*_ in doc[0].get_fonts() if name.startswith('NN')}
         for slot in mapping['slots']:
             if kind=='offer' and not details.include_aml and slot['page']>=mapping['aml_page']:continue
-            value=field_value(slot,root,details)
+            value=substitute(slot['expression'],fields) if 'expression' in slot else field_value(slot,root,details)
             # Downloadable blank copies retain company details, clause text and labels.
-            if blank and slot['xpath'] and '/w:tbl[1]/' in slot['xpath'] and kind=='tenancy' and slot['xpath'].endswith('/w:tc[2]'):value='-'
-            if blank and slot['value']=='signing_date':value='Date: -'
-            if blank and kind=='tenancy' and slot['xpath'] and '/w:tbl[3]/w:tr[5]/' in slot['xpath']:value='Date: -'
+            if blank and slot.get('xpath') and '/w:tbl[1]/' in slot.get('xpath') and kind=='tenancy' and slot.get('xpath').endswith('/w:tc[2]'):value='-'
+            if blank and slot.get('value')=='signing_date':value='Date: -'
+            if blank and kind=='tenancy' and slot.get('xpath') and '/w:tbl[3]/w:tr[5]/' in slot.get('xpath'):value='Date: -'
             rect=fitz.Rect(slot['rect']);page=doc[slot['page']]
             alias=slot.get('font','NNBody')
             font=fonts[alias]
@@ -73,7 +77,7 @@ def fill_converted(kind,details,blank=False):
                 x=rect.x0+(rect.width-width)/2 if slot['align']==1 else rect.x1-width if slot['align']==2 else rect.x0
                 page.insert_text((x,y),row,fontsize=size,fontname=alias)
                 y+=leading
-        if key=='move_in' and details.makeup_table_drawer!='not_applicable':
+        if key=='move_in' and mapping.get('drawer') and details.makeup_table_drawer!='not_applicable':
             drawer=mapping['drawer'];x,y=drawer[details.makeup_table_drawer]
             doc[drawer['page']].draw_line((x,y+8),(x+8.8,y),width=.8)
         if kind=='offer' and not details.include_aml:

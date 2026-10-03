@@ -13,13 +13,18 @@ def test_word_renamed_header_is_resolved_and_filled(tmp_path, monkeypatch, targe
     destination.mkdir()
     new_name = target.lstrip('/') if target.startswith('/') else 'word/' + target
     with ZipFile(source) as original, ZipFile(destination / source.name, 'w') as edited:
+        root=E.fromstring(original.read('word/document.xml'))
+        old_name=next(iter(template_docx.header_parts(original,root)))
         for item in original.infolist():
             data = original.read(item.filename)
             if item.filename == 'word/_rels/document.xml.rels':
-                data = data.replace(b'Target="nest-header.xml"', ('Target="' + target + '"').encode())
+                rels=E.fromstring(data)
+                for rel in rels:
+                    if rel.get('Type','').endswith('/header'):rel.set('Target',target)
+                data=E.tostring(rels)
             if item.filename == '[Content_Types].xml':
-                data = data.replace(b'/word/nest-header.xml', ('/' + new_name).encode())
-            edited.writestr(new_name if item.filename == 'word/nest-header.xml' else item.filename, data)
+                data = data.replace(('/'+old_name).encode(), ('/' + new_name).encode())
+            edited.writestr(new_name if item.filename == old_name else item.filename, data)
     monkeypatch.setattr(template_docx, 'ROOT', tmp_path)
     data = template_docx.fill_docx('rules', Details(company=Company(name='Custom Company', phone='+60123456789')))
     with ZipFile(BytesIO(data)) as output:

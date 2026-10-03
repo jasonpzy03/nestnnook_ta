@@ -1,6 +1,6 @@
 # Nest & Nook tenancy documents
 
-Mobile-friendly Angular TypeScript app with a Python FastAPI backend. Local file storage, with Redis for cloud login and saved addresses. Documents in `agreements/` provide the base templates. Requested field and fee changes are applied during generation.
+Mobile-friendly Angular TypeScript app with a Python FastAPI backend. Local file storage, with Redis for cloud login and saved addresses. Documents in `agreements/` provide the base templates. All active Word templates use named placeholders. See [template editing and restore instructions](agreements/README.md).
 
 ## Run
 
@@ -27,16 +27,13 @@ Offer invoice numbers are generated automatically when blank, for example `NN-20
 
 Company details are editable. Drafts are saved only when you choose Save draft. Reloading the page clears unsaved entries. PDF generation runs in memory; the app keeps no tenant records. Saved drafts and downloads contain the entered personal information.
 
-## Original template mapping
+## Template filling
 
-- **Tenancy:** uses the selected AC or non-AC DOCX, preserving its separate clauses, tables, styles, signature sections and payment rows. Existing non-AC air-conditioning references remain as supplied. Company bank and signature details replace the personal landlord details in the non-AC template.
-- **House rules:** replaces tenant name and ID. Rules and original operational contacts remain unchanged.
-- **Move-in:** fills original registration tables and both copies of embedded inventory and bank text boxes. Sample inventory, damage notes and card numbers are cleared. Inventory defaults to quantity 1 and Good. The revised `1. Move in Form - quantity.docx` adds a separate Qty column in both text box copies; it is the active template because the original file was locked when editing. Unused fields and zero amounts print as a dash. Drawer selection updates the original checkbox mark.
-- **Offer:** fills `4. Letter of Offer to Rent.docx` using editable placeholders. Its converted PDF follows the same source. The offer wording, Nest & Nook branding, payment rows and blank signature spaces are retained; room transfer fees remain excluded from the offer only.
-- **Enclosure:** the optional acknowledgement is included by default in both formats. Its wording is retained from the original third page. Staff can exclude it where its statements do not apply.
-- **Payments:** each document retains its original rows. The non-AC tenancy has no access deposit or agreement fee row. Offer total = refundable room deposit + refundable access card deposit + advance rental + agreement fee. Rent and parking are not added again.
+All five active Word templates use `{{...}}` placeholders. The shared filler reads those fields in the body, headers and text boxes. It does not search for sample names or rely on particular table rows. Blank inputs become dashes; inventory defaults and document-specific date formatting are preserved.
 
-PDF fields have fixed space. Entries that cannot fit produce an error identifying the field; shorten the entry or download Word format. Word text wraps within original cells, so preview long names, addresses and remarks before signing.
+PDF rebuilds locate temporary markers in a native Word export and retain field-space metadata. Vercel fills the converted PDFs without Word. Long values that cannot fit produce a field error; Word downloads reflow normally. Check [agreements/README.md](agreements/README.md) for fields, rebuilding and restoring the previous implementation.
+
+The tenancy room-transfer clauses remain. Transfer fees are removed only from the offer. The optional offer enclosure and automatic invoice numbering remain available.
 
 ## Development and checks
 
@@ -53,7 +50,8 @@ Tests check unchanged DOCX package parts and formatting properties, fixed clause
 
 ### Files
 
-- `backend/template_docx.py`: original DOCX field mapping
+- `backend/template_docx.py`: template selection and shared document helpers
+- `backend/placeholders.py`: named fields and Word filling
 - `backend/offer_docx.py`: editable offer placeholders; `scripts/build_offer_pdf.py`: offer PDF mapping
 - `backend/converted_pdf.py`: converted PDF field filling
 - `agreements/pdf/`: checked PDF backgrounds and field maps

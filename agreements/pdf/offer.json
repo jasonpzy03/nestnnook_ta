@@ -1,7 +1,7 @@
 {
   "source": "4. Letter of Offer to Rent.docx",
-  "source_sha256": "613832d3329a783420758579bcc78aa429edd2cf033bfb6a156c08e4e052a83b",
-  "pdf_sha256": "8036e729255c776ae6a3c81e255993f5dcdffb51ac98bfcfdc6942d65f69085e",
+  "source_sha256": "b839123288e2d25ca3603bbb0e3e840fa3fc4583700b81e409bbdc6bd673c1b0",
+  "pdf_sha256": "57a3625702e625969c43cb5547abf2f9ef8168ac4d9a2a7401910adff3b56f24",
   "slots": [
     {
       "xpath": "/w:document/w:body/w:p[2]",

@@ -64,7 +64,7 @@ def test_original_structure_and_parts(details,kind,key):
             fixed=[''.join(p.xpath('.//w:t/text()',namespaces=NS)) for p in before.xpath('/w:document/w:body/w:p',namespaces=NS)]
             output=text(data)
             for line in fixed:
-                if any(v in line for v in ['DI CHIA SENG','961004-01-5879','PUA ZHEN YING']):continue
+                if '{{' in line:continue
                 assert line in output,line
 @pytest.mark.parametrize('include',[True,False])
 def test_offer_word_based_pdf_pages(details,include):
@@ -177,14 +177,13 @@ def test_rules_pdf_without_details():
     assert 'Name : -' in text(response.content)
 
 
-@pytest.mark.parametrize('choice,count',[('not_applicable',0),('with',1),('without',1)])
-def test_pdf_drawer_mark(details,choice,count):
+@pytest.mark.parametrize('choice',["not_applicable","with","without"])
+def test_pdf_drawer_placeholders(details,choice):
     from backend.converted_pdf import fill_converted
-    data=fill_converted('move_in',Details(**details,makeup_table_drawer=choice))
-    with fitz.open(stream=data,filetype='pdf') as doc:
-        marks=[drawing for drawing in doc[1].get_drawings() if fitz.Rect(62,141,82,176).contains(drawing['rect']) and any(item[0]=='l' and item[1].x!=item[2].x and item[1].y!=item[2].y for item in drawing['items'])]
-        assert len(marks)==count
-        if marks:assert abs(marks[0]['rect'].y0-(148.1 if choice=='with' else 159.8))<1
+    content=text(fill_converted('move_in',Details(**details,makeup_table_drawer=choice)))
+    assert ('[X] with drawer' in content)==(choice=='with')
+    assert ('[X] without drawer' in content)==(choice=='without')
+    assert content.count('[X]')==(0 if choice=='not_applicable' else 1)
 
 
 def test_converted_pdf_overflow(details):
@@ -216,11 +215,11 @@ def test_company_header_in_word_and_pdf(details,kind,aircon):
     details.update(aircon=aircon,company={'name':'TEST PROPERTY COMPANY','registration':'TEST-SSM-123','address':'123 Example Street, Johor','phone':'+60 123456789'})
     d=Details(**details)
     with ZipFile(BytesIO(fill_docx(kind,d))) as z:
-        h=E.fromstring(z.read('word/nest-header.xml'))
-        content=''.join(h.xpath('//w:t/text()',namespaces=NS))
+        headers=header_parts(z,E.fromstring(z.read('word/document.xml')))
+        content=''.join(''.join(h.xpath('//w:t/text()',namespaces=NS)) for h in headers.values())
         for value in details['company'].values():assert value in content
         assert 'NEST & NOOK PROPERTY CARE' not in content
-        assert 'word/media/nest-header-logo.jpg' in z.namelist()
+        assert any(name.startswith('word/media/') for name in z.namelist())
     with fitz.open(stream=pdf(kind,d),filetype='pdf') as result:
         content=result[0].get_text(clip=fitz.Rect(0,0,620,210))
         for value in details['company'].values():assert value in content

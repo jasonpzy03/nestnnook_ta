@@ -89,106 +89,11 @@ def amount(v,zero='-'):return f'RM{v:,.2f}' if v else zero
 INVENTORY_NAMES=['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key']
 
 def fill_docx(kind,d:Details):
+    from .placeholders import fields_for,fill_package
     if kind=='offer':
         from .offer_docx import fill_offer_docx
         return fill_offer_docx(d)
     key=('ac' if d.aircon else 'noac') if kind=='tenancy' else kind
     if key not in SOURCES:raise TemplateError('Unknown document template.')
-    original=ROOT/'agreements'/SOURCES[key]
-    with ZipFile(original) as archive:
-        root=E.fromstring(archive.read('word/document.xml'))
-        headers=header_parts(archive,root)
-        body=root.find('w:body',NS);tables=body.findall('w:tbl',NS)
-        if kind=='tenancy':
-            values={
-                'Date':date_text(d.agreement_date,d.aircon),'Room Type':f'{d.room} {d.property}',
-                'Address':d.property_address,'Commencement Date':date_text(d.start_date,d.aircon),
-                'Expiry Date':date_text(d.end_date,d.aircon),'Tenure':tenure(d),
-                'Rental':amount(d.rent),'Car Park Rental':amount(d.parking),
-                'Room Deposit':amount(d.security_deposit),'Access Card Deposit':amount(d.access_deposit),
-                'Earnest Deposit (the Earnest Deposit shall form the 1st month Rental)':amount(d.advance_rent),
-                'Agreement Fee':amount(d.agreement_fee),
-            }
-            for row in tables[0].findall('w:tr',NS):
-                cells=row.findall('w:tc',NS);label=text(cells[0]).strip()
-                if label not in values:raise TemplateError(f'Unmapped tenancy template field: {label}')
-                put(cells[1],values[label])
-                if label=='Room Deposit':put(cells[0],'Refundable Room Deposit')
-                elif label=='Access Card Deposit':put(cells[0],'Refundable Access Card Deposit')
-            for row,val in enumerate([d.company.account_name,d.company.bank,d.company.account_number]):put(cell(tables[1],row,1),val)
-            put(cell(tables[2],2,0),'Name: '+d.tenant_name)
-            put(cell(tables[2],3,0),('IC No.: ' if d.aircon else 'Passport No.: ')+d.tenant_id)
-            put(cell(tables[2],2,1),'Name: '+d.company.name)
-            put(cell(tables[2],3,1),'SSM No.: '+d.company.registration)
-            for col in (0,1):put(cell(tables[2],4,col),'Date: '+date_text(d.agreement_date,d.aircon))
-            # Original guardian section stays in place, even when left blank.
-            if d.guardian_name:
-                put(cell(tables[3],2,0),'Name: '+d.guardian_name)
-                put(cell(tables[3],3,0),'IC: '+(d.guardian_id or '-'))
-                put(cell(tables[3],4,0),'Date: '+date_text(d.agreement_date,d.aircon))
-            else:
-                for row,label in [(2,'Name: '),(3,'IC: '),(4,'Date: ')]:put(cell(tables[3],row,0),label+'-')
-            if d.company.name != 'NEST & NOOK PROPERTY CARE':
-                replace(root,'Nest & Nook Property Care',d.company.name)
-            replace(root,'NEST & NOOK PROPERTY CARE',d.company.name)
-            replace(root,'PUA ZHEN YING',d.company.name)
-        elif kind=='rules':
-            replace(root,'DI CHIA SENG',d.tenant_name or '-');replace(root,'961004-01-5879',d.tenant_id or '-')
-            # The rules and their existing operational contacts are not rewritten.
-        elif kind=='move_in':
-            for row,col,val in [(0,1,d.tenant_name),(0,3,d.tenant_id),(1,1,d.nationality),(1,3,d.phone),(2,1,d.email),(2,3,d.occupation),(3,1,d.employer),(3,3,d.vehicle)]:put(cell(tables[0],row,col),val)
-            for row,col,val in [(0,1,d.emergency_name),(0,3,d.emergency_id),(1,1,d.emergency_relationship),(1,3,d.emergency_phone)]:put(cell(tables[1],row,col),val)
-            items={i.name:i for i in d.inventory}
-            unknown=set(items)-set(INVENTORY_NAMES)
-            if unknown:raise TemplateError('The move-in template has no row for: '+', '.join(sorted(unknown)))
-            # Update both DrawingML and legacy VML copies of each text box.
-            for box in root.xpath('//w:txbxContent',namespaces=NS):
-                table=box.find('w:tbl',NS)
-                if table is None:continue
-                put(cell(table,1,1),'-')
-                put(cell(table,1,2),'YES' if d.room_condition.lower()=='good' else 'NO' if d.room_condition else '-')
-                put(cell(table,1,3),'YES' if d.room_condition.lower()=='damaged' else '-')
-                room_notes=d.room_remarks or (d.room_condition if d.room_condition.lower() not in ('good','damaged') else '')
-                put(cell(table,1,4),room_notes)
-                for row,name in enumerate(INVENTORY_NAMES,2):
-                    item=items.get(name);qty=item.quantity if item else 1;condition=item.condition if item else 'Good'
-                    supplied=qty>0 and condition!='Not supplied'
-                    put(cell(table,row,1),str(qty) if supplied else '-')
-                    put(cell(table,row,2),'YES' if supplied and condition=='Good' else 'NO' if supplied else '-')
-                    put(cell(table,row,3),'YES' if supplied and condition=='Damaged' else '-')
-                    notes=item.remarks if item else ''
-                    if supplied and condition=='Fair':notes='Fair'+(': '+notes if notes else '')
-                    put(cell(table,row,4),notes)
-                for col in (1,2,3):put(cell(table,21,col),'-')
-                put(cell(table,21,4),d.meter_reading)
-            for old,new in [('DI CHIA SENG',d.tenant_name),('961004-01-5879',d.tenant_id),('1 JULY 2026',date_text(d.agreement_date,True)),('NEST & NOOK PROPERTY CARE',d.company.name),('202603156166 (KT0615852-M)',d.company.registration),('7101403930',d.company.account_number),('OCBC BANK',d.company.bank)]:replace(root,old,new)
-            # Bank beneficiary is independently editable from the company legal name.
-            for box in root.xpath('//w:txbxContent',namespaces=NS):
-                if box.find('w:tbl',NS) is None:replace(box,d.company.name,d.company.account_name)
-            # The sample's diagonal mark selects 'without drawer'. It is field data, not decoration.
-            for drawing in list(root.xpath('//w:drawing[.//a:prstGeom[@prst="line"]]',namespaces=NS)):
-                if d.makeup_table_drawer=='not_applicable':
-                    parent=drawing.getparent()
-                    if parent.getparent().tag=='{'+NS['mc']+'}Choice':parent.getparent().getparent().getparent().remove(parent.getparent().getparent())
-                    else:parent.remove(drawing)
-                elif d.makeup_table_drawer=='with':
-                    offset=drawing.find('wp:anchor/wp:positionV/wp:posOffset',NS)
-                    offset.text=str(int(offset.text)-141605)
-            # Legacy fallback line, if present, must not retain the sample's selection.
-            for line in list(root.xpath('//v:line',namespaces=NS)):
-                if d.makeup_table_drawer=='not_applicable':line.getparent().remove(line)
-        updated=E.tostring(root,xml_declaration=True,encoding='UTF-8',standalone=True)
-        out=BytesIO()
-        with ZipFile(out,'w') as result:
-            for info in archive.infolist():
-                data=updated if info.filename=='word/document.xml' else archive.read(info.filename)
-                if info.filename in headers:
-                    header=headers[info.filename]
-                    for mark in header.xpath('//w:bookmarkStart',namespaces=NS):
-                        name=mark.get(W+'name','')
-                        if name.startswith('NestHeader_'):
-                            field=name.removeprefix('NestHeader_')
-                            put(mark.getparent(),('TEL NO.: ' if field=='phone' else '')+getattr(d.company,field))
-                    data=E.tostring(header,xml_declaration=True,encoding='UTF-8',standalone=True)
-                result.writestr(info,data)
-        return out.getvalue()
+    source=(ROOT/'agreements'/SOURCES[key]).read_bytes()
+    return fill_package(source,fields_for(kind,d))
