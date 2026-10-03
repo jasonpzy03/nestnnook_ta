@@ -3,6 +3,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { expiryDate } from './dates';
+import { parseTenantMessage, TenantImport } from './tenant-import';
 
 
 interface Field { key: string; label: string; type?: string; required?: boolean; placeholder?: string; wide?: boolean; }
@@ -12,6 +13,19 @@ const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Makeup table','C
 const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
+
+  tenantMessage=''; importPreview:TenantImport|null=null; importNotice=''; importNotes:string[]=[];
+  reviewTenantMessage(){this.importPreview=parseTenantMessage(this.tenantMessage);this.importNotice='';this.importNotes=[];}
+  applyTenantMessage(){
+    if(!this.importPreview?.fields.length)return;
+    for(const field of this.importPreview.fields)this.d[field.key]=field.value;
+    if(this.importPreview.fields.some(field=>field.key==='start_date'))this.expiryMonths=this.importPreview.months;
+    if(this.importPreview.fields.some(field=>field.key==='start_date')&&!this.importPreview.months){
+      this.d['end_date']='';this.importPreview.notes.push('Move-in date changed. Choose the expiry date in Tenancy & payments.');
+    }
+    this.importNotice=`Filled ${this.importPreview.fields.length} fields. Review the details before generating documents.`;
+    this.importNotes=this.importPreview.notes;this.tenantMessage='';this.importPreview=null;
+  }
 
   wordPdfAvailable=true;
   shareOpen=false; sharePreparing=false; sharing=false; shareMessage=''; shareError=''; shareFiles:File[]=[];
@@ -174,7 +188,7 @@ export class App implements OnInit, OnDestroy {
       this.d=base;this.expiryMonths=0;if(Array.isArray(parsed.documents))this.docs.forEach(doc=>doc.selected=parsed.documents.includes(doc.id));this.page=this.selected.length?'studio':'templates';this.go(0);this.status='Draft loaded. Review the details before generating documents.';
     }catch(e){this.error=e instanceof Error?e.message:'Unable to read draft.';}finally{input.value='';}
   }
-  reset(){this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.resetPrompt=false;this.go(0);this.closePreview();}
+  reset(){this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.tenantMessage='';this.importPreview=null;this.importNotice='';this.importNotes=[];this.resetPrompt=false;this.go(0);this.closePreview();}
   async renderPreview(blob:Blob){
     this.previewLoading=true;this.previewError='';const session=this.previewSession;
     let pdfDocument:any;

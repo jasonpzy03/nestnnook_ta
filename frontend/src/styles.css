@@ -164,6 +164,17 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b88924; outline-
   .term-buttons button { white-space: nowrap; }
 }
 /* Document-first workflow */
+.tenant-import { margin-bottom: 26px; padding: 16px; border: 1px solid var(--border); background: #f7f8f6; min-width: 0; }
+.tenant-import summary { cursor: pointer; min-height: 32px; font-weight: 600; }
+.tenant-import p, .import-notes { font-size: 13px; line-height: 1.6; }
+.tenant-import textarea { font-size: 16px; resize: vertical; }
+.tenant-import .button { margin-top: 12px; white-space: normal; }
+.import-fields { margin: 16px 0; }
+.import-fields > div { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.import-fields dt { font-size: 12px; color: var(--muted); }
+.import-fields dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.import-notes { margin: 16px 0 24px; overflow-wrap: anywhere; }
+.import-notes ul { padding-left: 20px; }
 .library-card.selected-card{border-color:#b58a36;background:#fbf6e9}
 .document-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .document-actions .button{white-space:normal;text-align:left}

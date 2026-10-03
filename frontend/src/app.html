@@ -33,6 +33,22 @@
           <article class="card form-card">
             <div class="section-heading"><div><div class="eyebrow">STEP 0{{stepNumber}} OF 0{{activeSteps.length}}</div><h2>{{steps[step]}}</h2><p>{{step===0?'Enter the tenant’s personal and contact details.':step===1?'Enter the property, dates and payment amounts.':step===2?'Record inventory quantities and condition at handover.':'Check the details and download your selected documents.'}}</p></div><span class="section-icon">{{step===0?'♙':step===1?'⌂':step===2?'☷':'✓'}}</span></div>
             @if(step===0){
+              <details class="tenant-import">
+                <summary>Paste tenant registration / reservation</summary>
+                <p>Paste the completed WhatsApp message, then review the fields below. Blank lines leave existing inputs unchanged. Dates use DD/MM/YYYY.</p>
+                <label>Tenant message<textarea name="tenant_message" [(ngModel)]="tenantMessage" (ngModelChange)="importPreview=null" rows="8" maxlength="20000" placeholder="Tenant Registration&#10;Name:&#10;…&#10;Room Reservation&#10;Unit:" spellcheck="false"></textarea></label>
+                <button type="button" class="button secondary" [disabled]="!tenantMessage.trim()" (click)="reviewTenantMessage()">Review fields</button>
+                @if(importPreview){
+                  @if(importPreview.fields.length){
+                    <p>These values will replace the matching inputs. Property address and air conditioning stay as selected.</p>
+                    <dl class="import-fields">@for(field of importPreview.fields;track field.key){<div><dt>{{field.label}}</dt><dd>{{field.value}}</dd></div>}</dl>
+                    <button type="button" class="button primary" (click)="applyTenantMessage()">Fill {{importPreview.fields.length}} fields</button>
+                  }@else{<p role="status">No completed fields found. Paste the filled form including its section headings.</p>}
+                  @if(importPreview.notes.length){<div class="import-notes"><strong>Check these lines</strong><ul>@for(note of importPreview.notes;track $index){<li>{{note}}</li>}</ul></div>}
+                }
+              </details>
+              @if(importNotice){<div class="notice success" role="status">{{importNotice}}</div>}
+              @if(importNotes.length){<div class="import-notes"><strong>Not filled / needs review</strong><ul>@for(note of importNotes;track $index){<li>{{note}}</li>}</ul></div>}
               <div class="mini-heading">PERSONAL INFORMATION <span>{{hasAgreement||hasMoveIn?'* Required':'Optional'}}</span></div>
               <div class="field-grid">@for(f of visibleTenantFields;track f.key){<label [class.wide]="f.wide">{{f.label}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn)">*</span><input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn)" [placeholder]="f.placeholder||''" maxlength="200"></label>}</div>
               @if(hasMoveIn){
