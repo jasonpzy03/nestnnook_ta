@@ -1,7 +1,8 @@
 from datetime import date
 import builtins
 import re
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
+from calendar import monthrange
 from typing import Literal, Annotated
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 Text = Annotated[str, StringConstraints(strip_whitespace=True, max_length=300)]
@@ -66,6 +67,9 @@ class Details(StrictModel):
     def dates(self):
         if self.end_date and self.start_date and self.end_date < self.start_date:
             raise ValueError('Expiry date must be on or after the commencement date.')
+        days = monthrange(self.start_date.year, self.start_date.month)[1] if self.start_date else 0
+        self.advance_rent = ((self.rent * (days - self.start_date.day + 1) / days)
+                             .quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)) if days else Decimal('0')
         return self
     @builtins.property
     def property_address(self):

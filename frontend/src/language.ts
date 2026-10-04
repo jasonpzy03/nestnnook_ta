@@ -15,6 +15,8 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Pro-rated rental (automatic)':'按比例租金（自动计算）',
+  'Monthly rent ÷ days in the move-in month × remaining days, including move-in day.':'月租 ÷ 入住月份天数 × 剩余天数（包含入住当天）。',
   'Included air-conditioning electricity (kWh)':'包含的冷气用电量（kWh）',
   'Included allowance in the AC tenancy agreement.':'有冷气租约中包含的用电额度。',
   'Enter an electricity allowance between 0 and 100,000 kWh.':'请输入0至100,000 kWh之间的整数用电额度。',

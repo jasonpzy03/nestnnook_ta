@@ -1,11 +1,13 @@
 const ts=require('../frontend/node_modules/typescript');
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const {File}=require('node:buffer');
+const dates={};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('frontend/src/dates.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:dates,Date});
 const exportsObject={};let requests=[],shared=[];
 let fetchImpl=async(url,options)=>{const data=JSON.parse(options.body);requests.push(data);return new Response(new Blob(['%PDF-test'],{type:'application/pdf'}),{headers:{'Content-Type':'application/pdf','Content-Disposition':`attachment; filename="Test-${data.documents[0]}.pdf"`}})};
 const nav={canShare:({files})=>files.every(f=>f.type==='application/pdf'),share:async(data)=>shared.push(data)};
 const source=ts.transpileModule(fs.readFileSync('frontend/src/main.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,experimentalDecorators:true}}).outputText;
-vm.runInNewContext(source,{exports:exportsObject,require:(name)=>name==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{}}:name==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:name==='./language'?{readLanguagePreference:()=> 'en',detectLanguage:()=> 'en',translate:text=>text}:name==='./dates'?{expiryDate:()=>''}:{},document:{cookie:''},window:{scrollTo(){}},navigator:nav,fetch:(...args)=>fetchImpl(...args),console,Date,File,Blob,AbortController,Error,crypto:require("node:crypto").webcrypto,Uint8Array});
+vm.runInNewContext(source,{exports:exportsObject,require:(name)=>name==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{}}:name==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:name==='./language'?{readLanguagePreference:()=> 'en',detectLanguage:()=> 'en',translate:text=>text}:name==='./dates'?dates:{},document:{cookie:''},window:{scrollTo(){}},navigator:nav,fetch:(...args)=>fetchImpl(...args),console,Date,File,Blob,AbortController,Error,crypto:require("node:crypto").webcrypto,Uint8Array});
 (async()=>{
  const app=new exportsObject.App();app.d.tenant_name='Test';app.d.tenant_id='ID';app.d.property='16-03';app.d.room='2';app.d.address='Example';app.d.end_date='2027-10-01';
  app.docs.forEach(d=>d.selected=['offer','rules'].includes(d.id));

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { expiryDate } from './dates';
+import { expiryDate, proratedRental } from './dates';
 import { parseTenantMessage, TenantImport } from './tenant-import';
 import { Language, LanguagePreference, LANGUAGE_COOKIE, detectLanguage, readLanguagePreference, translate } from './language';
 
@@ -72,7 +72,8 @@ export class App implements OnInit, OnDestroy {
   get stepNumber(){return this.activeSteps.indexOf(this.step)+1;}
   get visibleTenantFields(){return this.tenantFields.filter(f=>this.hasMoveIn||(this.hasAgreement?['tenant_name','tenant_id','phone','email']:['tenant_name','tenant_id']).includes(f.key));}
   get selected(){return this.docs.filter(x=>x.selected)}
-  get total(){return ['security_deposit','access_deposit','advance_rent','agreement_fee'].reduce((s,k)=>s+Number(this.d[k]||0),0)}
+  get proratedRent(){return proratedRental(this.d['start_date'],this.d['rent']);}
+  get total(){return (this.proratedRent||0)+['security_deposit','access_deposit','agreement_fee'].reduce((s,k)=>s+Number(this.d[k]||0),0)}
   get inventory():Inventory[]{return this.d['inventory'];}
   signOut(){if(!window.confirm(this.t('Sign out? Unsaved form details will be cleared.')))return;this.closePreview();this.closeShare();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
   async ngOnInit(){this.updateLanguage();await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.ok){this.wordPdfAvailable=(await r.json()).word_pdf_available!==false;if(!this.wordPdfAvailable)this.format='source';}if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
@@ -124,7 +125,7 @@ export class App implements OnInit, OnDestroy {
     if(agreement)for(const key of ['aircon','guardian_name','guardian_id','special_conditions','include_aml'])details[key]=this.d[key];
     if(documentIds.includes('tenancy')&&this.d['aircon'])details['aircon_kwh']=this.d['aircon_kwh'];
     if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
-    if(agreement)for(const f of this.moneyFields)details[f.key]=this.d[f.key]||0;
+    if(agreement)for(const f of this.moneyFields)details[f.key]=f.key==='advance_rent'?(this.proratedRent||0):(this.d[f.key]||0);
     return JSON.parse(JSON.stringify(details));
   }
   async generate(ids?:string[],preview=false,blankRules=false,outputFormat?:string){
@@ -186,7 +187,7 @@ export class App implements OnInit, OnDestroy {
     this.shareFiles=[];this.shareMessage='';this.shareError='';
   }
   download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
-  saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:this.d,documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
+  saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:{...this.d,advance_rent:this.proratedRent},documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
   async loadDraft(event:Event){
     const input=event.target as HTMLInputElement;const file=input.files?.[0];if(!file)return;
     try{

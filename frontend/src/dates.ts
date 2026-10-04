@@ -1,3 +1,16 @@
+export function proratedRental(start:string, rent:number|null):number|null {
+  if(!start || rent===null || !Number.isFinite(rent) || rent<0)return null;
+  const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(start);
+  if(!match)return null;
+  const [,year,month,day]=match.map(Number);
+  if(month<1||month>12)return null;
+  const leap=year%4===0&&(year%100!==0||year%400===0);
+  const days=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31][month-1];
+  if(day<1||day>days)return null;
+  // Calculate in cents, rounding only the final amount, with move-in day included.
+  return Math.round(Math.round(rent*100)*(days-day+1)/days)/100;
+}
+
 export function expiryDate(start:string, months:number):string {
   if(!start || ![6,12].includes(months))return '';
   const [y,m,day]=start.split('-').map(Number);

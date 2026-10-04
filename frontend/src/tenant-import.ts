@@ -62,6 +62,7 @@ export function parseTenantMessage(message:string):TenantImport {
       continue;
     }
     if(label.includes('booking fee'))continue;
+    if(label==='prorated rental'||label==='pro-rated rental')continue;
     if(label==='total'){
       notes.push(`${line} — not imported; check the payment breakdown before generating.`);continue;
     }

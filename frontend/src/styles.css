@@ -111,7 +111,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b88924; outline-
 }
 .term-buttons button { min-height: 44px; }
 /* Keep space for RM when mobile field rules reset input padding. */
-.money-input > input[type="number"] { padding-left: 44px; }
+.money-input > input[type="number"], .money-input > input[readonly] { padding-left: 44px; }
 .money-input > span { top: 16px; pointer-events: none; }
 .payment-total { background: #f0f1ed; border-left: 3px solid var(--gold); border-radius: 2px; }
 .payment-total span { font-size: 13px; }
