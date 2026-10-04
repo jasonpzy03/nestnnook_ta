@@ -1,427 +1,773 @@
 {
   "version": 2,
   "source": "3. Room TA_AC.docx",
-  "source_sha256": "b28047bc31306c790392a133a5c4f56acefc1ce79035899d4466eb14cacb64ae",
-  "pdf_sha256": "c947e180c5eef82e64ea0375cb0adb198ce36645c68f2db8e11c182ea15fa85f",
+  "source_sha256": "b1e070dcb381702b51317e68b2120890c2b57943a0f5a8033917fe6ed01e04f7",
+  "pdf_sha256": "fe67fce5e92e610d51de57c7ba51c280a6331fd571d7329514c8f1d091e8f4f4",
   "slots": [
     {
       "expression": "{{agreement_date}}",
       "label": "agreement_date",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        240.19002278645834,
+        153.0699666341146,
         533.2785034179688,
-        258.3699951171875
+        171.25
       ]
     },
     {
       "expression": "{{room}} {{property}}",
       "label": "room, property",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        258.8699951171875,
+        171.75,
         533.2785034179688,
-        277.0
+        189.8499755859375
       ]
     },
     {
       "expression": "{{property_address}}",
       "label": "property_address",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        277.5,
+        190.3499755859375,
         533.2785034179688,
-        330.7599639892578
+        243.72998046875
       ]
     },
     {
       "expression": "{{start_date}}",
       "label": "start_date",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        331.2599639892578,
+        244.22998046875,
         533.2785034179688,
-        349.239990234375
+        262.239990234375
       ]
     },
     {
       "expression": "{{end_date}}",
       "label": "end_date",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        349.739990234375,
+        262.739990234375,
         533.2785034179688,
-        367.83998107910156
+        280.8399658203125
       ]
     },
     {
       "expression": "{{tenure}}",
       "label": "tenure",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        368.33998107910156,
+        281.3399658203125,
         533.2785034179688,
-        386.4399871826172
+        299.44000244140625
       ]
     },
     {
       "expression": "{{rent}}",
       "label": "rent",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        386.9399871826172,
+        299.94000244140625,
         533.2785034179688,
-        405.0399627685547
+        318.03997802734375
       ]
     },
     {
       "expression": "{{parking}}",
       "label": "parking",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        405.5399627685547,
+        318.53997802734375,
         533.2785034179688,
-        423.6399841308594
+        336.5199890136719
       ]
     },
     {
       "expression": "{{security_deposit}}",
       "label": "security_deposit",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        424.1399841308594,
+        337.0199890136719,
         533.2785034179688,
-        442.2599639892578
+        355.11997985839844
       ]
     },
     {
       "expression": "{{access_deposit}}",
       "label": "access_deposit",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        442.7599639892578,
+        355.61997985839844,
         533.2785034179688,
-        460.8599853515625
+        373.71998596191406
       ]
     },
     {
       "expression": "{{advance_rent}}",
       "label": "advance_rent",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        461.3599853515625,
+        374.21998596191406,
         533.2785034179688,
-        497.21998596191406
+        410.19996643066406
       ]
     },
     {
       "expression": "{{agreement_fee}}",
       "label": "agreement_fee",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 0,
       "rect": [
         300.65000915527344,
-        497.71998596191406,
+        410.69996643066406,
         533.2785034179688,
-        516.0199991861979
+        428.99997965494794
       ]
     },
     {
-      "expression": "{{company.name}} is renting the premise from the Landlord, and sub-renting it to the tenants on behalf of Landlord. {{company.name}} is helping the landlord in managing the Tenants in the premises. In the event landlord has to vacate the premises before the maturity of this agreement, {{company.name}} will give 2 months notice period and assist Tenant relocate to other nearest available premises.",
+      "expression": "Rental payment shall be made by the 1st of every month (in advance of the actual month) or shall not be later than 7th of the actual month, or such later day as may be agreed by {{company.name}} in writing. ",
       "label": "company.name",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.54399871826172,
+        471.1761779785156,
+        541.3439987182617,
+        507.1761779785156
+      ],
+      "rich": [
+        {
+          "expression": "Rental payment shall be made by the ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "1st of every month ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "(in advance of the actual month) or shall not be later than ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "7th of the actual month",
+          "font": "NNBold"
+        },
+        {
+          "expression": ", or such later day as may be agreed by {{company.name}} in writing. ",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": "{{company.name}} reserves the right to collect the Earnest Deposit which shall form the 1st month Rental and if the Tenant cancels the tenancy before moving in into the room, the Booking Fee shall be forfeited by {{company.name}}.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.66400146484375,
+        577.7362060546875,
+        541.3140014648437,
+        625.7362060546875
+      ]
+    },
+    {
+      "expression": "{{company.name}} reserves the right to terminate the tenancy or vacate the room (with or without refund \u2013 full or partial of the Room Deposit), if Tenant is found to be misbehaved, including violation of House Rules attached, as well as late payment of Rental for 20 days. In the event of failure to pay rent by the 20th of the month, Landlord reserves the right to enter the premises and change the locks without prior notice.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.66400146484375,
+        631.7661743164062,
+        541.3140014648437,
+        691.7661743164062
+      ]
+    },
+    {
+      "expression": "Prior to the expiry of this agreement, Tenant shall inform {{company.name}} on whether to extend the stay or to leave by the end of the tenure, by way of SMS or WhatsApp at least 1.5 months in advance failing which, the Room Deposit will be forfeited as penalty.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.66400146484375,
+        727.2861938476562,
+        541.3140014648437,
+        763.2861938476562
+      ]
+    },
+    {
+      "expression": "In case of transfer of room, admin and contract charges of RM150 will be charged to the Tenant. {{company.name}} reserves the right to vary the Rental payment and the terms and conditions for the renewed and/or the transferred tenancy.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.54399871826172,
+        58.18621063232422,
+        541.3439987182617,
+        94.18621063232422
+      ]
+    },
+    {
+      "expression": "{{company.name}} shall bear the costs for Major maintenance of the premise, including but not limited to structural, electrical, plumbing, and fixture issues. The Tenant shall be responsible for Minor maintenance and wear-and-tear items, such as replacement of light bulbs, batteries, air conditioning cleaning, small fittings, and other small consumables necessary for the daily upkeep of the room only. ",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.54399871826172,
+        141.3662109375,
+        541.3439987182617,
+        201.3662109375
+      ],
+      "rich": [
+        {
+          "expression": "{{company.name}} shall bear the costs for ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "Major maintenance",
+          "font": "NNBold"
+        },
+        {
+          "expression": " of the premise, including but not limited to structural, electrical, plumbing, and fixture issues. The Tenant shall be responsible for ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "Minor maintenance",
+          "font": "NNBold"
+        },
+        {
+          "expression": " and wear-and-tear items, such as replacement of light bulbs, batteries, air conditioning cleaning, small fittings, and other small consumables necessary for the daily upkeep of the room only. ",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": "{{company.name}} agrees to provide a one (1) month warranty period commencing from the date of handover of the premise to the Tenant. During this period, {{company.name}} shall be responsible for all reasonable maintenance and wear-and-tear issues. ",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.54399871826172,
+        207.3662109375,
+        541.3439987182617,
+        243.3662109375
+      ],
+      "rich": [
+        {
+          "expression": "{{company.name}} agrees to provide a ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "one (1) month warranty",
+          "font": "NNBold"
+        },
+        {
+          "expression": " period commencing from the date of handover of the premise to the Tenant. During this period, {{company.name}} shall be responsible for all reasonable maintenance and wear-and-tear issues. ",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": "However, if any damage is caused by the Tenant, inclusive of damage to the furniture and equipment in the premise, the Tenant shall be borne to the cost of repair. The Tenant is strictly not allowed to make any renovation and/or alteration to the room and premise unless prior written consent of {{company.name}} is obtained.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.54399871826172,
+        249.3662109375,
+        541.3439987182617,
+        297.3662109375
+      ]
+    },
+    {
+      "expression": "{{company.name}} shall bear the costs for water, electricity, internet utilities and {{aircon_kwh}} kWh of air conditioning usage. Extra usage of air conditioning shall be the sole responsibility of the Tenant. The Tenant shall independently manage and recharge the Smart Meter account as needed to cover the air-conditioning usage expenses during the lease term. ",
+      "label": "company.name, aircon_kwh",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.42400360107422,
+        303.39617919921875,
+        541.3240036010742,
+        351.39617919921875
+      ]
+    },
+    {
+      "expression": "{{company.name}} shall be authorized to enter the room, in the case of emergency or to initiate repairs only after giving Tenant 24-hour advance notice.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.42400360107422,
+        357.39617919921875,
+        541.3240036010742,
+        381.39617919921875
+      ]
+    },
+    {
+      "expression": "In the case of existence of technical complications, all technical requests made after 1900 hours will be attended to on the next day and technical requests made on Public Holiday and Sunday will be attended to on an upcoming working day unless otherwise informed by {{company.name}}.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
       "page": 1,
       "rect": [
         86.66400146484375,
-        571.33056640625,
+        477.1761779785156,
+        541.3140014648437,
+        513.1761779785156
+      ]
+    },
+    {
+      "expression": "{{company.name}} is helping {{company.name}} in managing the Tenants in the premises. In the event landlord has to vacate the premises before the maturity of this agreement, {{company.name}} will give 2 months notice period and assist Tenant relocate to other nearest available premises.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.66400146484375,
+        518.6961669921875,
         532.1640014648438,
-        631.83056640625
+        579.1961669921875
+      ]
+    },
+    {
+      "expression": "Units rented under {{company.name}} are only for residential purposes and is strictly not for commercial, illegal or immoral purpose. Upon violation of this clause, {{company.name}} reserves the rights to take appropriate legal action against the Tenant and all loses, damages, costs, fees (including legal fees) and expenses shall be borne by the Tenant.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 1,
+      "rect": [
+        86.66400146484375,
+        582.1762084960938,
+        541.3140014648437,
+        630.1762084960938
+      ]
+    },
+    {
+      "expression": "Upon termination of the tenancy, the Tenant shall restore the room and premise to its original state and condition at the expense of the Tenant (fair wear and tear excepted) and to clear up any rubbish and peaceably and quietly deliver up to {{company.name}} vacant possession of the premise and room in good, clean and proper state of tenantable repair condition. ",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 2,
+      "rect": [
+        86.66400146484375,
+        58.42620086669922,
+        541.3140014648437,
+        106.42620086669922
+      ]
+    },
+    {
+      "expression": "Cleaning fee of RM50 will be charged if the premises are not returned in a clean condition upon move-out. Monthly Rental shall not be set-off or contra with the Security Deposit and Utility Deposit and the refund of said deposits will be processed within 7 working days after the handover of house and room keys and {{company.name}} reserves the absolute right to make such deductions for (i) such amount due and owing to {{company.name}} and any applicable third party(ies) including utilities bodies; and (ii)any damages caused by the Tenant to the premise, the room and the fixtures, fittings and furniture therein.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 2,
+      "rect": [
+        86.54399871826172,
+        112.44615936279297,
+        541.3439987182617,
+        184.44615936279297
       ]
     },
     {
       "expression": "{{company.account_name}}",
       "label": "company.account_name",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
         318.0699920654297,
-        258.27001953125,
-        543.8200378417969,
-        276.52001953125
+        243.510009765625,
+        543.852040608724,
+        261.760009765625
       ]
     },
     {
       "expression": "{{company.bank}}",
       "label": "company.bank",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
         318.0699920654297,
-        277.02001953125,
-        543.8200378417969,
-        295.1199951171875
+        262.260009765625,
+        543.852040608724,
+        280.3599853515625
       ]
     },
     {
       "expression": "{{company.account_number}}",
       "label": "company.account_number",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
         318.0699920654297,
-        295.6199951171875,
-        543.8200378417969,
-        313.96002197265625
+        280.8599853515625,
+        543.852040608724,
+        299.32000732421875
+      ]
+    },
+    {
+      "expression": "(Signature of {{company.name}})",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 1,
+      "font": "NNBold",
+      "preserve_size": false,
+      "page": 2,
+      "rect": [
+        307.54998779296875,
+        406.1399841308594,
+        543.852040608724,
+        417.87998962402344
       ]
     },
     {
       "expression": "Name: {{tenant_name}}",
       "label": "tenant_name",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
-        66.14399909973145,
-        486.3199920654297,
-        300.7699890136719,
-        498.5399627685547
+        66.10399913787842,
+        418.37998962402344,
+        301.54998779296875,
+        430.59999084472656
       ]
     },
     {
       "expression": "Name: {{company.name}}",
       "label": "company.name",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
-        306.7699890136719,
-        486.3199920654297,
-        543.8200378417969,
-        498.5399627685547
+        307.54998779296875,
+        418.37998962402344,
+        543.852040608724,
+        430.59999084472656
       ]
     },
     {
       "expression": "IC No.: {{tenant_id}}",
       "label": "tenant_id",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
-        66.14399909973145,
-        499.0399627685547,
-        300.7699890136719,
-        511.37998962402344
+        66.10399913787842,
+        431.09999084472656,
+        301.54998779296875,
+        443.5799865722656
       ]
     },
     {
       "expression": "SSM No.: {{company.registration}}",
       "label": "company.registration",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
-        306.7699890136719,
-        499.0399627685547,
-        543.8200378417969,
-        511.37998962402344
+        307.54998779296875,
+        431.09999084472656,
+        543.852040608724,
+        443.5799865722656
       ]
     },
     {
       "expression": "Date: {{agreement_date}}",
       "label": "agreement_date",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
-        66.14399909973145,
-        511.87998962402344,
-        300.7699890136719,
-        524.219970703125
+        66.10399913787842,
+        444.0799865722656,
+        301.54998779296875,
+        456.37998453776044
       ]
     },
     {
       "expression": "Date: {{agreement_date}}",
       "label": "agreement_date",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
+      "preserve_size": false,
       "page": 2,
       "rect": [
-        306.7699890136719,
-        511.87998962402344,
-        543.8200378417969,
-        524.219970703125
+        307.54998779296875,
+        444.0799865722656,
+        543.852040608724,
+        456.37998453776044
+      ]
+    },
+    {
+      "expression": "(Signature by of {{company.name}})",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 1,
+      "font": "NNBold",
+      "preserve_size": false,
+      "page": 2,
+      "rect": [
+        307.54998779296875,
+        598.760009765625,
+        543.852040608724,
+        610.5
       ]
     },
     {
       "expression": "Name: {{guardian_name}}",
       "label": "guardian_name",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
-      "page": 3,
+      "preserve_size": false,
+      "page": 2,
       "rect": [
-        66.14399909973145,
-        200.19000244140625,
-        301.9700164794922,
-        212.40997314453125
+        66.10399913787842,
+        611.0,
+        301.54998779296875,
+        623.3699645996094
+      ],
+      "rich": [
+        {
+          "expression": "Name: {{guardian_name}}",
+          "font": "NNBold"
+        }
       ]
     },
     {
       "expression": "IC: {{guardian_id}}",
       "label": "guardian_id",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
-      "page": 3,
+      "preserve_size": false,
+      "page": 2,
       "rect": [
-        66.14399909973145,
-        212.90997314453125,
-        301.9700164794922,
-        225.1300048828125
+        66.10399913787842,
+        623.8699645996094,
+        301.54998779296875,
+        636.0899658203125
+      ],
+      "rich": [
+        {
+          "expression": "IC: {{guardian_id}}",
+          "font": "NNBold"
+        }
       ]
     },
     {
       "expression": "Date: {{guardian_date}}",
       "label": "guardian_date",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
-      "page": 3,
+      "preserve_size": false,
+      "page": 2,
       "rect": [
-        66.14399909973145,
-        225.6300048828125,
-        301.9700164794922,
-        237.969970703125
+        66.10399913787842,
+        636.5899658203125,
+        301.54998779296875,
+        649.0099894205729
+      ],
+      "rich": [
+        {
+          "expression": "Date: {{guardian_date}}",
+          "font": "NNBold"
+        }
       ]
     },
     {
       "expression": "**Note: All the documents requested by {{company.name}} (including the photocopy of tenant and tenant\u2019s guardian IC will be collected a record purpose) shall be provided and the parties hereby provide(s) all the relevant consent(s) required under the PERSONAL DATA PROTECTION ACT 2010 to {{company.name}}.",
       "label": "company.name",
-      "size": 9.5,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
-      "page": 3,
+      "preserve_size": false,
+      "page": 2,
       "rect": [
         68.66400146484375,
-        262.1905517578125,
+        672.6861572265625,
         532.1640014648438,
-        330.6905517578125
+        741.1861572265625
       ]
     },
     {
       "expression": "{{company.name}}",
       "label": "company.name",
-      "size": 11.0,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSans",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        54.0,
-        137.62879943847656,
-        541.3,
-        151.22879943847656
+        302.45001220703125,
+        65.32377624511719,
+        788.4500122070312,
+        78.92377624511718
       ]
     },
     {
       "expression": "{{company.registration}}",
       "label": "company.registration",
-      "size": 12.0,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSans",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        54.0,
-        152.35997009277344,
-        541.3,
-        167.05997009277343
+        302.45001220703125,
+        76.50376892089844,
+        788.4500122070312,
+        91.20376892089844
       ]
     },
     {
       "expression": "{{company.address}}",
       "label": "company.address",
-      "size": 10.5,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSerif",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        54.0,
-        168.06320190429688,
-        541.3,
-        181.06320190429688
+        302.45001220703125,
+        87.66380310058594,
+        788.4500122070312,
+        100.66380310058594
       ]
     },
     {
       "expression": "TEL NO.: {{company.phone}}",
       "label": "company.phone",
-      "size": 11.5,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSerif",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        54.0,
-        182.19439697265625,
-        541.3,
-        196.24439697265626
+        302.45001220703125,
+        98.94377136230469,
+        788.4500122070312,
+        112.99377136230468
       ]
     }
   ]

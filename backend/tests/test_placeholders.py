@@ -42,12 +42,14 @@ def test_move_in_pdf_signature_columns_and_final_inventory_row():
     from backend.converted_pdf import fill_converted
     details=Details(tenant_name='Alex Tan',tenant_id='TEST-P12345',agreement_date='2026-10-01',meter_reading='123.45')
     with fitz.open(stream=fill_converted('move_in',details),filetype='pdf') as doc:
-        page=doc[1]
+        page=next(page for page in doc if page.search_for('Starting Electricity Meter Reading'))
         assert page.search_for('Starting Electricity Meter Reading')
         assert page.search_for('123.45')
-        assert all(rect.x0>300 for rect in page.search_for('SSM No.'))
-        assert page.search_for('SSM No.')
-        assert all(rect.x1<310 for rect in page.search_for('TEST-P12345'))
+        ssm=[rect for p in doc for rect in p.search_for('SSM No.')]
+        assert ssm and all(rect.x0>300 for rect in ssm)
+        signature_ids=[rect for p in doc for ssm_rect in p.search_for('SSM No.')
+                       for rect in p.search_for('TEST-P12345') if abs(rect.y0-ssm_rect.y0)<3]
+        assert signature_ids and all(rect.x1<310 for rect in signature_ids)
 
 
 @pytest.mark.parametrize('key', list(SOURCES))

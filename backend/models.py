@@ -46,6 +46,7 @@ class Details(StrictModel):
     start_date: date | None = None
     end_date: date | None = None
     aircon: bool = True
+    aircon_kwh: int = Field(default=40, ge=0, le=100000, strict=True)
     rent: Money = Decimal('0')
     parking: Money = Decimal('0')
     security_deposit: Money = Decimal('0')

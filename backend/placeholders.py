@@ -1,5 +1,6 @@
 """Named Word placeholders shared by every document and converted PDF."""
 from io import BytesIO
+from copy import deepcopy
 import re
 import secrets
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -21,6 +22,7 @@ def fields_for(kind, d):
                        date_text(value, kind == 'move_in' or d.aircon)) if value else '-'
     fields['tenure'] = tenure(d) if d.start_date and d.end_date else '-'
     fields['property_address'] = d.property_address or '-'
+    fields['aircon_kwh'] = str(d.aircon_kwh)
     fields['guardian_date'] = fields['agreement_date'] if d.guardian_name else '-'
     if kind == 'offer' and not d.reference.strip():
         if not d.agreement_date:
@@ -93,6 +95,14 @@ def fill_package(source, fields, include_aml=True):
                 changed = False
                 if not include_aml:
                     for block in root.xpath('//w:sdt[w:sdtPr/w:tag[@w:val="offer_aml"]]', namespaces=NS):
+                        # A trailing optional section may carry the break that
+                        # holds the preceding signing page's footer settings.
+                        parent = block.getparent()
+                        following = list(block.itersiblings())
+                        sections = block.xpath('.//w:sectPr', namespaces=NS)
+                        if (parent.tag == W+'body' and sections and len(following) == 1
+                                and following[0].tag == W+'sectPr'):
+                            parent.replace(following[0], deepcopy(sections[0]))
                         block.getparent().remove(block)
                         changed = True
                 for p in root.xpath('//w:p', namespaces=NS):

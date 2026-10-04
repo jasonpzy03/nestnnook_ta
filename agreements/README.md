@@ -39,12 +39,15 @@ Use double braces around each name, e.g. `{{tenant_name}}`.
 | Guardian | `guardian_name`, `guardian_id`, `guardian_date` (dash when no guardian is supplied) |
 | Property | `property` (unit number), `room`, `address`, `property_address` (address with unit prefix) |
 | Dates | `agreement_date`, `start_date`, `end_date`, `tenure` |
+| AC allowance | `aircon_kwh` (whole-number electricity allowance; defaults to 40; add ` kWh` after the placeholder) |
 | Payments | `rent`, `parking`, `security_deposit`, `access_deposit`, `advance_rent`, `agreement_fee`, `total` |
 | Offer | `reference` (automatic invoice number when blank), `special_conditions` |
 | Move-in | `meter_reading`, `drawer_with`, `drawer_without` |
 | Company | `company.name`, `company.registration`, `company.address`, `company.phone`, `company.contact`, `company.email`, `company.account_name`, `company.account_number`, `company.bank` |
 
 Amounts include RM; zero/empty amounts become a dash. Dates retain the existing document-specific format. Entered values are inserted as text, never interpreted as another placeholder. Placeholders split across Word formatting runs are supported. Unknown names produce an error.
+
+The AC allowance is editable under **Tenancy & payments** when an AC tenancy agreement is selected. Zero is a valid allowance and prints as `0 kWh`. Saved drafts retain the allowance; older drafts default to 40. The AC and non-AC templates include the added `company.name` clause and signature placeholders, with PDF mappings and bold emphasis preserved. A backup from before this update is in `backups/before-tenancy-kwh-20261004/`.
 
 ### Inventory fields
 
@@ -79,9 +82,13 @@ Missing inventory entries default to quantity 1 / Good. Unsupplied items use das
 
 Field values no longer depend on sample text or table row positions. PDF output still needs a bounded space for each variable paragraph, because Vercel cannot run Word to reflow pages.
 
-The four migrated templates keep this space in Word bookmarks named `NNF_<id>_<width>_<height>_<size>_<align>_<font>`. Width and height are in twips (20 per point), size is in half-points, alignment is 0=left, 1=center, 2=right. Font codes: B=body, D=bold, K=bank, S=header sans, T=header serif. During rebuilding, temporary marker text locates the paragraph; table cells provide their current boundaries. The resulting map stores the placeholder expression and PDF rectangle, not a sample name or fixed row index.
+The four migrated templates keep this space in Word bookmarks named `NNF_<id>_<width>_<height>_<size>_<align>_<font>`. Width and height are in twips (20 per point), alignment is 0=left, 1=center, 2=right. The size component is legacy spacing metadata in half-points; it no longer sets the output font size. Font codes: B=body, D=bold, K=bank, S=header sans, T=header serif. During rebuilding, temporary marker text locates the paragraph; table cells provide their current boundaries. The resulting map stores the placeholder expression and PDF rectangle, not a sample name or fixed row index.
+
+Change a field's font size directly in Word, selecting the whole placeholder (or the full line for a line containing labels and placeholders). Rebuild the PDFs after saving. Both builders read the effective font size from Word's PDF export, including sizes inherited from styles. Header fields also follow the Word paragraph alignment, keep the chosen size exactly and report an overflow if the text cannot fit. Other fields start at the Word size and may shrink to fit long entered values. A mapped paragraph uses one font size; mixed sizes within that paragraph are not reproduced separately. Font family and reserved field space still use the mapping metadata, so this is not a full Word layout engine.
 
 Keep the NNF bookmark when moving or editing a variable paragraph. Adding a new variable paragraph requires a unique bookmark and enough reserved space. Static wording needs no bookmark. The offer retains its `OfferSlot_<id>_L<lines>` bookmarks for the same purpose. Its optional enclosure stays inside the `offer_aml` content control with its own page break and ENCLOSURE heading.
+
+Offer fields inside Word text boxes are supported. Keep the OfferSlot bookmark on the paragraph containing the field; the outer paragraph holding the text box needs no bookmark. If a bookmarked paragraph is split into several paragraphs, adjust its reserved line count to cover only the paragraph containing the field. Keep the entire enclosure, including its text box and preceding section break, inside `offer_aml` so the website can omit it from Word downloads.
 
 Changes to columns, page breaks, fonts, field space or large amounts of wording need a fresh visual check. Word output reflows normally; PDF output reports a field overflow instead of truncating content.
 

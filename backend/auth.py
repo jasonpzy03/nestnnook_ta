@@ -13,6 +13,7 @@ from starlette.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from .cloud_store import RedisStore, StorageError, cloud_enabled
+from .login_i18n import LANGUAGE_COOKIE, render_login
 
 CONFIG = Path(os.environ.get('NEST_AUTH_FILE', str(Path(__file__).resolve().parents[1]/'.local/auth.json')))
 COOKIE = 'nest_staff_session'
@@ -51,17 +52,20 @@ class StaffAuth:
         key = hashlib.sha256(token.encode()).hexdigest()
         return self.sessions.get(key, 0) > time.time()
 
-    def page(self, message='', status=200):
+    def page(self, message='', status=200, request=None):
         html = Path(__file__).with_name('login.html').read_text(encoding='utf-8')
-        return HTMLResponse(html.replace('<!--MESSAGE-->', message), status_code=status,
+        response = HTMLResponse(render_login(html, request, message), status_code=status,
             headers={'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"})
+        if request and request.query_params.get('lang') in ('en', 'zh', 'auto'):
+            response.set_cookie(LANGUAGE_COOKIE, request.query_params['lang'], max_age=31536000, path='/', samesite='lax', secure=request.url.scheme=='https' or bool(os.getenv('VERCEL')))
+        return response
 
     async def dispatch(self, request, call_next):
         try:
             return await self._dispatch(request,call_next)
         except StorageError as exc:
             logging.getLogger(__name__).error('Staff access/storage failure: %s',exc.code)
-            return JSONResponse({'detail':'Staff access or cloud storage is temporarily unavailable. Try again later.'},503)
+            return JSONResponse({'detail':'Team access or cloud storage is temporarily unavailable. Try again later.'},503)
 
     async def _dispatch(self, request, call_next):
         store=RedisStore() if cloud_enabled() else None
@@ -76,12 +80,12 @@ class StaffAuth:
             if (origin and origin != expected) or request.headers.get('sec-fetch-site') == 'cross-site':
                 return JSONResponse({'detail': 'Request blocked. Reload this website and try again.'}, 403)
         if not record:
-            return self.page('Staff access is not configured. Configure the staff password on the server.', 503)
+            return self.page('Team access is not configured. Configure the team password on the server.', 503, request)
         token=request.cookies.get(COOKIE,'')
         authenticated=await run_in_threadpool(store.valid,token,record['digest']) if store else self.valid(request)
         if request.url.path == '/login':
             if request.method == 'GET':
-                return RedirectResponse('/', 303) if authenticated else self.page()
+                return RedirectResponse('/', 303) if authenticated else self.page(request=request)
             if request.method != 'POST':return JSONResponse({'detail': 'Method not allowed'}, 405)
             ip = request.client.host if request.client else 'unknown'
             if os.getenv('VERCEL'):
@@ -92,7 +96,7 @@ class StaffAuth:
                 count,reset=(0 if allowed else 5),now+max(1,retry)
             else:count, reset = self.attempts.get(ip, (0, now + 900))
             if count >= 5 or len(self.attempts) >= 10000:
-                response = self.page('Too many attempts. Try again in 15 minutes.', 429)
+                response = self.page('Too many attempts. Try again in 15 minutes.', 429, request)
                 response.headers['Retry-After'] = str(max(1, int(reset - now)))
                 return response
             body = b''
@@ -102,7 +106,7 @@ class StaffAuth:
             if not store:self.attempts[ip] = (count + 1, reset)
             try:password = parse_qs(body.decode('utf-8'), max_num_fields=4).get('password', [''])[0]
             except (UnicodeError, ValueError):password = ''
-            if len(password) > 1024 or not await run_in_threadpool(verify, password, record):return self.page('Incorrect staff password.', 401)
+            if len(password) > 1024 or not await run_in_threadpool(verify, password, record):return self.page('Incorrect team password.', 401, request)
             if store:await run_in_threadpool(store.clear_attempts,ip)
             else:self.attempts.pop(ip, None)
             token = secrets.token_urlsafe(32)

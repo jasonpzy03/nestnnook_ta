@@ -1,250 +1,250 @@
 {
   "source": "4. Letter of Offer to Rent.docx",
-  "source_sha256": "b839123288e2d25ca3603bbb0e3e840fa3fc4583700b81e409bbdc6bd673c1b0",
-  "pdf_sha256": "57a3625702e625969c43cb5547abf2f9ef8168ac4d9a2a7401910adff3b56f24",
+  "source_sha256": "10506c735ba201a7e6bfe4fcda2ef4935b40a00b9f13ac5c8bbf7d221a7a861e",
+  "pdf_sha256": "bec4f0e8a0d5f20ed244c7696717beafce92140523c600db325bdcc797569b5b",
   "slots": [
     {
-      "xpath": "/w:document/w:body/w:p[2]",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr/w:tc[2]/w:p[1]",
       "label": "{{company.name}}",
-      "size": 11.0,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNBold",
       "page": 0,
       "rect": [
-        72.02400207519531,
-        137.10337524414064,
-        540.0240020751953,
-        150.324658203125
+        310.6099853515625,
+        65.12377624511718,
+        548.2099853515625,
+        75.08837585449218
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[3]",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr/w:tc[2]/w:p[2]",
       "label": "{{company.registration}}",
-      "size": 12.0,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNBold",
       "page": 0,
       "rect": [
-        72.02400207519531,
-        153.64797668457032,
-        540.0240020751953,
-        167.93197326660157
+        310.6099853515625,
+        76.30382995605468,
+        548.2099853515625,
+        86.26842956542968
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[4]",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr/w:tc[2]/w:p[3]",
       "label": "{{company.address}}",
-      "size": 10.5,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNBold",
       "page": 0,
       "rect": [
-        72.02400207519531,
-        171.4910095214844,
-        540.0240020751953,
-        184.18093566894532
+        310.6099853515625,
+        87.45636444091797,
+        548.2099853515625,
+        97.35664825439453
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[5]",
+      "xpath": "/w:document/w:body/w:tbl[1]/w:tr/w:tc[2]/w:p[4]",
       "label": "TEL NO.: {{company.phone}}",
-      "size": 11.5,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNBold",
       "page": 0,
       "rect": [
-        72.02400207519531,
-        187.3157165527344,
-        540.0240020751953,
-        201.0683563232422
+        310.6099853515625,
+        98.73633270263672,
+        548.2099853515625,
+        108.63661651611328
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[6]",
+      "xpath": "/w:document/w:body/w:p[2]",
       "label": "Invoice Number: {{reference}}",
-      "size": 10.0,
+      "size": 9.96,
       "align": 2,
       "font": "NNBody",
       "page": 0,
       "rect": [
         72.02400207519531,
-        210.30564575195314,
+        125.10563354492187,
         540.0240020751953,
-        222.3313720703125
+        137.13135986328126
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[9]",
+      "xpath": "/w:document/w:body/w:p[5]",
       "label": "I/We, {{tenant_name}} (IC/Passport No.: {{tenant_id}}), hereby offer to rent the premises stated below on an \u201cas is where is basis\u201d, subject to the Terms and Conditions contained in this Letter of Offer.",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         72.02400207519531,
-        261.64329223632814,
+        176.29331665039064,
         540.0240020751953,
-        285.73768310546876
+        200.38766174316407
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[1]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[1]/w:tc[2]/w:p",
       "label": "{{property}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        310.12330322265626,
+        224.77329711914064,
         529.2299987792969,
-        321.61765747070314
+        236.26766662597657
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[2]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[2]/w:tc[2]/w:p",
       "label": "{{room}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        325.12330322265626,
+        239.80332641601564,
         529.2299987792969,
-        336.61765747070314
+        251.29769592285157
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[3]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[3]/w:tc[2]/w:p",
       "label": "{{rent}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        340.2433288574219,
+        254.92332153320314,
         529.2299987792969,
-        351.73768310546876
+        266.41767578125
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[4]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[4]/w:tc[2]/w:p",
       "label": "{{start_date}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        355.3633239746094,
+        270.04331665039064,
         529.2299987792969,
-        366.85767822265626
+        281.5376708984375
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[5]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[5]/w:tc[2]/w:p",
       "label": "{{tenure}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        370.3633239746094,
+        285.04331665039064,
         529.2299987792969,
-        381.85767822265626
+        296.5376708984375
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[6]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[6]/w:tc[2]/w:p",
       "label": "{{security_deposit}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        385.4833190917969,
+        300.16331176757814,
         529.2299987792969,
-        396.97767333984376
+        311.657666015625
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[7]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[7]/w:tc[2]/w:p",
       "label": "{{advance_rent}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        400.4833190917969,
+        315.16331176757814,
         529.2299987792969,
-        411.97767333984376
+        326.657666015625
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[8]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[8]/w:tc[2]/w:p",
       "label": "{{access_deposit}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        415.62330322265626,
+        330.28330688476564,
         529.2299987792969,
-        427.11765747070314
+        341.7776611328125
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[9]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[9]/w:tc[2]/w:p",
       "label": "{{agreement_fee}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         328.0299987792969,
-        430.62330322265626,
+        345.28330688476564,
         529.2299987792969,
-        442.11765747070314
+        356.7776611328125
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[1]/w:tr[10]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[10]/w:tc[2]/w:p",
       "label": "{{total}}",
-      "size": 9.5,
+      "size": 9.48,
       "align": 0,
       "font": "NNBold",
       "page": 0,
       "rect": [
         328.0299987792969,
-        445.7433288574219,
+        360.40330200195314,
         529.2299987792969,
-        457.23768310546876
+        371.89765625
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[14]",
+      "xpath": "/w:document/w:body/w:p[10]",
       "label": "The Tenant agrees to pay a booking fee equivalent to one (1) month\u2019s rental/security deposit to {{company.name}} (\u201cN&N\u201d). The booking fee shall become part of the security deposit upon execution of the Tenancy Agreement.",
-      "size": 10.5,
+      "size": 10.56,
       "align": 0,
       "font": "NNBody",
       "page": 0,
       "rect": [
         72.02400207519531,
-        520.7410400390625,
+        435.42103271484376,
         540.0240020751953,
-        561.270947265625
+        475.95093994140626
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:p[27]",
+      "xpath": "/w:document/w:body/w:p[24]",
       "label": "{{special_conditions}}",
-      "size": 10.5,
+      "size": 10.56,
       "align": 0,
       "font": "NNBody",
       "page": 1,
@@ -256,7 +256,7 @@
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[3]/w:tc[1]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[3]/w:tc[1]/w:p",
       "label": "Name: {{tenant_name}}",
       "size": 9.0,
       "align": 0,
@@ -270,7 +270,7 @@
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[4]/w:tc[1]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[1]/w:p",
       "label": "IC/Passport No.: {{tenant_id}}",
       "size": 9.0,
       "align": 0,
@@ -284,7 +284,7 @@
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[4]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[4]/w:tc[2]/w:p",
       "label": "Registration No.: {{company.registration}}",
       "size": 9.0,
       "align": 0,
@@ -298,7 +298,7 @@
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[5]/w:tc[1]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[1]/w:p",
       "label": "Date: {{agreement_date}}",
       "size": 9.0,
       "align": 0,
@@ -312,7 +312,7 @@
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:tbl[2]/w:tr[5]/w:tc[2]/w:p",
+      "xpath": "/w:document/w:body/w:tbl[3]/w:tr[5]/w:tc[2]/w:p",
       "label": "Date: {{agreement_date}}",
       "size": 9.0,
       "align": 0,
@@ -326,17 +326,17 @@
       ]
     },
     {
-      "xpath": "/w:document/w:body/w:sdt/w:sdtContent/w:p[5]",
-      "label": "1. By signing at the offer letter, I/We hereby acknowledge and confirm that I/we have been advised by you ({{company.name}}) of the following: a) you are a reporting institution under the First Schedule of the Act to adhere to the reporting guidelines as provided by the Central Bank of Malaysia; and b) you have the anti-money laundering / counter financing of terrorism (AML/CFT) obligations to among others, conduct customer due diligence on me/us and to keep proper record on my/our identity, the details of transaction involved and other documents as may be required under the Act, including but not limited to a copy of my/our identity card (\u201cRequested Document\u201d).",
-      "size": 10.5,
+      "xpath": "/w:document/w:body/w:sdt/w:sdtContent/w:p[3]/w:r/mc:AlternateContent/mc:Choice/w:drawing/wp:inline/a:graphic/a:graphicData/wps:wsp/wps:txbx/w:txbxContent/w:p[4]",
+      "label": "1. By signing at the offer letter, I/We hereby acknowledge and confirm that I/we have been advised by you ({{company.name}}) of the following:",
+      "size": 10.56,
       "align": 0,
       "font": "NNBody",
       "page": 2,
       "rect": [
-        72.02400207519531,
-        148.69102172851564,
-        540.0240020751953,
-        272.4109619140625
+        79.58399963378906,
+        152.6510437011719,
+        534.0411649881198,
+        193.06094055175782
       ]
     }
   ],

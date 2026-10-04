@@ -4,15 +4,37 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { expiryDate } from './dates';
 import { parseTenantMessage, TenantImport } from './tenant-import';
+import { Language, LanguagePreference, LANGUAGE_COOKIE, detectLanguage, readLanguagePreference, translate } from './language';
 
 
 interface Field { key: string; label: string; type?: string; required?: boolean; placeholder?: string; wide?: boolean; }
 interface Inventory { name: string; quantity: number; condition: string; remarks: string; }
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key'];
-const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
+const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,aircon_kwh:40,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
+
+  languagePreference:LanguagePreference=readLanguagePreference(document.cookie);
+  language:Language=this.languagePreference==='auto'?detectLanguage(navigator.languages||[navigator.language]):this.languagePreference;
+  t(text:string){return translate(text,this.language);}
+  setLanguage(value:LanguagePreference){
+    this.languagePreference=value==='en'||value==='zh'?value:'auto';
+    document.cookie=`${LANGUAGE_COOKIE}=${this.languagePreference}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol==='https:'?'; Secure':''}`;
+    this.updateLanguage();
+  }
+  @HostListener('window:languagechange')
+  updateLanguage(){
+    this.language=this.languagePreference==='auto'?detectLanguage(navigator.languages||[navigator.language]):this.languagePreference;
+    document.documentElement.lang=this.language==='zh'?'zh-Hans':'en';
+    document.title=this.language==='zh'?'Nest & Nook · 团队文件工具':'Nest & Nook · Team documents';
+  }
+  get stepCaption(){return this.language==='zh'?`第 ${this.stepNumber} 步，共 ${this.activeSteps.length} 步`:`STEP 0${this.stepNumber} OF 0${this.activeSteps.length}`;}
+  fillCaption(count:number){return this.language==='zh'?`填入 ${count} 项资料`:`Fill ${count} fields`;}
+  displayDate(value:string){if(!value)return '';const [y,m,d]=value.split('-').map(Number);return new Intl.DateTimeFormat(this.language==='zh'?'zh-CN':'en-GB',{year:'numeric',month:'short',day:'numeric'}).format(new Date(y,m-1,d));}
+  pageCaption(page:number){const total=this.previewLoading?'…':this.previewPages.length;return this.language==='zh'?`第 ${page} 页，共 ${total} 页`:`Page ${page} of ${total}`;}
+  get templateCaption(){return this.language==='zh'?`使用完整的${this.d['aircon']?'有冷气':'无冷气'}模板，包括付款日期及通知期限。`:`Uses the full ${this.d['aircon']?'AC':'non-AC'} template, including its payment dates and notice periods.`;}
+  get shareCaption(){return this.language==='zh'?`${this.shareFiles.length} 份独立 PDF 已准备好。请在分享菜单中选择 WhatsApp，然后选择客户。`:`${this.shareFiles.length} separate PDF${this.shareFiles.length===1?'':'s'} ready. Choose WhatsApp in the share sheet, then select your customer.`;}
 
   tenantMessage=''; importPreview:TenantImport|null=null; importNotice=''; importNotes:string[]=[];
   reviewTenantMessage(){this.importPreview=parseTenantMessage(this.tenantMessage);this.importNotice='';this.importNotes=[];}
@@ -52,8 +74,8 @@ export class App implements OnInit, OnDestroy {
   get selected(){return this.docs.filter(x=>x.selected)}
   get total(){return ['security_deposit','access_deposit','advance_rent','agreement_fee'].reduce((s,k)=>s+Number(this.d[k]||0),0)}
   get inventory():Inventory[]{return this.d['inventory'];}
-  signOut(){if(!window.confirm('Sign out? Unsaved form details will be cleared.'))return;this.closePreview();this.closeShare();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
-  async ngOnInit(){await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.ok){this.wordPdfAvailable=(await r.json()).word_pdf_available!==false;if(!this.wordPdfAvailable)this.format='source';}if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
+  signOut(){if(!window.confirm(this.t('Sign out? Unsaved form details will be cleared.')))return;this.closePreview();this.closeShare();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
+  async ngOnInit(){this.updateLanguage();await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.ok){this.wordPdfAvailable=(await r.json()).word_pdf_available!==false;if(!this.wordPdfAvailable)this.format='source';}if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
   async loadAddresses(){try{const r=await fetch('/api/addresses');if(!r.ok)throw Error('Could not load saved addresses. Reload to try again.');this.addresses=(await r.json()).addresses;}catch(e){this.addressError=e instanceof Error?e.message:'Could not load addresses.';}}
   async addAddress(){
     const address=this.newAddress.trim();if(!address){this.addressError='Enter an address.';return;}
@@ -77,6 +99,7 @@ export class App implements OnInit, OnDestroy {
   validate(ids:string[]):boolean{
     const agreement=ids.some(id=>['tenancy','offer'].includes(id));
     const moveIn=ids.includes('move_in');
+    if(ids.includes('tenancy')&&this.d['aircon']&&(!Number.isInteger(this.d['aircon_kwh'])||this.d['aircon_kwh']<0||this.d['aircon_kwh']>100000)){this.go(1);this.error='Enter an electricity allowance between 0 and 100,000 kWh.';return false;}
     for(const [idx,fields] of [[0,agreement||moveIn?this.tenantFields:[]],[1,agreement?this.propertyFields:[]]] as [number,Field[]][]){
       const missing=fields.find(f=>f.required&&!String(this.d[f.key]||'').trim());
       if(missing){this.go(idx);this.error=`Please enter ${missing.label.toLowerCase()}.`;return false;}
@@ -99,6 +122,7 @@ export class App implements OnInit, OnDestroy {
     const details:Record<string,any>=blankRules?{tenant_name:'-',tenant_id:'-'}:Object.fromEntries(fields.map(f=>[f.key,this.d[f.key]]));
     details['company']=this.d['company'];
     if(agreement)for(const key of ['aircon','guardian_name','guardian_id','special_conditions','include_aml'])details[key]=this.d[key];
+    if(documentIds.includes('tenancy')&&this.d['aircon'])details['aircon_kwh']=this.d['aircon_kwh'];
     if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
     if(agreement)for(const f of this.moneyFields)details[f.key]=this.d[f.key]||0;
     return JSON.parse(JSON.stringify(details));
@@ -176,6 +200,10 @@ export class App implements OnInit, OnDestroy {
           if(!Array.isArray(src.inventory)||src.inventory.length>30)throw Error('Invalid inventory in draft.');
           base.inventory=src.inventory.map((i:any)=>{if(typeof i.name!=='string'||i.name.length>200||!Number.isInteger(i.quantity)||i.quantity<0||i.quantity>100||!['Not supplied','Good','Fair','Damaged'].includes(i.condition)||typeof i.remarks!=='string'||i.remarks.length>300)throw Error('Invalid inventory in draft.');return {name:i.name,quantity:i.quantity,condition:i.condition,remarks:i.remarks};});
         }else if(src[key]!==undefined){
+          if(key==='aircon_kwh'){
+            if(!Number.isInteger(src[key])||src[key]<0||src[key]>100000)throw Error('Enter an electricity allowance between 0 and 100,000 kWh.');
+            base[key]=src[key];continue;
+          }
           if(this.moneyFields.some(f=>f.key===key)){
             const value=src[key];
             if(value===null||value===''){base[key]=null;continue;}

@@ -6,6 +6,7 @@ import pymupdf as fitz
 from lxml import etree as E
 from .template_docx import ROOT,NS,TemplateError,fill_docx,text,date_text
 from .placeholders import fields_for,substitute
+from .rich_pdf import rich_layout
 
 FOLDER=ROOT/'agreements/pdf'
 
@@ -22,9 +23,10 @@ def field_value(slot,root,details):
     value=date_text(details.agreement_date,True) if key=='signing_date' else getattr(details.company,key.split('.')[1]) if key.startswith('company.') else getattr(details,key)
     return slot['prefix']+(str(value).strip() or '-')
 
-def layout(value,font,rect,size,label):
+def layout(value,font,rect,size,label,preserve_size=False):
     # Fit within the original cell; never silently clip or truncate entered text.
-    while size>=7:
+    minimum=size if preserve_size else min(7,size)
+    while size>=minimum:
         rows=[]
         for paragraph in value.splitlines() or ['-']:
             line=''
@@ -64,12 +66,32 @@ def fill_converted(kind,details,blank=False):
             if blank and slot.get('value')=='signing_date':value='Date: -'
             if blank and kind=='tenancy' and slot.get('xpath') and '/w:tbl[3]/w:tr[5]/' in slot.get('xpath'):value='Date: -'
             rect=fitz.Rect(slot['rect']);page=doc[slot['page']]
+            if slot.get('rich'):
+                parts=[dict(part) for part in slot['rich']]
+                for part in parts:
+                    value_part=substitute(part['expression'],fields)
+                    if any(not fonts[part['font']].has_glyph(ord(c)) for c in value_part if not c.isspace()):
+                        font=fonts.setdefault('NNUnicode',fitz.Font('cjk'))
+                        if any(not font.has_glyph(ord(c)) for c in value_part if not c.isspace()):
+                            raise TemplateError(f"{slot['label']} contains a character unsupported by the PDF fonts.")
+                        part['font']='NNUnicode'
+                rows,size,leading,ascent=rich_layout(parts,fields,fonts,rect,slot['size'],slot['label'])
+                for alias in {part['font'] for part in parts}:page.insert_font(fontname=alias,fontbuffer=fonts[alias].buffer)
+                y=rect.y0+ascent
+                for row in rows:
+                    width=sum(fonts[alias].text_length(text,fontsize=size) for text,alias in row)
+                    x=rect.x0+(rect.width-width)/2 if slot['align']==1 else rect.x1-width if slot['align']==2 else rect.x0
+                    for text,alias in row:
+                        page.insert_text((x,y),text,fontsize=size,fontname=alias)
+                        x+=fonts[alias].text_length(text,fontsize=size)
+                    y+=leading
+                continue
             alias=slot.get('font','NNBody')
             font=fonts[alias]
             if any(not font.has_glyph(ord(c)) for c in value if not c.isspace()):
                 alias='NNUnicode';font=fonts.setdefault(alias,fitz.Font('cjk'))
                 if any(not font.has_glyph(ord(c)) for c in value if not c.isspace()):raise TemplateError(f"{slot['label']} contains a character unsupported by the PDF fonts.")
-            rows,size,leading=layout(value,font,rect,slot['size'],slot['label'])
+            rows,size,leading=layout(value,font,rect,slot['size'],slot['label'],slot.get('preserve_size',False))
             page.insert_font(fontname=alias,fontbuffer=font.buffer)
             y=rect.y0+font.ascender*size
             for row in rows:

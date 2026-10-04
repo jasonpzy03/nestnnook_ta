@@ -14,6 +14,10 @@ Open http://localhost:8000. On a phone using the same Wi-Fi, open `http://<compu
 
 ## Generate documents
 
+The website and staff sign-in page support English and Simplified Chinese. The default follows the browser/phone's language preferences, with English as the fallback. Use the language selector to override this or return to **System language**. Only this preference is saved in a device cookie (`nest_language`, one year); changing language preserves the current form. Templates, document wording, tenant data and company details are not translated. The pasted registration form still uses the existing English headings.
+
+UI translations are maintained in `frontend/src/language.ts`; sign-in translations are in `backend/login_i18n.py`.
+
 1. Choose the documents needed. Each card has a Create button. House rules asks for optional tenant details, then review; other selections show only their required steps.
 2. Choose AC or non-AC, enter unit and room numbers, select a saved property address, and enter dates and payments. Add address saves an option for all staff devices. The 6 months / 1 year buttons calculate expiry from move-in; changing move-in recalculates the selected term.
 3. Complete inventory and condition fields only when the move-in form is selected.

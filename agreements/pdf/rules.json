@@ -1,91 +1,97 @@
 {
   "version": 2,
   "source": "2. House Rules.docx",
-  "source_sha256": "4f5ebf620dcbc356401ebb2e2534abb47d81e9f548114132f368e719fe46c677",
-  "pdf_sha256": "650e1d87116b480fe332d89ab158f8e40351fb43b366531936f8099298fff171",
+  "source_sha256": "dfef7db5fa6622482901e7792d7278feea7b9537df92bf6c11f17a6826955655",
+  "pdf_sha256": "3cfdf7787381d4f0a265023d40cfe0e65b4df8be109e6d300f3087eb7348eb00",
   "slots": [
     {
       "expression": "Name : {{tenant_name}} ",
       "label": "tenant_name",
-      "size": 10.0,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
-      "page": 1,
+      "preserve_size": false,
+      "page": 0,
       "rect": [
         98.42400360107422,
-        178.32623291015625,
+        689.2421875,
         516.0240036010742,
-        190.87623291015626
+        701.7921875
       ]
     },
     {
       "expression": "NRIC: {{tenant_id}}",
       "label": "tenant_id",
-      "size": 10.0,
+      "size": 9.96,
       "align": 0,
       "font": "NNBody",
-      "page": 1,
+      "preserve_size": false,
+      "page": 0,
       "rect": [
         98.42400360107422,
-        189.7261962890625,
+        700.76220703125,
         516.0240036010742,
-        202.2761962890625
+        713.31220703125
       ]
     },
     {
       "expression": "{{company.name}}",
       "label": "company.name",
-      "size": 11.0,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSans",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        90.02400207519531,
-        137.62879943847656,
-        522.0240020751953,
-        151.22879943847656
+        315.8900146484375,
+        65.32377624511719,
+        747.8900146484375,
+        78.92377624511718
       ]
     },
     {
       "expression": "{{company.registration}}",
       "label": "company.registration",
-      "size": 12.0,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSans",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        90.02400207519531,
-        152.35997009277344,
-        522.0240020751953,
-        167.05997009277343
+        315.8900146484375,
+        76.50382995605469,
+        747.8900146484375,
+        91.20382995605469
       ]
     },
     {
       "expression": "{{company.address}}",
       "label": "company.address",
-      "size": 10.5,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSerif",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        90.02400207519531,
-        168.06320190429688,
-        522.0240020751953,
-        181.06320190429688
+        315.8900146484375,
+        87.66380310058594,
+        747.8900146484375,
+        100.66380310058594
       ]
     },
     {
       "expression": "TEL NO.: {{company.phone}}",
       "label": "company.phone",
-      "size": 11.5,
-      "align": 1,
+      "size": 8.04,
+      "align": 0,
       "font": "NNHeaderSerif",
+      "preserve_size": true,
       "page": 0,
       "rect": [
-        90.02400207519531,
-        182.19439697265625,
-        522.0240020751953,
-        196.24439697265626
+        315.8900146484375,
+        98.94377136230469,
+        747.8900146484375,
+        112.99377136230468
       ]
     }
   ]

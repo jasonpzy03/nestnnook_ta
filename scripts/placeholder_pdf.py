@@ -10,6 +10,8 @@ from backend.template_docx import ROOT, NS, W, TemplateError
 from backend.placeholders import TOKEN, paragraph_text, paragraph_segments, fields_for, substitute
 from backend.models import Details
 from backend.renderers import word_pdf
+from scripts.pdf_marker import marker_font_size, paragraph_alignment
+from backend.rich_pdf import styled_expression
 
 META = re.compile(r'NNF_\d+_(\d+)_(\d+)_(\d+)_([012])_([BDKST])$')
 ALIASES = dict(B='NNBody', D='NNBold', K='NNBank', S='NNHeaderSans', T='NNHeaderSerif')
@@ -31,6 +33,7 @@ def build(key, source_name):
     slots = []
     with ZipFile(BytesIO(source)) as archive:
         parts = {item.filename: archive.read(item.filename) for item in archive.infolist()}
+    styles=E.fromstring(parts['word/styles.xml'])
     for part, data in list(parts.items()):
         if not part.startswith('word/') or not part.endswith('.xml'):
             continue
@@ -59,14 +62,22 @@ def build(key, source_name):
                 meta = next((m for m in marks if m), None)
                 if meta is None:
                     raise TemplateError(f'{source_name}: PDF space is not defined for {expression}. Keep the NNF bookmark or add one using agreements/README.md.')
-                width, height, size = int(meta[1])/20, int(meta[2])/20, int(meta[3])/2
+                width, height = int(meta[1])/20, int(meta[2])/20
+                # Bookmark size is legacy spacing metadata only. Word determines
+                # the field's actual font size from its run and inherited styles.
+                size = int(meta[3])/2
                 index = len(slots)
                 marker = 'Z'+chr(65+index//26)+chr(65+index%26)
                 in_cell = bool(p.xpath('ancestor::w:tc', namespaces=NS))
                 fallback = bool(p.xpath('ancestor::mc:Fallback', namespaces=NS))
                 slots.append(dict(marker=marker, expression=expression, label=', '.join(dict.fromkeys(TOKEN.findall(expression))),
-                                  width=width, height=height, size=size, align=int(meta[4]), font=ALIASES[meta[5]],
-                                  in_cell=in_cell, fallback=fallback, shared=len(segments)>1))
+                                  width=width, height=height, size=size,
+                                  align=paragraph_alignment(p,styles) if root.tag==W+'hdr' else int(meta[4]), font=ALIASES[meta[5]],
+                                  in_cell=in_cell, fallback=fallback, shared=len(segments)>1,
+                                  preserve_size=root.tag == W+'hdr'))
+                if key in ('ac','noac') and part=='word/document.xml':
+                    rich=styled_expression(nodes,ALIASES[meta[5]])
+                    if any(run['font']!=ALIASES[meta[5]] for run in rich):slots[-1]['rich']=rich
                 pr = p.find('w:pPr', NS)
                 if pr is None:
                     pr = E.Element(W+'pPr'); p.insert(0, pr)
@@ -81,7 +92,6 @@ def build(key, source_name):
                     for fit in node.getparent().xpath('./w:rPr/w:fitText | ./w:rPr/w:spacing | ./w:rPr/w:w',namespaces=NS):
                         fit.getparent().remove(fit)
                 set_property(rpr,'rFonts',ascii='Arial',hAnsi='Arial')
-                set_property(rpr,'sz',val=round(size*2))
                 if not in_cell and len(segments)==1 and height>20:
                     leading=size*1.2
                     set_property(pr,'spacing',line=round(leading*20),lineRule='exact')
@@ -108,6 +118,7 @@ def build(key, source_name):
         if not matches:
             raise TemplateError('A placeholder is hidden or clipped in the Word template: '+slot['label'])
         for index, marker_rect in matches:
+            slot['size'] = marker_font_size(doc[index], marker_rect)
             x, y = marker_rect.x0, marker_rect.y0
             width, height = slot['width'], slot['height']
             containing = [r for r in cells[index] if r.contains(marker_rect)] if slot['in_cell'] else []
@@ -121,7 +132,8 @@ def build(key, source_name):
                     x, y = cell.x0+3, cell.y0+.25
                     width, height = cell.width-6, cell.height-.5
             rect = [x, y, x+width, y+height]
-            mapped.append({**{k: slot[k] for k in ('expression', 'label', 'size', 'align', 'font')}, 'page': index, 'rect': rect})
+            mapped.append({**{k: slot[k] for k in ('expression', 'label', 'size', 'align', 'font', 'preserve_size')}, 'page': index, 'rect': rect})
+            if 'rich' in slot:mapped[-1]['rich']=slot['rich']
             doc[index].add_redact_annot(marker_rect, fill=False)
     for page in doc:
         page.apply_redactions(images=0, graphics=0)
@@ -131,7 +143,7 @@ def build(key, source_name):
     # Embed portable fonts, as runtime PDF generation on Vercel has no Word install.
     from fontTools.ttLib import TTFont
     from fontTools import subset
-    for alias in sorted({slot['font'] for slot in mapped}):
+    for alias in sorted({slot['font'] for slot in mapped}|{run['font'] for slot in mapped for run in slot.get('rich',[])}):
         font = TTFont('C:/Windows/Fonts/'+font_files[alias], fontNumber=0)
         options = subset.Options(); options.name_IDs=['*']
         sub = subset.Subsetter(options=options)

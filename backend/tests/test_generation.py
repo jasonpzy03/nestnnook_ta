@@ -164,7 +164,9 @@ def test_pdf_pack_without_word(details,aircon,monkeypatch):
             for stale in ['DI CHIA SENG','TENG YING YING','HII HUI CHIN','Shamsunder','VANGUARD','Vanguard','1102047977','961004-01-5879','PCR0033666']:
                 assert stale not in content,(name,stale)
             with fitz.open(stream=data,filetype='pdf') as doc:
-                assert len(doc)==((4 if aircon else 3) if 'tenancy' in name else 3 if 'offer' in name else 2)
+                key=('ac' if aircon else 'noac') if 'tenancy' in name else 'offer' if 'offer' in name else 'move_in' if 'move_in' in name else 'rules'
+                with fitz.open(ROOT/'agreements/pdf'/f'{key}.pdf') as template:
+                    assert len(doc)==len(template)
             if 'tenancy' in name:
                 assert '150' in content and 'transfer' in content.lower()
                 assert 'Refundable Room Deposit' in content

@@ -14,6 +14,28 @@ def client(tmp_path,monkeypatch):
 
 def login(client):return client.post('/login',data={'password':'test-staff-password'})
 
+def test_login_detects_chinese(client):
+    response=client.get('/login',headers={'accept-language':'zh-SG,zh;q=0.9,en;q=0.8'})
+    assert 'lang="zh-Hans"' in response.text
+    assert '团队登录' in response.text and '团队密码' in response.text
+    assert "default-src 'none'" in response.headers['content-security-policy']
+    assert '<script' not in response.text
+
+def test_login_language_preference_and_errors(client):
+    response=client.get('/login?lang=zh',headers={'accept-language':'en-US'})
+    assert 'nest_language=zh' in response.headers['set-cookie']
+    assert '团队登录' in response.text
+    wrong=client.post('/login',data={'password':'wrong'},headers={'accept-language':'en-US'})
+    assert wrong.status_code==401 and '团队密码不正确' in wrong.text
+    response=client.get('/login?lang=auto',headers={'accept-language':'en-US'})
+    assert 'Team sign in' in response.text
+    response=client.get('/login',headers={'accept-language':'zh;q=0,en;q=1'})
+    assert 'lang="en"' in response.text
+
+def test_login_language_input_is_not_rendered(client):
+    response=client.get('/login?lang=%3Cscript%3E')
+    assert '<script>' not in response.text and 'lang="en"' in response.text
+
 @pytest.mark.parametrize('path',['/','/main.js','/styles.css','/agreements/letter%20of%20offer%20to%20rent.pdf','/.local/auth.json','/openapi.json'])
 def test_signed_out_files_blocked(client,path):
     r=client.get(path);assert r.status_code==303 and r.headers['location']=='/login'
