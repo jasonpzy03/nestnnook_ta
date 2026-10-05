@@ -14,6 +14,8 @@ def fields_for(kind, d):
     fields = {key: str(value).strip() or '-' for key, value in d.model_dump().items()
               if isinstance(value, str)}
     fields.update({'company.'+key: value for key, value in d.company.model_dump().items()})
+    if kind == 'tenancy' and fields['room'] != '-':
+        fields['room'] = 'R' + re.sub(r'^[rR](?=\d)', '', fields['room'])
     for key in ('rent', 'parking', 'security_deposit', 'access_deposit', 'advance_rent', 'agreement_fee', 'total'):
         fields[key] = amount(getattr(d, key))
     for key in ('agreement_date', 'start_date', 'end_date'):
