@@ -7,6 +7,7 @@ from fastapi.responses import Response, FileResponse
 from .models import GenerateRequest,Company
 from .template_docx import INVENTORY_NAMES as INVENTORY, TemplateError
 from .renderers import pdf,docx
+from .filenames import pdf_filename, pdf_stem
 from .auth import StaffAuth
 auth = StaffAuth()
 app=FastAPI(title='Nest & Nook document studio',docs_url=None,redoc_url=None,openapi_url=None)
@@ -38,7 +39,8 @@ def generate(req:GenerateRequest):
             extension='pdf' if req.format=='pdf' else 'docx'
             render=pdf if extension=='pdf' else docx
             variant=('-ac' if req.details.aircon else '-noac') if kind=='tenancy' else ''
-            files.append((f'{stem}-{kind}{variant}.{extension}',render(kind,req.details)))
+            name=pdf_filename(kind,req.details) if extension=='pdf' else f'{stem}-{kind}{variant}.{extension}'
+            files.append((name,render(kind,req.details)))
     except TemplateError as exc:
         raise HTTPException(status_code=422,detail=str(exc)) from exc
     # Word export uses a private temporary directory that is removed after conversion.
@@ -49,7 +51,8 @@ def generate(req:GenerateRequest):
         buf=BytesIO()
         with ZipFile(buf,'w',ZIP_DEFLATED) as z:
             for name,data in files:z.writestr(name,data)
-        name=f'{stem}-document-pack.zip';data=buf.getvalue();mime='application/zip'
+        name=f'{pdf_stem(req.details)}_documents.zip' if req.format=='pdf' else f'{stem}-document-pack.zip'
+        data=buf.getvalue();mime='application/zip'
     return Response(data,media_type=mime,headers={'Content-Disposition':f'attachment; filename="{name}"'})
 DIST=Path(__file__).resolve().parents[1]/'frontend/dist/nest-and-nook/browser'
 # Serve through authenticated Python routes. StaticFiles/public assets may be

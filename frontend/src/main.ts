@@ -122,6 +122,8 @@ export class App implements OnInit, OnDestroy {
     const fields=agreement?this.tenantFields.concat(this.propertyFields,this.moneyFields):moveIn?this.tenantFields.concat(this.emergencyFields):this.tenantFields.filter(f=>['tenant_name','tenant_id'].includes(f.key));
     const details:Record<string,any>=blankRules?{tenant_name:'-',tenant_id:'-'}:Object.fromEntries(fields.map(f=>[f.key,this.d[f.key]]));
     details['company']=this.d['company'];
+    details['property']=this.d['property'];
+    details['room']=this.d['room'];
     if(agreement)for(const key of ['aircon','guardian_name','guardian_id','special_conditions','include_aml'])details[key]=this.d[key];
     if(documentIds.includes('tenancy')&&this.d['aircon'])details['aircon_kwh']=this.d['aircon_kwh'];
     if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];

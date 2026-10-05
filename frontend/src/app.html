@@ -51,6 +51,7 @@
               @if(importNotes.length){<div class="import-notes"><strong>{{t("Not filled / needs review")}}</strong><ul>@for(note of importNotes;track $index){<li>{{t(note)}}</li>}</ul></div>}
               <div class="mini-heading">{{t("PERSONAL INFORMATION")}} <span>{{t(hasAgreement||hasMoveIn?'* Required':'Optional')}}</span></div>
               <div class="field-grid">@for(f of visibleTenantFields;track f.key){<label [class.wide]="f.wide">{{t(f.label)}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn)">*</span><input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn)" [placeholder]="t(f.placeholder||'')" maxlength="200"></label>}</div>
+              @if(!hasAgreement){<div class="field-grid"><label>{{t('Unit number')}}<input name="property" [(ngModel)]="d['property']" maxlength="200"></label><label>{{t('Room number')}}<input name="room" [(ngModel)]="d['room']" maxlength="200"></label></div>}
               @if(hasMoveIn){
               <div class="divider"></div><h3>{{t("Emergency contact")}} <span class="optional">{{t("Optional")}}</span></h3><p class="section-description">{{t("Included in the tenant registration form.")}}</p>
               <div class="field-grid">@for(f of emergencyFields;track f.key){<label>{{t(f.label)}}<input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" maxlength="200"></label>}</div>
