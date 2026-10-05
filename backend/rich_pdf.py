@@ -5,11 +5,39 @@ from .placeholders import TOKEN, substitute
 from .template_docx import NS, W, TemplateError
 
 
-def styled_expression(nodes, base_font):
+def inherited_bold(node, styles):
+    if styles is None:
+        return None
+    lookup={s.get(W+'styleId'):s for s in styles.findall('w:style',NS)}
+    default=styles.find('w:docDefaults/w:rPrDefault/w:rPr/w:b',NS)
+    value=default is not None and default.get(W+'val') not in ('0','false','off')
+    def apply(style_id, seen):
+        nonlocal value
+        if not style_id or style_id in seen or style_id not in lookup:return
+        seen.add(style_id);style=lookup[style_id]
+        parent=style.find('w:basedOn',NS)
+        if parent is not None:apply(parent.get(W+'val'),seen)
+        bold=style.find('w:rPr/w:b',NS)
+        # Bold is a toggle property in Word styles; direct run formatting is
+        # an absolute override and is applied separately below.
+        if bold is not None and bold.get(W+'val') not in ('0','false','off'):value=not value
+    p=next(node.iterancestors(W+'p'),None)
+    paragraph_style=p.find('w:pPr/w:pStyle',NS) if p is not None else None
+    default_style=next((s.get(W+'styleId') for s in lookup.values()
+                        if s.get(W+'type')=='paragraph' and s.get(W+'default')=='1'),None)
+    apply(paragraph_style.get(W+'val') if paragraph_style is not None else default_style,set())
+    run_style=node.getparent().find('w:rPr/w:rStyle',NS)
+    if run_style is not None:apply(run_style.get(W+'val'),set())
+    return value
+
+
+def styled_expression(nodes, base_font, style_tree=None):
     text='';styles=[]
     for node in nodes:
         value=node.text or '';bold=node.getparent().find('w:rPr/w:b',NS)
         alias=base_font
+        inherited=inherited_bold(node,style_tree)
+        if inherited is not None:alias='NNBold' if inherited else 'NNBody'
         if bold is not None:
             alias='NNBody' if bold.get(W+'val') in ('0','false','off') else 'NNBold'
         text+=value;styles.extend([alias]*len(value))
