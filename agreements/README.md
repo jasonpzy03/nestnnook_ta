@@ -1,12 +1,13 @@
 # Editing document templates
 
-All five active Word templates use visible `{{field_name}}` placeholders:
+All six active Word templates use visible `{{field_name}}` placeholders:
 
 - `1. Move in Form - quantity.docx`
 - `2. House Rules.docx`
 - `3. Room TA_AC.docx`
 - `3. Room TA_NOAC.docx`
 - `4. Letter of Offer to Rent.docx`
+- `Car Park Rental Agreement.docx`
 
 The older move-in file and original offer PDF are reference copies, not generation sources.
 
@@ -41,9 +42,19 @@ Use double braces around each name, e.g. `{{tenant_name}}`.
 | Dates | `agreement_date`, `start_date`, `end_date`, `tenure` |
 | AC allowance | `aircon_kwh` (whole-number electricity allowance; defaults to 40; add ` kWh` after the placeholder) |
 | Payments | `rent`, `parking`, `security_deposit`, `access_deposit`, `advance_rent`, `agreement_fee`, `total` |
+| Tenancy rental label | `rental_label` — shows `Rental (Extend 6 months @RM …)` for exactly six months, using monthly rent minus RM100; otherwise shows `Rental` |
 | Offer | `reference` (automatic invoice number when blank), `special_conditions` |
 | Move-in | `meter_reading`, `drawer_with`, `drawer_without` |
 | Company | `company.name`, `company.registration`, `company.address`, `company.phone`, `company.contact`, `company.email`, `company.account_name`, `company.account_number`, `company.bank` |
+| Car park | `carpark_lot`, `carpark_address`, `carpark_agreement_date`, `carpark_start_date`, `carpark_end_date`, `carpark_tenure`, `carpark_rent`, `carpark_deposit`, `carpark_earnest_deposit` |
+
+The car park workflow shares tenant identity and company settings, with its own dates, address selection, Lot, rental and deposit. Monthly rental defaults to RM300. Earnest deposit is calculated from the car park rental and commencement date, including that day through month-end, rounded to cents. Lot initially uses the current TA unit if available and remains editable. Addresses use the existing saved list. PDF names use `<lot>_CPA.pdf`. The original supplied document is backed up in `backups/before-carpark-template-20261006/`.
+
+Rebuild only the car park PDF after editing its Word template:
+
+```powershell
+.venv/Scripts/python.exe -c "from scripts.placeholder_pdf import build; from backend.template_docx import SOURCES; build('carpark', SOURCES['carpark'])"
+```
 
 Amounts include RM; zero/empty amounts become a dash. Dates retain the existing document-specific format. Entered values are inserted as text, never interpreted as another placeholder. Placeholders split across Word formatting runs are supported. Unknown names produce an error.
 

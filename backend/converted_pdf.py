@@ -11,7 +11,7 @@ from .rich_pdf import rich_layout
 FOLDER=ROOT/'agreements/pdf'
 
 def available():
-    return all((FOLDER/(key+ext)).is_file() for key in ('ac','noac','rules','move_in','offer') for ext in ('.pdf','.json'))
+    return all((FOLDER/(key+ext)).is_file() for key in ('ac','noac','rules','move_in','offer','carpark') for ext in ('.pdf','.json'))
 
 def field_value(slot,root,details):
     if slot.get('xpath'):

@@ -63,6 +63,14 @@ class Details(StrictModel):
     inventory: list[InventoryItem] = Field(default_factory=list,max_length=30)
     include_aml: bool = True
     company: Company = Field(default_factory=Company)
+    carpark_lot: Text = ''
+    carpark_address: Annotated[str, StringConstraints(strip_whitespace=True,max_length=600)] = ''
+    carpark_agreement_date: date | None = None
+    carpark_start_date: date | None = None
+    carpark_end_date: date | None = None
+    carpark_rent: Money = Decimal('300')
+    carpark_deposit: Money = Decimal('0')
+    carpark_earnest_deposit: Money = Decimal('0')
     @model_validator(mode='after')
     def dates(self):
         if self.end_date and self.start_date and self.end_date < self.start_date:
@@ -70,6 +78,11 @@ class Details(StrictModel):
         days = monthrange(self.start_date.year, self.start_date.month)[1] if self.start_date else 0
         self.advance_rent = ((self.rent * (days - self.start_date.day + 1) / days)
                              .quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)) if days else Decimal('0')
+        if self.carpark_end_date and self.carpark_start_date and self.carpark_end_date < self.carpark_start_date:
+            raise ValueError('Car park expiry date must be on or after its commencement date.')
+        days = monthrange(self.carpark_start_date.year, self.carpark_start_date.month)[1] if self.carpark_start_date else 0
+        self.carpark_earnest_deposit = ((self.carpark_rent * (days-self.carpark_start_date.day+1)/days)
+                                      .quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)) if days else Decimal('0')
         return self
     @builtins.property
     def property_address(self):
@@ -87,7 +100,7 @@ class Details(StrictModel):
         return sum((self.security_deposit,self.access_deposit,self.advance_rent,self.agreement_fee),Decimal('0'))
 class GenerateRequest(StrictModel):
     details: Details
-    documents: list[Literal['tenancy','rules','move_in','offer']] = Field(min_length=1,max_length=4)
+    documents: list[Literal['tenancy','rules','move_in','offer','carpark']] = Field(min_length=1,max_length=5)
     format: Literal['pdf','source','docx'] = 'pdf'
     @model_validator(mode='after')
     def unique(self):
@@ -97,6 +110,8 @@ class GenerateRequest(StrictModel):
             needed = ['tenant_name','tenant_id','property','room','address','agreement_date','start_date','end_date']
         elif 'move_in' in self.documents:
             needed = ['tenant_name','tenant_id','agreement_date']
+        if 'carpark' in self.documents:
+            needed += ['tenant_name','tenant_id','carpark_lot','carpark_address','carpark_agreement_date','carpark_start_date','carpark_end_date']
         missing = [key for key in needed if not getattr(self.details,key)]
         if missing: raise ValueError('Required details: '+', '.join(missing))
         return self

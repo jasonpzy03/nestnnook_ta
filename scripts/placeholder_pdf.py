@@ -75,8 +75,8 @@ def build(key, source_name):
                                   align=paragraph_alignment(p,styles) if root.tag==W+'hdr' else int(meta[4]), font=ALIASES[meta[5]],
                                   in_cell=in_cell, fallback=fallback, shared=len(segments)>1,
                                   preserve_size=root.tag == W+'hdr'))
-                if key in ('ac','noac') and part=='word/document.xml':
-                    rich=styled_expression(nodes,ALIASES[meta[5]])
+                if key in ('ac','noac','carpark') and part=='word/document.xml':
+                    rich=styled_expression(nodes,ALIASES[meta[5]],styles)
                     if any(run['font']!=ALIASES[meta[5]] for run in rich):slots[-1]['rich']=rich
                 pr = p.find('w:pPr', NS)
                 if pr is None:

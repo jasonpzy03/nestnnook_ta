@@ -11,7 +11,7 @@ interface Field { key: string; label: string; type?: string; required?: boolean;
 interface Inventory { name: string; quantity: number; condition: string; remarks: string; }
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key'];
-const fresh = (): Record<string, any> => ({tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,aircon_kwh:40,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
+const fresh = (): Record<string, any> => ({carpark_lot:'',carpark_address:'',carpark_agreement_date:today(),carpark_start_date:today(),carpark_end_date:'',carpark_rent:300,carpark_deposit:null,carpark_earnest_deposit:null,tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,aircon_kwh:40,rent:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
 
@@ -54,23 +54,29 @@ export class App implements OnInit, OnDestroy {
   private shareAbort?:AbortController;
   get canShareFiles(){return this.supportsShare(this.shareFiles);}
   supportsShare(files:File[]){try{return files.length>0&&typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files});}catch{return false;}}
-  addresses:string[]=[]; newAddress=''; addingAddress=false; savingAddress=false; addressError=''; expiryMonths=0;
+  addresses:string[]=[]; newAddress=''; addingAddress=false; savingAddress=false; addressError=''; expiryMonths=0; carparkExpiryMonths=0; carparkLotInitialized=false;
   d = fresh(); step=0; page='templates'; settings=false; resetPrompt=false; busy=false; status=''; error=''; format='pdf'; ready=false;
   previewUrl=''; previewPages:string[]=[]; previewLoading=false; previewError=''; previewTitle=''; previewSession=0;
-  steps=['Tenant details','Tenancy & payments','Move-in checklist','Review & generate'];
-  docs=[{id:'tenancy',name:'Tenancy agreement',description:'AC or non-AC tenancy agreement.',selected:false,tag:'AGREEMENT'}, {id:'rules',name:'House rules',description:'House guidelines and tenant acknowledgement.',selected:false,tag:'GUIDELINES'}, {id:'move_in',name:'Move-in form',description:'Registration, emergency contact and inventory.',selected:false,tag:'CHECK-IN'}, {id:'offer',name:'Letter of offer',description:'Offer to rent and payment breakdown.',selected:false,tag:'OFFER LETTER'}];
+  steps=['Tenant details','Tenancy & payments','Move-in checklist','Review & generate','Car park details'];
+  docs=[{id:'carpark',name:'Car park rental agreement',description:'Separate car park dates, rental and deposits.',selected:false,tag:'CAR PARK'},{id:'tenancy',name:'Tenancy agreement',description:'AC or non-AC tenancy agreement.',selected:false,tag:'AGREEMENT'}, {id:'rules',name:'House rules',description:'House guidelines and tenant acknowledgement.',selected:false,tag:'GUIDELINES'}, {id:'move_in',name:'Move-in form',description:'Registration, emergency contact and inventory.',selected:false,tag:'CHECK-IN'}, {id:'offer',name:'Letter of offer',description:'Offer to rent and payment breakdown.',selected:false,tag:'OFFER LETTER'}];
   tenantFields:Field[]=[{key:'tenant_name',label:'Full name',required:true,placeholder:'As shown on IC or passport',wide:true},{key:'tenant_id',label:'IC / Passport number',required:true,placeholder:'e.g. 900101-01-1234'},{key:'nationality',label:'Nationality'},{key:'phone',label:'Phone number',type:'tel',placeholder:'+60'},{key:'email',label:'Email address',type:'email',placeholder:'tenant@example.com'},{key:'occupation',label:'Occupation',placeholder:'e.g. Software engineer'},{key:'employer',label:'Company / Employer'},{key:'vehicle',label:'Vehicle registration',placeholder:'If applicable'}];
   emergencyFields:Field[]=[{key:'emergency_name',label:'Contact name'},{key:'emergency_relationship',label:'Relationship'},{key:'emergency_phone',label:'Phone number',type:'tel'},{key:'emergency_id',label:'IC / Passport number'}];
   propertyFields:Field[]=[{key:'property',label:'Unit number',required:true,placeholder:'e.g. A7-1-2404'},{key:'room',label:'Room number',required:true,placeholder:'e.g. 06'},{key:'address',label:'Property address',required:true,wide:true},{key:'agreement_date',label:'Agreement / Signing date',type:'date',required:true},{key:'start_date',label:'Move-in / Commencement date',type:'date',required:true},{key:'end_date',label:'Expiry date',type:'date',required:true},{key:'reference',label:'Invoice number',placeholder:'Generated automatically if left blank'}];
-  moneyFields:Field[]=[{key:'rent',label:'Monthly room rental'},{key:'parking',label:'Monthly car park rental'},{key:'security_deposit',label:'Refundable room deposit'},{key:'access_deposit',label:'Refundable access card deposit'},{key:'advance_rent',label:'Advance / Pro-rated rental'},{key:'agreement_fee',label:'Agreement fee'}];
+  moneyFields:Field[]=[{key:'rent',label:'Monthly room rental'},{key:'security_deposit',label:'Refundable room deposit'},{key:'access_deposit',label:'Refundable access card deposit'},{key:'advance_rent',label:'Advance / Pro-rated rental'},{key:'agreement_fee',label:'Agreement fee'}];
+  carparkFields:Field[]=[{key:'carpark_lot',label:'Lot',required:true},{key:'carpark_address',label:'Property address',required:true},{key:'carpark_agreement_date',label:'Agreement / Signing date',type:'date',required:true},{key:'carpark_start_date',label:'Commencement date',type:'date',required:true},{key:'carpark_end_date',label:'Expiry date',type:'date',required:true}];
+  carparkMoneyFields:Field[]=[{key:'carpark_rent',label:'Car park rental'},{key:'carpark_deposit',label:'Deposit'}];
+  get hasCarpark(){return this.selected.some(x=>x.id==='carpark');}
+  get carparkEarnest(){return proratedRental(this.d['carpark_start_date'],this.d['carpark_rent']);}
+  chooseCarparkTerm(months:number){this.carparkExpiryMonths=months;this.updateCarparkExpiry();}
+  updateCarparkExpiry(){if(this.carparkExpiryMonths)this.d['carpark_end_date']=expiryDate(this.d['carpark_start_date'],this.carparkExpiryMonths);}
   companyFields:Field[]=[{key:'name',label:'Company name'},{key:'registration',label:'SSM registration number'},{key:'address',label:'Company address',wide:true},{key:'contact',label:'Contact person'},{key:'phone',label:'Phone number'},{key:'email',label:'Email address'},{key:'bank',label:'Bank name'},{key:'account_name',label:'Beneficiary name'},{key:'account_number',label:'Account number'}];
   get hasMoveIn(){return this.selected.some(x=>x.id==='move_in');}
   get hasAgreement(){return this.selected.some(x=>['tenancy','offer'].includes(x.id));}
   get hasTenancy(){return this.selected.some(x=>x.id==='tenancy');}
   get hasOffer(){return this.selected.some(x=>x.id==='offer');}
-  get activeSteps(){return [0,...(this.hasAgreement?[1]:[]),...(this.hasMoveIn?[2]:[]),3];}
+  get activeSteps(){return [0,...(this.hasAgreement?[1]:[]),...(this.hasCarpark?[4]:[]),...(this.hasMoveIn?[2]:[]),3];}
   get stepNumber(){return this.activeSteps.indexOf(this.step)+1;}
-  get visibleTenantFields(){return this.tenantFields.filter(f=>this.hasMoveIn||(this.hasAgreement?['tenant_name','tenant_id','phone','email']:['tenant_name','tenant_id']).includes(f.key));}
+  get visibleTenantFields(){return this.tenantFields.filter(f=>this.hasMoveIn||(this.hasAgreement||this.hasCarpark?['tenant_name','tenant_id','phone','email']:['tenant_name','tenant_id']).includes(f.key));}
   get selected(){return this.docs.filter(x=>x.selected)}
   get proratedRent(){return proratedRental(this.d['start_date'],this.d['rent']);}
   get total(){return (this.proratedRent||0)+['security_deposit','access_deposit','agreement_fee'].reduce((s,k)=>s+Number(this.d[k]||0),0)}
@@ -78,10 +84,10 @@ export class App implements OnInit, OnDestroy {
   signOut(){if(!window.confirm(this.t('Sign out? Unsaved form details will be cleared.')))return;this.closePreview();this.closeShare();this.d=fresh();const form=document.createElement('form');form.method='post';form.action='/logout';document.body.appendChild(form);form.submit();}
   async ngOnInit(){this.updateLanguage();await this.loadAddresses();try{const r=await fetch('/api/health');this.ready=r.ok;if(r.ok){this.wordPdfAvailable=(await r.json()).word_pdf_available!==false;if(!this.wordPdfAvailable)this.format='source';}if(r.status===401)window.location.assign('/login');}catch{this.ready=false;}}
   async loadAddresses(){try{const r=await fetch('/api/addresses');if(!r.ok)throw Error('Could not load saved addresses. Reload to try again.');this.addresses=(await r.json()).addresses;}catch(e){this.addressError=e instanceof Error?e.message:'Could not load addresses.';}}
-  async addAddress(){
+  async addAddress(target='address'){
     const address=this.newAddress.trim();if(!address){this.addressError='Enter an address.';return;}
     this.savingAddress=true;this.addressError='';
-    try{const r=await fetch('/api/addresses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address})});const data=await r.json();if(!r.ok)throw Error(typeof data.detail==='string'?data.detail:'Could not save the address.');this.addresses=data.addresses;this.d['address']=data.selected;this.newAddress='';this.addingAddress=false;}catch(e){this.addressError=e instanceof Error?e.message:'Could not save the address.';}finally{this.savingAddress=false;}
+    try{const r=await fetch('/api/addresses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address})});const data=await r.json();if(!r.ok)throw Error(typeof data.detail==='string'?data.detail:'Could not save the address.');this.addresses=data.addresses;this.d[target]=data.selected;this.newAddress='';this.addingAddress=false;}catch(e){this.addressError=e instanceof Error?e.message:'Could not save the address.';}finally{this.savingAddress=false;}
   }
   chooseTerm(months:number){this.expiryMonths=months;this.updateExpiry();}
   updateExpiry(){
@@ -95,18 +101,20 @@ export class App implements OnInit, OnDestroy {
     this.page='studio';this.go(0);
   }
   back(){const index=this.activeSteps.indexOf(this.step);if(index>0)this.go(this.activeSteps[index-1]);else this.page='templates';}
-  go(n:number){this.step=n;this.error='';this.status='';window.scrollTo({top:0,behavior:'smooth'});}
-  next(form:HTMLFormElement){if(form.reportValidity()){if(this.step===1&&this.d['end_date']<this.d['start_date']){this.error='Expiry date must be on or after the move-in date.';return;}this.go(this.activeSteps[Math.min(this.activeSteps.length-1,this.activeSteps.indexOf(this.step)+1)]);}}
+  go(n:number){if(n===4&&!this.carparkLotInitialized){this.d['carpark_lot'] ||= this.d['property'];this.carparkLotInitialized=true;}this.step=n;this.error='';this.status='';window.scrollTo({top:0,behavior:'smooth'});}
+  next(form:HTMLFormElement){if(form.reportValidity()){if(this.step===4&&!this.validate(['carpark']))return;if(this.step===1&&this.d['end_date']<this.d['start_date']){this.error='Expiry date must be on or after the move-in date.';return;}this.go(this.activeSteps[Math.min(this.activeSteps.length-1,this.activeSteps.indexOf(this.step)+1)]);}}
   validate(ids:string[]):boolean{
     const agreement=ids.some(id=>['tenancy','offer'].includes(id));
-    const moveIn=ids.includes('move_in');
+    const moveIn=ids.includes('move_in');const carpark=ids.includes('carpark');
     if(ids.includes('tenancy')&&this.d['aircon']&&(!Number.isInteger(this.d['aircon_kwh'])||this.d['aircon_kwh']<0||this.d['aircon_kwh']>100000)){this.go(1);this.error='Enter an electricity allowance between 0 and 100,000 kWh.';return false;}
-    for(const [idx,fields] of [[0,agreement||moveIn?this.tenantFields:[]],[1,agreement?this.propertyFields:[]]] as [number,Field[]][]){
+    for(const [idx,fields] of [[0,agreement||moveIn||carpark?this.tenantFields:[]],[1,agreement?this.propertyFields:[]],[4,carpark?this.carparkFields:[]]] as [number,Field[]][]){
       const missing=fields.find(f=>f.required&&!String(this.d[f.key]||'').trim());
       if(missing){this.go(idx);this.error=`Please enter ${missing.label.toLowerCase()}.`;return false;}
     }
     if(agreement&&this.d['end_date']<this.d['start_date']){this.go(1);this.error='Expiry date must be on or after the move-in date.';return false;}
     if(agreement&&this.moneyFields.some(f=>this.d[f.key]!=null && this.d[f.key]!=='' && (typeof this.d[f.key]!=='number'||!Number.isFinite(this.d[f.key])||Number(this.d[f.key])<0||Number(this.d[f.key])>1000000))){this.go(1);this.error='Enter a valid amount between RM 0 and RM 1,000,000 for every payment.';return false;}
+    if(carpark&&this.d['carpark_end_date']<this.d['carpark_start_date']){this.go(4);this.error='Car park expiry date must be on or after its commencement date.';return false;}
+    if(carpark&&this.carparkMoneyFields.some(f=>f.key==='carpark_rent'&&this.d[f.key]==null||this.d[f.key]!=null&&(typeof this.d[f.key]!=='number'||!Number.isFinite(this.d[f.key])||this.d[f.key]<0||this.d[f.key]>1000000))){this.go(4);this.error='Enter a valid amount between RM 0 and RM 1,000,000 for every payment.';return false;}
     if(!ids.length){this.error='Choose at least one document to generate.';return false;}
     if(moveIn&&!this.d['agreement_date']){this.go(2);this.error='Enter the signing date.';return false;}
     return true;
@@ -128,6 +136,7 @@ export class App implements OnInit, OnDestroy {
     if(documentIds.includes('tenancy')&&this.d['aircon'])details['aircon_kwh']=this.d['aircon_kwh'];
     if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
     if(agreement)for(const f of this.moneyFields)details[f.key]=f.key==='advance_rent'?(this.proratedRent||0):(this.d[f.key]||0);
+    if(documentIds.includes('carpark')){for(const f of [...this.carparkFields,...this.carparkMoneyFields])details[f.key]=f.type==='date'||f.required?this.d[f.key]:(this.d[f.key]||0);details['carpark_earnest_deposit']=this.carparkEarnest||0;}
     return JSON.parse(JSON.stringify(details));
   }
   async generate(ids?:string[],preview=false,blankRules=false,outputFormat?:string){
@@ -189,7 +198,7 @@ export class App implements OnInit, OnDestroy {
     this.shareFiles=[];this.shareMessage='';this.shareError='';
   }
   download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
-  saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:{...this.d,advance_rent:this.proratedRent},documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
+  saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:{...this.d,advance_rent:this.proratedRent,carpark_earnest_deposit:this.carparkEarnest},documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
   async loadDraft(event:Event){
     const input=event.target as HTMLInputElement;const file=input.files?.[0];if(!file)return;
     try{
@@ -207,7 +216,7 @@ export class App implements OnInit, OnDestroy {
             if(!Number.isInteger(src[key])||src[key]<0||src[key]>100000)throw Error('Enter an electricity allowance between 0 and 100,000 kWh.');
             base[key]=src[key];continue;
           }
-          if(this.moneyFields.some(f=>f.key===key)){
+          if([...this.moneyFields,...this.carparkMoneyFields,{key:'carpark_earnest_deposit'}].some(f=>f.key===key)){
             const value=src[key];
             if(value===null||value===''){base[key]=null;continue;}
             if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>1000000)throw Error('Invalid amount in draft: '+key);
@@ -216,10 +225,10 @@ export class App implements OnInit, OnDestroy {
           if(typeof src[key]!==typeof base[key]||(typeof src[key]==='string'&&src[key].length>3000))throw Error('Invalid field in draft: '+key);base[key]=src[key];
         }
       }
-      this.d=base;this.expiryMonths=0;if(Array.isArray(parsed.documents))this.docs.forEach(doc=>doc.selected=parsed.documents.includes(doc.id));this.page=this.selected.length?'studio':'templates';this.go(0);this.status='Draft loaded. Review the details before generating documents.';
+      this.d=base;this.expiryMonths=0;this.carparkExpiryMonths=0;this.carparkLotInitialized=!!base['carpark_lot'];if(Array.isArray(parsed.documents))this.docs.forEach(doc=>doc.selected=parsed.documents.includes(doc.id));this.page=this.selected.length?'studio':'templates';this.go(0);this.status='Draft loaded. Review the details before generating documents.';
     }catch(e){this.error=e instanceof Error?e.message:'Unable to read draft.';}finally{input.value='';}
   }
-  reset(){this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.tenantMessage='';this.importPreview=null;this.importNotice='';this.importNotes=[];this.resetPrompt=false;this.go(0);this.closePreview();}
+  reset(){this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.carparkExpiryMonths=0;this.carparkLotInitialized=false;this.tenantMessage='';this.importPreview=null;this.importNotice='';this.importNotes=[];this.resetPrompt=false;this.go(0);this.closePreview();}
   async renderPreview(blob:Blob){
     this.previewLoading=true;this.previewError='';const session=this.previewSession;
     let pdfDocument:any;

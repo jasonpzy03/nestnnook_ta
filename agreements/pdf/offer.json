@@ -1,7 +1,7 @@
 {
   "source": "4. Letter of Offer to Rent.docx",
-  "source_sha256": "10506c735ba201a7e6bfe4fcda2ef4935b40a00b9f13ac5c8bbf7d221a7a861e",
-  "pdf_sha256": "bec4f0e8a0d5f20ed244c7696717beafce92140523c600db325bdcc797569b5b",
+  "source_sha256": "021a43c2a6f150ab2081f59be79cfd91313a207bee291abb39c76adc6db5f002",
+  "pdf_sha256": "9d612b5a627edd92d96a0e249a3da24fcf1efe4a79e69355583df969c9abe281",
   "slots": [
     {
       "xpath": "/w:document/w:body/w:tbl[1]/w:tr/w:tc[2]/w:p[1]",
@@ -229,7 +229,7 @@
     },
     {
       "xpath": "/w:document/w:body/w:p[10]",
-      "label": "The Tenant agrees to pay a booking fee equivalent to one (1) month\u2019s rental/security deposit to {{company.name}} (\u201cN&N\u201d). The booking fee shall become part of the security deposit upon execution of the Tenancy Agreement.",
+      "label": "The Tenant agrees to pay a booking fee of RM 300 to {{company.name}} (\u201cN&N\u201d). The booking fee shall become part of the security deposit upon execution of the Tenancy Agreement.",
       "size": 10.56,
       "align": 0,
       "font": "NNBody",

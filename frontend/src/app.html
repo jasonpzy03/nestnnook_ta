@@ -15,7 +15,7 @@
           <article class="card library-card" [class.selected-card]="doc.selected">
             <label class="check-label"><input type="checkbox" [(ngModel)]="doc.selected" [attr.aria-label]="t('Choose documents')+': '+t(doc.name)"><span class="eyebrow">{{t(doc.tag)}}</span></label>
             <h2>{{t(doc.name)}}</h2><p>{{t(doc.description)}}</p>
-            <p class="subtle">{{t(doc.id==='rules'?'Optional tenant name and IC, then review and generate.':doc.id==='move_in'?'Tenant details and inventory only.': 'Tenant details and tenancy terms. No move-in checklist.')}}</p>
+            <p class="subtle">{{t(doc.id==='carpark'?'Tenant details and separate car park terms.':doc.id==='rules'?'Optional tenant name and IC, then review and generate.':doc.id==='move_in'?'Tenant details and inventory only.': 'Tenant details and tenancy terms. No move-in checklist.')}}</p>
             <div class="document-actions">
               <button class="button secondary" (click)="startDocuments(doc.id)">{{t("Create")}} {{t(doc.name.toLowerCase())}} →</button>
             </div>
@@ -28,10 +28,10 @@
     <button class="text-button change-documents" (click)="page='templates'">{{t("← Change documents")}}</button><div class="studio-layout">
       <section class="form-column">
         <div class="mobile-draft"><span>{{t("Draft")}}</span><button class="text-button" (click)="saveDraft()">{{t("Save draft")}}</button><button class="text-button" (click)="mobileDraft.click()">{{t("Load draft")}}</button><input #mobileDraft type="file" accept=".json,application/json" hidden (change)="loadDraft($event)"></div>
-        <nav class="stepper" [attr.aria-label]="t(&quot;Document creation steps&quot;)">@for (i of activeSteps;track i;let position=$index){<button (click)="go(i)" [class.current]="step===i" [class.done]="step>i" [attr.aria-current]="step===i?'step':null"><span>{{step>i?'✓':('0'+(position+1))}}</span><b>{{t(steps[i])}}</b></button>}</nav>
+        <nav class="stepper" [attr.aria-label]="t(&quot;Document creation steps&quot;)">@for (i of activeSteps;track i;let position=$index){<button (click)="go(i)" [class.current]="step===i" [class.done]="activeSteps.indexOf(step)>activeSteps.indexOf(i)" [attr.aria-current]="step===i?'step':null"><span>{{activeSteps.indexOf(step)>activeSteps.indexOf(i)?'✓':('0'+(position+1))}}</span><b>{{t(steps[i])}}</b></button>}</nav>
         <form #form (submit)="$event.preventDefault();next(form)" autocomplete="off">
           <article class="card form-card">
-            <div class="section-heading"><div><div class="eyebrow">{{stepCaption}}</div><h2>{{t(steps[step])}}</h2><p>{{t(step===0?'Enter the tenant’s personal and contact details.':step===1?'Enter the property, dates and payment amounts.':step===2?'Record inventory quantities and condition at handover.':'Check the details and download your selected documents.')}}</p></div><span class="section-icon">{{t(step===0?'♙':step===1?'⌂':step===2?'☷':'✓')}}</span></div>
+            <div class="section-heading"><div><div class="eyebrow">{{stepCaption}}</div><h2>{{t(steps[step])}}</h2><p>{{t(step===0?'Enter the tenant’s personal and contact details.':step===1||step===4?'Enter the property, dates and payment amounts.':step===2?'Record inventory quantities and condition at handover.':'Check the details and download your selected documents.')}}</p></div><span class="section-icon">{{t(step===0?'♙':step===1?'⌂':step===2?'☷':'✓')}}</span></div>
             @if(step===0){
               <details class="tenant-import">
                 <summary>{{t("Paste tenant registration / reservation")}}</summary>
@@ -49,9 +49,9 @@
               </details>
               @if(importNotice){<div class="notice success" role="status">{{t(importNotice)}}</div>}
               @if(importNotes.length){<div class="import-notes"><strong>{{t("Not filled / needs review")}}</strong><ul>@for(note of importNotes;track $index){<li>{{t(note)}}</li>}</ul></div>}
-              <div class="mini-heading">{{t("PERSONAL INFORMATION")}} <span>{{t(hasAgreement||hasMoveIn?'* Required':'Optional')}}</span></div>
-              <div class="field-grid">@for(f of visibleTenantFields;track f.key){<label [class.wide]="f.wide">{{t(f.label)}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn)">*</span><input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn)" [placeholder]="t(f.placeholder||'')" maxlength="200"></label>}</div>
-              @if(!hasAgreement){<div class="field-grid"><label>{{t('Unit number')}}<input name="property" [(ngModel)]="d['property']" maxlength="200"></label><label>{{t('Room number')}}<input name="room" [(ngModel)]="d['room']" maxlength="200"></label></div>}
+              <div class="mini-heading">{{t("PERSONAL INFORMATION")}} <span>{{t(hasAgreement||hasMoveIn||hasCarpark?'* Required':'Optional')}}</span></div>
+              <div class="field-grid">@for(f of visibleTenantFields;track f.key){<label [class.wide]="f.wide">{{t(f.label)}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn||hasCarpark)">*</span><input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn||hasCarpark)" [placeholder]="t(f.placeholder||'')" maxlength="200"></label>}</div>
+              @if(!hasAgreement&&!hasCarpark){<div class="field-grid"><label>{{t('Unit number')}}<input name="property" [(ngModel)]="d['property']" maxlength="200"></label><label>{{t('Room number')}}<input name="room" [(ngModel)]="d['room']" maxlength="200"></label></div>}
               @if(hasMoveIn){
               <div class="divider"></div><h3>{{t("Emergency contact")}} <span class="optional">{{t("Optional")}}</span></h3><p class="section-description">{{t("Included in the tenant registration form.")}}</p>
               <div class="field-grid">@for(f of emergencyFields;track f.key){<label>{{t(f.label)}}<input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" maxlength="200"></label>}</div>
@@ -63,10 +63,10 @@
             @if(step===1){
               @if(hasTenancy){<div class="mini-heading">{{t("ROOM & AGREEMENT")}}</div><div class="aircon-toggle" role="group" [attr.aria-label]="t(&quot;Air conditioning&quot;)"><button type="button" [class.chosen]="d['aircon']" [attr.aria-pressed]="d['aircon']" (click)="d['aircon']=true"><span>❄</span> {{t("With air conditioning")}} <b>{{t(d['aircon']?'●':'○')}}</b></button><button type="button" [class.chosen]="!d['aircon']" [attr.aria-pressed]="!d['aircon']" (click)="d['aircon']=false"><span>☀</span> {{t("Without air conditioning")}} <b>{{!d['aircon']?'●':'○'}}</b></button></div>
               <p class="field-hint">{{templateCaption}}</p>@if(d['aircon']){<label class="block-field">{{t('Included air-conditioning electricity (kWh)')}}<input name="aircon_kwh" type="number" [(ngModel)]="d['aircon_kwh']" required min="0" max="100000" step="1" inputmode="numeric"></label><p class="field-hint">{{t('Included allowance in the AC tenancy agreement.')}}</p>}}
-              <div class="field-grid">@for(f of propertyFields;track f.key){<div [class.wide]="f.wide"><label>{{t(f.label)}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn)">*</span>
+              <div class="field-grid">@for(f of propertyFields;track f.key){<div [class.wide]="f.wide"><label>{{t(f.label)}} <span class="required" *ngIf="f.required&&(hasAgreement||hasMoveIn||hasCarpark)">*</span>
                 @if(f.key==='address'){
                   <select class="property-address-select" name="address" [(ngModel)]="d['address']" required><option value="" disabled>{{t("Select an address")}}</option>@for(address of addresses;track address){<option [value]="address">{{address}}</option>}@if(d['address']&&!addresses.includes(d['address'])){<option [value]="d['address']">{{d['address']}} {{t("(from draft)")}}</option>}</select>
-                }@else{<input [name]="f.key" [(ngModel)]="d[f.key]" (ngModelChange)="f.key==='start_date'?updateExpiry():f.key==='end_date'?(expiryMonths=0):null" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn)" [placeholder]="t(f.placeholder||'')" [attr.min]="f.key==='end_date'?d['start_date']:null" maxlength="200">}
+                }@else{<input [name]="f.key" [(ngModel)]="d[f.key]" (ngModelChange)="f.key==='start_date'?updateExpiry():f.key==='end_date'?(expiryMonths=0):null" [type]="f.type||'text'" [required]="!!f.required&&(hasAgreement||hasMoveIn||hasCarpark)" [placeholder]="t(f.placeholder||'')" [attr.min]="f.key==='end_date'?d['start_date']:null" maxlength="200">}
                 </label>
                 @if(f.key==='address'){
                   @if(d['address']){<p class="selected-property-address">{{d['address']}}</p>}
@@ -82,6 +82,19 @@
               <p class="field-hint">{{t("The non-AC agreement has no access deposit or agreement fee row. The offer lists the agreement fee separately.")}}</p>
               <label class="block-field">{{t("Special conditions for the offer letter")}}<textarea name="special_conditions" [(ngModel)]="d['special_conditions']" rows="3" maxlength="3000" [placeholder]="t(&quot;Any additional conditions agreed with the tenant&quot;)"></textarea></label>
             }
+            @if(step===4){
+              <p class="field-hint">{{t('Car park dates and payments are separate from the tenancy agreement.')}}</p>
+              <div class="field-grid">@for(f of carparkFields;track f.key){<div class="field-block"><label>{{t(f.label)}} <span class="required">*</span>
+                @if(f.key==='carpark_address'){<select [name]="f.key" [(ngModel)]="d[f.key]" required><option value="">{{t('Choose an address')}}</option>@if(d[f.key]&&!addresses.includes(d[f.key])){<option [value]="d[f.key]">{{d[f.key]}}</option>}@for(address of addresses;track address){<option [value]="address">{{address}}</option>}</select>}
+                @else{<input [name]="f.key" [(ngModel)]="d[f.key]" [type]="f.type||'text'" required maxlength="200" [attr.min]="f.key==='carpark_end_date'?d['carpark_start_date']:null" (ngModelChange)="f.key==='carpark_start_date'?updateCarparkExpiry():f.key==='carpark_end_date'?(carparkExpiryMonths=0):null">}
+              </label>
+              @if(f.key==='carpark_address'){<button type="button" class="text-button address-add" (click)="addingAddress=!addingAddress">{{t(addingAddress?'Cancel':'＋ Add address')}}</button>@if(addingAddress){<div class="address-editor"><label>{{t('New property address')}}<textarea name="carpark_new_address" [(ngModel)]="newAddress" maxlength="600" rows="3"></textarea></label><button type="button" class="button secondary" [disabled]="savingAddress" (click)="addAddress('carpark_address')">{{t(savingAddress?'Saving…':'Save address')}}</button></div>}@if(addressError){<p class="field-error" role="alert">{{t(addressError)}}</p>}}
+              @if(f.key==='carpark_end_date'){<div class="term-buttons"><button type="button" [class.chosen]="carparkExpiryMonths===6" (click)="chooseCarparkTerm(6)">{{t('6 months')}}</button><button type="button" [class.chosen]="carparkExpiryMonths===12" (click)="chooseCarparkTerm(12)">{{t('1 year')}}</button></div>}
+              </div>}</div>
+              <div class="divider"></div><h3>{{t('Rental & deposits')}}</h3>
+              <div class="field-grid">@for(f of carparkMoneyFields;track f.key){<label>{{t(f.label)}}<div class="money-input"><span>RM</span><input [name]="f.key" [(ngModel)]="d[f.key]" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" [required]="f.key==='carpark_rent'"></div></label>}
+              <label>{{t('Earnest deposit (automatic)')}}<div class="money-input"><span>RM</span><input name="carpark_earnest_deposit" [value]="carparkEarnest===null?'':carparkEarnest.toFixed(2)" type="text" readonly></div><small class="field-hint">{{t('Monthly rent ÷ days in the move-in month × remaining days, including move-in day.')}}</small></label></div>
+            }
             @if(step===2){
               @if(!hasAgreement){<label class="block-field">{{t("Signing date")}} <span class="required">*</span><input type="date" name="agreement_date" [(ngModel)]="d['agreement_date']" required></label>}
 
@@ -91,6 +104,7 @@
             }
             @if(step===3){
               <div class="review-summary"><div><span>{{t("TENANT")}}</span><strong>{{d['tenant_name']||t('Not entered')}}</strong><small>{{d['tenant_id']||'-'}}</small></div><button type="button" class="text-button" (click)="go(0)">{{t("Edit")}}</button>@if(hasAgreement){<div><span>{{t("PROPERTY")}}</span><strong>{{d['property']||t('Not entered')}}</strong><small>{{d['room']}} · {{t(d['aircon']?'With AC':'Without AC')}}</small></div><button type="button" class="text-button" (click)="go(1)">{{t("Edit")}}</button><div><span>{{t("TENANCY")}}</span><strong>{{displayDate(d['start_date'])}} — {{d['end_date']?displayDate(d['end_date']):t('Expiry required')}}</strong><small>{{d['rent']|currency:'MYR':'RM '}} {{t("/ month")}}</small></div><button type="button" class="text-button" (click)="go(1)">{{t("Edit")}}</button>}</div>
+              @if(hasCarpark){<div class="review-summary"><div><span>{{t('Car park rental agreement')}}</span><strong>{{t('Lot')}}: {{d['carpark_lot']}}</strong><small>{{d['carpark_address']}}</small><small>{{displayDate(d['carpark_start_date'])}} — {{displayDate(d['carpark_end_date'])}}</small><small>{{t('Car park rental')}}: {{d['carpark_rent']|currency:'MYR':'RM '}} · {{t('Deposit')}}: {{(d['carpark_deposit']||0)|currency:'MYR':'RM '}} · {{t('Earnest deposit (automatic)')}}: {{carparkEarnest|currency:'MYR':'RM '}}</small></div><button type="button" class="text-button" (click)="go(4)">{{t('Edit')}}</button></div>}
               <h3>{{t("Documents to generate")}}</h3>@if(!wordPdfAvailable){<p class="field-hint">{{t("PDF templates are missing from this installation. Download Word documents instead.")}}</p>}<div class="document-options">@for(doc of selected;track doc.id){<div class="document-option checked"><div><strong>{{t(doc.name)}}</strong><small>{{t(doc.description)}}</small></div><button type="button" class="text-button" [disabled]="busy||!wordPdfAvailable" (click)="generate([doc.id],true)" [attr.aria-label]="t('Preview ↗')+': '+t(doc.name)">{{t("Preview ↗")}}</button></div>}</div>
               @if(hasMoveIn){<button type="button" class="text-button" (click)="go(2)">{{t("Edit move-in checklist →")}}</button>}
               @if(hasOffer){
@@ -99,7 +113,7 @@
               <div class="review-note">{{t("Review the document previews and company details before signing.")}} </div>
             }
           </article>
-          <div class="form-footer"><button type="button" class="button back-button" (click)="back()">{{t("← Back")}}</button>@if(step<3){<button type="submit" class="button primary">{{t("Continue")}} <span>→</span></button>}@else{<div class="export-actions"><button type="button" class="button primary" [disabled]="busy||!selected.length||!wordPdfAvailable" (click)="prepareShare()">{{t("Share PDFs")}}</button><button type="button" class="button secondary" [disabled]="busy||!selected.length" (click)="generate()">{{t(busy?'Preparing documents…':'Download '+selected.length+' document'+(selected.length===1?'':'s'))}} <span>↓</span></button></div>}</div>
+          <div class="form-footer"><button type="button" class="button back-button" (click)="back()">{{t("← Back")}}</button>@if(step!==3){<button type="submit" class="button primary">{{t("Continue")}} <span>→</span></button>}@else{<div class="export-actions"><button type="button" class="button primary" [disabled]="busy||!selected.length||!wordPdfAvailable" (click)="prepareShare()">{{t("Share PDFs")}}</button><button type="button" class="button secondary" [disabled]="busy||!selected.length" (click)="generate()">{{t(busy?'Preparing documents…':'Download '+selected.length+' document'+(selected.length===1?'':'s'))}} <span>↓</span></button></div>}</div>
         </form>
       </section>
       <aside class="summary-column"><article class="pack-card"><div class="pack-top"><span class="eyebrow">{{t("DOCUMENT SUMMARY")}}</span><span class="pill">{{selected.length}} {{t(selected.length===1?'document':'documents')}}</span></div><div class="pack-list">@for(doc of selected;track doc.id){<div [class.muted]="!doc.selected"><span>{{doc.selected?'✓':'−'}}</span>{{t(doc.name)}}<small *ngIf="doc.id==='tenancy'">{{t(d['aircon']?'AC':'Non-AC')}}</small></div>}</div><div class="pack-bottom" *ngIf="hasAgreement"><span>{{t("Monthly rental")}}<strong>{{d['rent']|currency:'MYR':'RM ':'1.2-2'}}</strong></span><span>{{t("Offer total")}}<strong>{{total|currency:'MYR':'RM ':'1.2-2'}}</strong></span></div></article>

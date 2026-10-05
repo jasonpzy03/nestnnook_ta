@@ -15,6 +15,19 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Car park rental agreement':'停车位租赁协议',
+  'Choose an address':'选择地址',
+  'Separate car park dates, rental and deposits.':'独立的停车位租期、租金和押金。',
+  'CAR PARK':'停车位',
+  'Car park details':'停车位资料',
+  'Lot':'车位 / 单位编号',
+  'Commencement date':'起租日期',
+  'Car park rental':'停车位租金',
+  'Deposit':'押金',
+  'Earnest deposit (automatic)':'预付租金（自动计算）',
+  'Tenant details and separate car park terms.':'租客资料及独立的停车位租赁条款。',
+  'Car park dates and payments are separate from the tenancy agreement.':'停车位租期和费用与房间租约分开填写。',
+  'Car park expiry date must be on or after its commencement date.':'停车位到期日不得早于起租日。',
   'Pro-rated rental (automatic)':'按比例租金（自动计算）',
   'Monthly rent ÷ days in the move-in month × remaining days, including move-in day.':'月租 ÷ 入住月份天数 × 剩余天数（包含入住当天）。',
   'Included air-conditioning electricity (kWh)':'包含的冷气用电量（kWh）',

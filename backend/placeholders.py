@@ -23,9 +23,18 @@ def fields_for(kind, d):
         fields[key] = (value.strftime('%d/%m/%Y') if kind == 'offer' else
                        date_text(value, kind == 'move_in' or d.aircon)) if value else '-'
     fields['tenure'] = tenure(d) if d.start_date and d.end_date else '-'
+    fields['rental_label'] = 'Rental'
+    if kind == 'tenancy' and fields['tenure'] == '6 Months':
+        fields['rental_label'] += f' (Extend 6 months @RM {d.rent - 100:,.2f})'
     fields['property_address'] = d.property_address or '-'
     fields['aircon_kwh'] = str(d.aircon_kwh)
     fields['guardian_date'] = fields['agreement_date'] if d.guardian_name else '-'
+    for key in ('carpark_rent','carpark_deposit','carpark_earnest_deposit'):
+        fields[key] = amount(getattr(d,key))
+    for key in ('carpark_agreement_date','carpark_start_date','carpark_end_date'):
+        value=getattr(d,key)
+        fields[key]=value.strftime('%d/%m/%Y') if value else '-'
+    fields['carpark_tenure'] = tenure(d.model_copy(update={'start_date':d.carpark_start_date,'end_date':d.carpark_end_date})) if d.carpark_start_date and d.carpark_end_date else '-'
     if kind == 'offer' and not d.reference.strip():
         if not d.agreement_date:
             raise TemplateError('An agreement date is required for the offer invoice.')

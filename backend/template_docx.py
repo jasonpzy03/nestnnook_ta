@@ -10,7 +10,7 @@ from lxml import etree as E
 from .models import Details
 
 ROOT=Path(__file__).resolve().parents[1]
-SOURCES={'move_in':'1. Move in Form - quantity.docx','rules':'2. House Rules.docx','ac':'3. Room TA_AC.docx','noac':'3. Room TA_NOAC.docx'}
+SOURCES={'move_in':'1. Move in Form - quantity.docx','rules':'2. House Rules.docx','ac':'3. Room TA_AC.docx','noac':'3. Room TA_NOAC.docx','carpark':'Car Park Rental Agreement.docx'}
 NS={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main','wp':'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing','a':'http://schemas.openxmlformats.org/drawingml/2006/main','v':'urn:schemas-microsoft-com:vml','mc':'http://schemas.openxmlformats.org/markup-compatibility/2006'}
 W='{'+NS['w']+'}'
 XML_SPACE='{http://www.w3.org/XML/1998/namespace}space'

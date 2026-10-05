@@ -1,8 +1,8 @@
 {
   "version": 2,
   "source": "3. Room TA_AC.docx",
-  "source_sha256": "b1e070dcb381702b51317e68b2120890c2b57943a0f5a8033917fe6ed01e04f7",
-  "pdf_sha256": "fe67fce5e92e610d51de57c7ba51c280a6331fd571d7329514c8f1d091e8f4f4",
+  "source_sha256": "bb6749c1cea2a6a56ade4436eac0ed134b14b8dd49d216e8b1946ae905d8fe2b",
+  "pdf_sha256": "0fc03b348e0db2f4f0d4c9b5f1aa0740ddf3cfe5ca1de57903ad073049d0615c",
   "slots": [
     {
       "expression": "{{agreement_date}}",
@@ -92,6 +92,21 @@
         281.3399658203125,
         533.2785034179688,
         299.44000244140625
+      ]
+    },
+    {
+      "expression": "{{rental_label}}",
+      "label": "rental_label",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBold",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        62.15261430006761,
+        299.94000244140625,
+        294.65000915527344,
+        318.03997802734375
       ]
     },
     {

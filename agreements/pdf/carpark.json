@@ -1,0 +1,466 @@
+{
+  "version": 2,
+  "source": "Car Park Rental Agreement.docx",
+  "source_sha256": "9e58f883b7a881448cd95198e645f5227659ff62e142fe00e6559974aa25390d",
+  "pdf_sha256": "69bbf6a4ddaf0cee77da73f4d5cfe934023a47fc0eb0f7e6de40ae1c94375182",
+  "slots": [
+    {
+      "expression": "Address: {{carpark_address}}",
+      "label": "carpark_address",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.66400146484375,
+        99.60619354248047,
+        501.66400146484375,
+        123.60619354248047
+      ],
+      "rich": [
+        {
+          "expression": "Address: ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "{{carpark_address}}",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": ": {{carpark_agreement_date}}",
+      "label": "carpark_agreement_date",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        192.6500015258789,
+        129.0899658203125,
+        307.63002014160156,
+        143.64996337890625
+      ],
+      "rich": [
+        {
+          "expression": ": ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "{{carpark_agreement_date}}",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": "Lot: {{carpark_lot}}",
+      "label": "carpark_lot",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        313.63002014160156,
+        129.0899658203125,
+        470.0600051879883,
+        143.64996337890625
+      ],
+      "rich": [
+        {
+          "expression": "Lot: ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "{{carpark_lot}}",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": ": {{carpark_start_date}}",
+      "label": "carpark_start_date",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        192.6500015258789,
+        144.14996337890625,
+        307.63002014160156,
+        161.40997314453125
+      ],
+      "rich": [
+        {
+          "expression": ": ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "{{carpark_start_date}}",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": "Expiry Date: {{carpark_end_date}}",
+      "label": "carpark_end_date",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        313.63002014160156,
+        144.14996337890625,
+        470.0600051879883,
+        161.40997314453125
+      ],
+      "rich": [
+        {
+          "expression": "Expiry Date: ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "{{carpark_end_date}}",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": ": {{carpark_tenure}}",
+      "label": "carpark_tenure",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        192.6500015258789,
+        161.90997314453125,
+        307.63002014160156,
+        179.28997802734375
+      ],
+      "rich": [
+        {
+          "expression": ": ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "{{carpark_tenure}}",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": ": {{carpark_rent}}",
+      "label": "carpark_rent",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        192.6500015258789,
+        179.78997802734375,
+        307.63002014160156,
+        197.04998779296875
+      ]
+    },
+    {
+      "expression": ": {{carpark_deposit}}",
+      "label": "carpark_deposit",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        192.6500015258789,
+        197.54998779296875,
+        307.63002014160156,
+        212.1099853515625
+      ]
+    },
+    {
+      "expression": ": {{carpark_earnest_deposit}} (the Earnest Deposit shall form the 1st month Rental)",
+      "label": "carpark_earnest_deposit",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        195.41000366210938,
+        218.52618408203125,
+        610.4100036621094,
+        230.52618408203125
+      ],
+      "rich": [
+        {
+          "expression": ": {{carpark_earnest_deposit}} ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "(the Earnest Deposit shall form the 1st month Rental)",
+          "font": "NNBold"
+        }
+      ]
+    },
+    {
+      "expression": "Rental payment shall be made by the 1st of every month (in advance of the actual month) or shall not be later than 7th of the actual month, or such later day as may be agreed by {{company.name}} in writing. Late payment will be charged 15% of the agreed rental. Admin charges of RM30 for each day of delayed payment calculated from the second day the Rental payment is due and payable up to the date of full settlement.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.54000091552734,
+        253.9561767578125,
+        519.5400009155273,
+        325.9561767578125
+      ],
+      "rich": [
+        {
+          "expression": "Rental payment shall be made by the ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "1st of every month ",
+          "font": "NNBold"
+        },
+        {
+          "expression": "(in advance of the actual month) or shall not be later than ",
+          "font": "NNBody"
+        },
+        {
+          "expression": "7th of the actual month",
+          "font": "NNBold"
+        },
+        {
+          "expression": ", or such later day as may be agreed by {{company.name}} in writing. Late payment will be charged 15% of the agreed rental. Admin charges of RM30 for each day of delayed payment calculated from the second day the Rental payment is due and payable up to the date of full settlement.",
+          "font": "NNBody"
+        }
+      ]
+    },
+    {
+      "expression": "{{company.name}} reserves the right to collect the Earnest Deposit which shall form the 1st month Rental.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.66000366210938,
+        326.076171875,
+        519.6600036621094,
+        350.076171875
+      ]
+    },
+    {
+      "expression": "{{company.name}} shall not be liable for any loss, damage, or theft to the Customer's vehicle or belongings.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.66000366210938,
+        362.076171875,
+        519.6600036621094,
+        386.076171875
+      ]
+    },
+    {
+      "expression": "{{company.name}} reserves the right to terminate the rental (with or without refund \u2013 full or partial of the Deposit), if Tenant is found to be misbehaved, as well as late payment of Rental for 1 month.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.66000366210938,
+        409.6161804199219,
+        519.6600036621094,
+        445.6161804199219
+      ]
+    },
+    {
+      "expression": "Prior to the expiry of this agreement, Tenant shall inform {{company.name}} on whether to extend the stay or to leave by the end of the tenure, by way of SMS or WhatsApp at least 1 month in advance failing which, the Deposit will be forfeited as penalty.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.66000366210938,
+        469.2561950683594,
+        519.6600036621094,
+        517.2561950683594
+      ]
+    },
+    {
+      "expression": "Monthly Rental shall not be set-off or contra with the Deposit and the refund of said deposits will be processed within 7 working days after the handover of access card and {{company.name}} reserves the absolute right to make such deductions for (i) such amount due and owing to {{company.name}} and any applicable third party(ies) and (ii)any damages caused by the Tenant to the car park premise.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.54000091552734,
+        542.09619140625,
+        519.5400009155273,
+        614.09619140625
+      ]
+    },
+    {
+      "expression": "Upon termination, the access card must be returned to {{company.name}}.",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        104.54000091552734,
+        614.0061645507812,
+        519.5400009155273,
+        626.0061645507812
+      ]
+    },
+    {
+      "expression": "Signature by {{company.name}},",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        338.7099914550781,
+        637.4061889648438,
+        533.7099914550781,
+        661.4061889648438
+      ],
+      "rich": [
+        {
+          "expression": "Signature by {{company.name}},",
+          "font": "NNBold"
+        }
+      ]
+    },
+    {
+      "expression": "Name: {{tenant_name}}",
+      "label": "tenant_name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.54399871826172,
+        704.7261962890625,
+        281.5439987182617,
+        728.7261962890625
+      ]
+    },
+    {
+      "expression": "Name: {{company.name}}",
+      "label": "company.name",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        338.7099914550781,
+        704.7261962890625,
+        533.7099914550781,
+        728.7261962890625
+      ]
+    },
+    {
+      "expression": "IC: {{tenant_id}}",
+      "label": "tenant_id",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.54399871826172,
+        716.3662109375,
+        281.5439987182617,
+        740.3662109375
+      ]
+    },
+    {
+      "expression": "SSM No: {{company.registration}}",
+      "label": "company.registration",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        338.7099914550781,
+        716.3662109375,
+        533.7099914550781,
+        740.3662109375
+      ]
+    },
+    {
+      "expression": "Date: {{carpark_agreement_date}}",
+      "label": "carpark_agreement_date",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.54399871826172,
+        727.8861694335938,
+        281.5439987182617,
+        739.8861694335938
+      ]
+    },
+    {
+      "expression": "Date: {{carpark_agreement_date}}",
+      "label": "carpark_agreement_date",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        338.7099914550781,
+        727.8861694335938,
+        533.7099914550781,
+        739.8861694335938
+      ]
+    },
+    {
+      "expression": "**Note: All the documents requested by {{company.name}} (including the photocopy of tenant and tenant\u2019s guardian IC will be collected a record purpose) shall be provided and the parties hereby provide(s) all the relevant consent(s) required under the PERSONAL DATA PROTECTION ACT 2010 to {{company.name}}. ",
+      "label": "company.name",
+      "size": 9.0,
+      "align": 0,
+      "font": "NNBody",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        86.66400146484375,
+        763.81494140625,
+        501.66400146484375,
+        811.81494140625
+      ]
+    }
+  ]
+}

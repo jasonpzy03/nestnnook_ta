@@ -1,8 +1,8 @@
 {
   "version": 2,
   "source": "3. Room TA_NOAC.docx",
-  "source_sha256": "c4f8be5c78fb0cac0f762ade729118e0ef8366a4252c89a12cd4e3e02e13bf41",
-  "pdf_sha256": "c5852bec7a71737acc772e9272139a97981a4b952ce8e21ab6b4e488039949b1",
+  "source_sha256": "00d0ea25511a18fbbfe80c5ab688bc9d74b6304c18df099fbe01f19956a28bee",
+  "pdf_sha256": "5d47020770b99eb11d024365594e0830a2a1d824d8cd34065a6bccc105728d01",
   "slots": [
     {
       "expression": "{{agreement_date}}",
@@ -92,6 +92,21 @@
         281.3399658203125,
         533.2818603515625,
         299.44000244140625
+      ]
+    },
+    {
+      "expression": "{{rental_label}}",
+      "label": "rental_label",
+      "size": 9.96,
+      "align": 0,
+      "font": "NNBold",
+      "preserve_size": false,
+      "page": 0,
+      "rect": [
+        62.14908981323242,
+        299.94000244140625,
+        294.65000915527344,
+        318.03997802734375
       ]
     },
     {

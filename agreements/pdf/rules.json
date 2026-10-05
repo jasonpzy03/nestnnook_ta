@@ -2,7 +2,7 @@
   "version": 2,
   "source": "2. House Rules.docx",
   "source_sha256": "dfef7db5fa6622482901e7792d7278feea7b9537df92bf6c11f17a6826955655",
-  "pdf_sha256": "3cfdf7787381d4f0a265023d40cfe0e65b4df8be109e6d300f3087eb7348eb00",
+  "pdf_sha256": "82277a931e298b632207dee3468634fd8d6501d3f30b2fc10caf32ca22003e96",
   "slots": [
     {
       "expression": "Name : {{tenant_name}} ",
