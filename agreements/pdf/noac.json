@@ -1,8 +1,8 @@
 {
   "version": 2,
   "source": "3. Room TA_NOAC.docx",
-  "source_sha256": "00d0ea25511a18fbbfe80c5ab688bc9d74b6304c18df099fbe01f19956a28bee",
-  "pdf_sha256": "5d47020770b99eb11d024365594e0830a2a1d824d8cd34065a6bccc105728d01",
+  "source_sha256": "c10f5d0960ac56a0a9644140c013af4c01e2b82ec2001d471ce6108d8c560fe1",
+  "pdf_sha256": "9d0cb390e37f3fb2a7335e3fad00b1903493b6f656698ccc3598b3794c3074f6",
   "slots": [
     {
       "expression": "{{agreement_date}}",
@@ -276,9 +276,9 @@
       "page": 1,
       "rect": [
         86.54399871826172,
-        99.36620330810547,
+        121.44615936279297,
         541.3439987182617,
-        159.36620330810547
+        181.44615936279297
       ],
       "rich": [
         {
@@ -304,7 +304,7 @@
       ]
     },
     {
-      "expression": "{{company.name}} agrees to provide a one (1) month warranty period commencing from the date of handover of the premise to the Tenant. During this period, {{company.name}} shall be responsible for all reasonable minor maintenance and wear-and-tear issues. ",
+      "expression": "{{company.name}} agrees to provide a one (1) month warranty period commencing from the date of handover of the premise to the Tenant. During this period, {{company.name}} shall be responsible for all reasonable minor maintenance and wear-and-tear issues. Not applicable for tenancy renewal.",
       "label": "company.name",
       "size": 9.96,
       "align": 0,
@@ -313,9 +313,9 @@
       "page": 1,
       "rect": [
         86.54399871826172,
-        165.3662109375,
+        187.4461669921875,
         541.3439987182617,
-        201.3662109375
+        223.4461669921875
       ],
       "rich": [
         {
@@ -327,7 +327,7 @@
           "font": "NNBold"
         },
         {
-          "expression": " period commencing from the date of handover of the premise to the Tenant. During this period, {{company.name}} shall be responsible for all reasonable minor maintenance and wear-and-tear issues. ",
+          "expression": " period commencing from the date of handover of the premise to the Tenant. During this period, {{company.name}} shall be responsible for all reasonable minor maintenance and wear-and-tear issues. Not applicable for tenancy renewal.",
           "font": "NNBody"
         }
       ]
@@ -342,9 +342,9 @@
       "page": 1,
       "rect": [
         86.54399871826172,
-        207.3662109375,
+        229.4461669921875,
         541.3439987182617,
-        255.3662109375
+        277.4461669921875
       ]
     },
     {
@@ -357,9 +357,9 @@
       "page": 1,
       "rect": [
         86.42400360107422,
-        261.39617919921875,
+        283.4761962890625,
         541.3240036010742,
-        285.39617919921875
+        307.4761962890625
       ]
     },
     {
@@ -372,9 +372,9 @@
       "page": 1,
       "rect": [
         86.66400146484375,
-        381.15618896484375,
+        403.1161804199219,
         541.3140014648437,
-        417.15618896484375
+        439.1161804199219
       ]
     },
     {
@@ -387,9 +387,9 @@
       "page": 1,
       "rect": [
         86.66400146484375,
-        423.15618896484375,
+        445.1361999511719,
         541.3140014648437,
-        471.15618896484375
+        493.1361999511719
       ]
     },
     {
@@ -402,9 +402,9 @@
       "page": 1,
       "rect": [
         86.66400146484375,
-        541.7362060546875,
+        563.816162109375,
         541.3140014648437,
-        589.7362060546875
+        611.816162109375
       ]
     },
     {
@@ -417,9 +417,9 @@
       "page": 1,
       "rect": [
         86.54399871826172,
-        595.7362060546875,
+        617.84619140625,
         541.3439987182617,
-        667.7362060546875
+        689.84619140625
       ]
     },
     {
@@ -710,9 +710,9 @@
       "preserve_size": true,
       "page": 0,
       "rect": [
-        302.45001220703125,
+        270.8900146484375,
         65.32377624511719,
-        788.4500122070312,
+        756.8900146484375,
         78.92377624511718
       ]
     },
@@ -725,9 +725,9 @@
       "preserve_size": true,
       "page": 0,
       "rect": [
-        302.45001220703125,
+        270.8900146484375,
         76.50376892089844,
-        788.4500122070312,
+        756.8900146484375,
         91.20376892089844
       ]
     },
@@ -740,9 +740,9 @@
       "preserve_size": true,
       "page": 0,
       "rect": [
-        302.45001220703125,
+        270.8900146484375,
         87.66380310058594,
-        788.4500122070312,
+        756.8900146484375,
         100.66380310058594
       ]
     },
@@ -755,9 +755,9 @@
       "preserve_size": true,
       "page": 0,
       "rect": [
-        302.45001220703125,
+        270.8900146484375,
         98.94377136230469,
-        788.4500122070312,
+        756.8900146484375,
         112.99377136230468
       ]
     }

@@ -40,9 +40,9 @@ Use double braces around each name, e.g. `{{tenant_name}}`.
 | Guardian | `guardian_name`, `guardian_id`, `guardian_date` (dash when no guardian is supplied) |
 | Property | `property` (unit number), `room`, `address`, `property_address` (address with unit prefix) |
 | Dates | `agreement_date`, `start_date`, `end_date`, `tenure` |
-| AC allowance | `aircon_kwh` (whole-number electricity allowance; defaults to 40; add ` kWh` after the placeholder) |
+| AC allowance | `aircon_kwh` (electricity allowance, including decimals; defaults to 40; add ` kWh` after the placeholder) |
 | Payments | `rent`, `parking`, `security_deposit`, `access_deposit`, `advance_rent`, `agreement_fee`, `total` |
-| Tenancy rental label | `rental_label` — shows `Rental (Extend 6 months @RM …)` for exactly six months, using monthly rent minus RM100; otherwise shows `Rental` |
+| Tenancy rental label | `rental_label` — shows `Rental (Extend 6 months @RM …)` for new tenants with exactly six months, using monthly rent minus RM100; otherwise shows `Rental` |
 | Offer | `reference` (automatic invoice number when blank), `special_conditions` |
 | Move-in | `meter_reading`, `drawer_with`, `drawer_without` |
 | Company | `company.name`, `company.registration`, `company.address`, `company.phone`, `company.contact`, `company.email`, `company.account_name`, `company.account_number`, `company.bank` |
@@ -115,3 +115,5 @@ powershell -ExecutionPolicy Bypass -File backups/before-all-placeholders-2026-10
 ```
 
 The restore script verifies checksums and saves files it overwrites into another backup folder. For Vercel, commit and redeploy the restored files. Keep a separate copy of the backup folder: `backups/` is excluded from Git and deployment.
+
+The TA **Tenancy type** selector defaults to **New tenant** (`tenancy_type: new`). Choose **Renewal** (`renewal`) to omit the extension note for any tenure. The TA monthly car park rental (`parking`) remains independent of the car park agreement rental (`carpark_rent`).

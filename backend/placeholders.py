@@ -24,10 +24,11 @@ def fields_for(kind, d):
                        date_text(value, kind == 'move_in' or d.aircon)) if value else '-'
     fields['tenure'] = tenure(d) if d.start_date and d.end_date else '-'
     fields['rental_label'] = 'Rental'
-    if kind == 'tenancy' and fields['tenure'] == '6 Months':
+    if kind == 'tenancy' and d.tenancy_type == 'new' and fields['tenure'] == '6 Months':
         fields['rental_label'] += f' (Extend 6 months @RM {d.rent - 100:,.2f})'
     fields['property_address'] = d.property_address or '-'
-    fields['aircon_kwh'] = str(d.aircon_kwh)
+    allowance = format(d.aircon_kwh, 'f')
+    fields['aircon_kwh'] = allowance.rstrip('0').rstrip('.') if '.' in allowance else allowance
     fields['guardian_date'] = fields['agreement_date'] if d.guardian_name else '-'
     for key in ('carpark_rent','carpark_deposit','carpark_earnest_deposit'):
         fields[key] = amount(getattr(d,key))

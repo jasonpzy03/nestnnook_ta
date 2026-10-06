@@ -15,6 +15,11 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Tenancy type':'租约类型',
+  'New tenant':'新租客',
+  'Renewal':'续租',
+  'Choose New tenant or Renewal.':'请选择新租客或续租。',
+  'The extension note applies only to new tenants with a six-month tenure.':'延期租金说明仅适用于租期为六个月的新租客。',
   'Car park rental agreement':'停车位租赁协议',
   'Choose an address':'选择地址',
   'Separate car park dates, rental and deposits.':'独立的停车位租期、租金和押金。',
@@ -32,7 +37,7 @@ export const chinese:Record<string,string> = {
   'Monthly rent ÷ days in the move-in month × remaining days, including move-in day.':'月租 ÷ 入住月份天数 × 剩余天数（包含入住当天）。',
   'Included air-conditioning electricity (kWh)':'包含的冷气用电量（kWh）',
   'Included allowance in the AC tenancy agreement.':'有冷气租约中包含的用电额度。',
-  'Enter an electricity allowance between 0 and 100,000 kWh.':'请输入0至100,000 kWh之间的整数用电额度。',
+  'Enter an electricity allowance between 0 and 100,000 kWh.':'请输入0至100,000 kWh之间的用电额度，可包含小数。',
   'Auto':'自动',
   'TEAM TOOLS':'团队工具', 'Create documents':'制作文件', 'Choose documents':'选择文件', 'Company details':'公司资料',
   'Property management':'物业管理','Sign out':'退出登录','Workspace':'工作区','No saved tenant records':'不保存租客记录','＋ New tenancy':'＋ 新租约',

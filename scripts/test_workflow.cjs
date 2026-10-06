@@ -47,3 +47,16 @@ const cp=app.documentDetails(['carpark']);assert.equal(cp.carpark_earnest_deposi
 assert.equal(app.documentDetails(['tenancy']).carpark_rent,undefined);
 app.reset();app.startDocuments('carpark');app.go(4);assert.equal(app.d.carpark_lot,'');
 console.log('Car park workflow, default lot, separate dates/payments and payload checks passed');
+
+app.reset();app.startDocuments('tenancy');
+assert.equal(app.d.tenancy_type,'new');
+assert.equal(app.d.parking,null);
+assert(app.visibleMoneyFields.some(f=>f.key==='parking'));
+app.d.parking=250;app.d.carpark_rent=300;app.d.tenancy_type='renewal';
+assert.equal(app.documentDetails(['tenancy']).parking,250);
+assert.equal(app.documentDetails(['tenancy']).tenancy_type,'renewal');
+assert.equal(app.documentDetails(['carpark']).carpark_rent,300);
+assert.equal(app.documentDetails(['carpark']).tenancy_type,undefined);
+app.d.aircon=false;assert(app.visibleMoneyFields.some(f=>f.key==='parking'));
+app.startDocuments('offer');assert(!app.visibleMoneyFields.some(f=>f.key==='parking'));
+console.log('TA parking, tenancy type and independent car park inputs passed');

@@ -11,7 +11,7 @@ interface Field { key: string; label: string; type?: string; required?: boolean;
 interface Inventory { name: string; quantity: number; condition: string; remarks: string; }
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key'];
-const fresh = (): Record<string, any> => ({carpark_lot:'',carpark_address:'',carpark_agreement_date:today(),carpark_start_date:today(),carpark_end_date:'',carpark_rent:300,carpark_deposit:null,carpark_earnest_deposit:null,tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,aircon_kwh:40,rent:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
+const fresh = (): Record<string, any> => ({carpark_lot:'',carpark_address:'',carpark_agreement_date:today(),carpark_start_date:today(),carpark_end_date:'',carpark_rent:300,carpark_deposit:null,carpark_earnest_deposit:null,tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,tenancy_type:'new',aircon_kwh:40,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
 @Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
 
@@ -62,7 +62,7 @@ export class App implements OnInit, OnDestroy {
   tenantFields:Field[]=[{key:'tenant_name',label:'Full name',required:true,placeholder:'As shown on IC or passport',wide:true},{key:'tenant_id',label:'IC / Passport number',required:true,placeholder:'e.g. 900101-01-1234'},{key:'nationality',label:'Nationality'},{key:'phone',label:'Phone number',type:'tel',placeholder:'+60'},{key:'email',label:'Email address',type:'email',placeholder:'tenant@example.com'},{key:'occupation',label:'Occupation',placeholder:'e.g. Software engineer'},{key:'employer',label:'Company / Employer'},{key:'vehicle',label:'Vehicle registration',placeholder:'If applicable'}];
   emergencyFields:Field[]=[{key:'emergency_name',label:'Contact name'},{key:'emergency_relationship',label:'Relationship'},{key:'emergency_phone',label:'Phone number',type:'tel'},{key:'emergency_id',label:'IC / Passport number'}];
   propertyFields:Field[]=[{key:'property',label:'Unit number',required:true,placeholder:'e.g. A7-1-2404'},{key:'room',label:'Room number',required:true,placeholder:'e.g. 06'},{key:'address',label:'Property address',required:true,wide:true},{key:'agreement_date',label:'Agreement / Signing date',type:'date',required:true},{key:'start_date',label:'Move-in / Commencement date',type:'date',required:true},{key:'end_date',label:'Expiry date',type:'date',required:true},{key:'reference',label:'Invoice number',placeholder:'Generated automatically if left blank'}];
-  moneyFields:Field[]=[{key:'rent',label:'Monthly room rental'},{key:'security_deposit',label:'Refundable room deposit'},{key:'access_deposit',label:'Refundable access card deposit'},{key:'advance_rent',label:'Advance / Pro-rated rental'},{key:'agreement_fee',label:'Agreement fee'}];
+  moneyFields:Field[]=[{key:'rent',label:'Monthly room rental'},{key:'parking',label:'Monthly car park rental'},{key:'security_deposit',label:'Refundable room deposit'},{key:'access_deposit',label:'Refundable access card deposit'},{key:'advance_rent',label:'Advance / Pro-rated rental'},{key:'agreement_fee',label:'Agreement fee'}];
   carparkFields:Field[]=[{key:'carpark_lot',label:'Lot',required:true},{key:'carpark_address',label:'Property address',required:true},{key:'carpark_agreement_date',label:'Agreement / Signing date',type:'date',required:true},{key:'carpark_start_date',label:'Commencement date',type:'date',required:true},{key:'carpark_end_date',label:'Expiry date',type:'date',required:true}];
   carparkMoneyFields:Field[]=[{key:'carpark_rent',label:'Car park rental'},{key:'carpark_deposit',label:'Deposit'}];
   get hasCarpark(){return this.selected.some(x=>x.id==='carpark');}
@@ -70,6 +70,7 @@ export class App implements OnInit, OnDestroy {
   chooseCarparkTerm(months:number){this.carparkExpiryMonths=months;this.updateCarparkExpiry();}
   updateCarparkExpiry(){if(this.carparkExpiryMonths)this.d['carpark_end_date']=expiryDate(this.d['carpark_start_date'],this.carparkExpiryMonths);}
   companyFields:Field[]=[{key:'name',label:'Company name'},{key:'registration',label:'SSM registration number'},{key:'address',label:'Company address',wide:true},{key:'contact',label:'Contact person'},{key:'phone',label:'Phone number'},{key:'email',label:'Email address'},{key:'bank',label:'Bank name'},{key:'account_name',label:'Beneficiary name'},{key:'account_number',label:'Account number'}];
+  get visibleMoneyFields(){return this.moneyFields.filter(f=>f.key!=='parking'||this.hasTenancy);}
   get hasMoveIn(){return this.selected.some(x=>x.id==='move_in');}
   get hasAgreement(){return this.selected.some(x=>['tenancy','offer'].includes(x.id));}
   get hasTenancy(){return this.selected.some(x=>x.id==='tenancy');}
@@ -106,7 +107,8 @@ export class App implements OnInit, OnDestroy {
   validate(ids:string[]):boolean{
     const agreement=ids.some(id=>['tenancy','offer'].includes(id));
     const moveIn=ids.includes('move_in');const carpark=ids.includes('carpark');
-    if(ids.includes('tenancy')&&this.d['aircon']&&(!Number.isInteger(this.d['aircon_kwh'])||this.d['aircon_kwh']<0||this.d['aircon_kwh']>100000)){this.go(1);this.error='Enter an electricity allowance between 0 and 100,000 kWh.';return false;}
+    if(ids.includes('tenancy')&&!['new','renewal'].includes(this.d['tenancy_type'])){this.go(1);this.error='Choose New tenant or Renewal.';return false;}
+    if(ids.includes('tenancy')&&this.d['aircon']&&(!Number.isFinite(this.d['aircon_kwh'])||this.d['aircon_kwh']<0||this.d['aircon_kwh']>100000)){this.go(1);this.error='Enter an electricity allowance between 0 and 100,000 kWh.';return false;}
     for(const [idx,fields] of [[0,agreement||moveIn||carpark?this.tenantFields:[]],[1,agreement?this.propertyFields:[]],[4,carpark?this.carparkFields:[]]] as [number,Field[]][]){
       const missing=fields.find(f=>f.required&&!String(this.d[f.key]||'').trim());
       if(missing){this.go(idx);this.error=`Please enter ${missing.label.toLowerCase()}.`;return false;}
@@ -133,6 +135,7 @@ export class App implements OnInit, OnDestroy {
     details['property']=this.d['property'];
     details['room']=this.d['room'];
     if(agreement)for(const key of ['aircon','guardian_name','guardian_id','special_conditions','include_aml'])details[key]=this.d[key];
+    if(documentIds.includes('tenancy'))details['tenancy_type']=this.d['tenancy_type'];
     if(documentIds.includes('tenancy')&&this.d['aircon'])details['aircon_kwh']=this.d['aircon_kwh'];
     if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
     if(agreement)for(const f of this.moneyFields)details[f.key]=f.key==='advance_rent'?(this.proratedRent||0):(this.d[f.key]||0);
@@ -212,8 +215,9 @@ export class App implements OnInit, OnDestroy {
           if(!Array.isArray(src.inventory)||src.inventory.length>30)throw Error('Invalid inventory in draft.');
           base.inventory=src.inventory.map((i:any)=>{if(typeof i.name!=='string'||i.name.length>200||!Number.isInteger(i.quantity)||i.quantity<0||i.quantity>100||!['Not supplied','Good','Fair','Damaged'].includes(i.condition)||typeof i.remarks!=='string'||i.remarks.length>300)throw Error('Invalid inventory in draft.');return {name:i.name,quantity:i.quantity,condition:i.condition,remarks:i.remarks};});
         }else if(src[key]!==undefined){
+          if(key==='tenancy_type'&&!['new','renewal'].includes(src[key]))throw Error('Choose New tenant or Renewal.');
           if(key==='aircon_kwh'){
-            if(!Number.isInteger(src[key])||src[key]<0||src[key]>100000)throw Error('Enter an electricity allowance between 0 and 100,000 kWh.');
+            if(!Number.isFinite(src[key])||src[key]<0||src[key]>100000)throw Error('Enter an electricity allowance between 0 and 100,000 kWh.');
             base[key]=src[key];continue;
           }
           if([...this.moneyFields,...this.carparkMoneyFields,{key:'carpark_earnest_deposit'}].some(f=>f.key===key)){
