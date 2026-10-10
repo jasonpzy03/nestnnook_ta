@@ -58,6 +58,18 @@ export class App implements OnInit, OnDestroy {
   supportsShare(files:File[]){try{return files.length>0&&typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files});}catch{return false;}}
   addresses:string[]=[]; newAddress=''; addingAddress=false; savingAddress=false; addressError=''; expiryMonths=0; carparkExpiryMonths=0; carparkLotInitialized=false;
   d = fresh(); step=0; page='templates'; settings=false; resetPrompt=false; busy=false; status=''; error=''; format='pdf'; ready=false;
+  mobileToolsOpen=false;
+  navigateTool(tool:'studio'|'templates'|'income'|'settings'){
+    this.mobileToolsOpen=false;
+    if(tool==='settings'){this.settings=true;return;}
+    this.page=tool==='studio'&&!this.selected.length?'templates':tool;
+    this.error='';this.status='';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  @HostListener('document:click', ['$event'])
+  closeToolsOutside(event:MouseEvent){
+    if(this.mobileToolsOpen&&event.target instanceof Element&&!event.target.closest('.sidebar'))this.mobileToolsOpen=false;
+  }
   previewUrl=''; previewPages:string[]=[]; previewLoading=false; previewError=''; previewTitle=''; previewSession=0;
   steps=['Tenant details','Tenancy & payments','Move-in checklist','Review & generate','Car park details'];
   docs=[{id:'carpark',name:'Car park rental agreement',description:'Separate car park dates, rental and deposits.',selected:false,tag:'CAR PARK'},{id:'tenancy',name:'Tenancy agreement',description:'AC or non-AC tenancy agreement.',selected:false,tag:'AGREEMENT'}, {id:'rules',name:'House rules',description:'House guidelines and tenant acknowledgement.',selected:false,tag:'GUIDELINES'}, {id:'move_in',name:'Move-in form',description:'Registration, emergency contact and inventory.',selected:false,tag:'CHECK-IN'}, {id:'offer',name:'Letter of offer',description:'Offer to rent and payment breakdown.',selected:false,tag:'OFFER LETTER'}];
@@ -268,6 +280,7 @@ export class App implements OnInit, OnDestroy {
   closePreview(){this.previewSession++;if(this.previewUrl)URL.revokeObjectURL(this.previewUrl);this.previewPages.forEach(url=>URL.revokeObjectURL(url));this.previewPages=[];this.previewUrl='';this.previewLoading=false;this.previewError='';}
   @HostListener('document:keydown', ['$event'])
   modalKeyboard(event:KeyboardEvent){
+    if(event.key==='Escape'&&this.mobileToolsOpen){this.mobileToolsOpen=false;document.querySelector<HTMLButtonElement>('.mobile-tools-toggle')?.focus();return;}
     if(!this.settings&&!this.resetPrompt&&!this.previewUrl&&!this.shareOpen)return;
     if(event.key==='Escape'){this.settings=false;this.resetPrompt=false;this.closePreview();if(!this.sharing)this.closeShare();}
     if(event.key==='Tab'){

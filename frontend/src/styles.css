@@ -239,3 +239,13 @@ app-root { display: block; min-width: 0; }
 
 
 .move-in-signing-date { display: block; margin-bottom: 24px; }
+
+.mobile-tools-toggle { display: none; }
+@media (max-width: 700px) {
+  .sidebar { position: relative; }
+  .mobile-tools-toggle { display: inline-flex; align-items: center; justify-content: center; margin-left: auto; min-width: 44px; min-height: 44px; padding: 8px; border-radius: 6px; background: white; color: var(--navy); font-size: 25px; }
+  .sidebar nav { display: none; }
+  .sidebar.mobile-tools-open nav { display: grid; position: absolute; top: calc(100% + 4px); left: 12px; right: 12px; margin: 0; padding: 10px; gap: 4px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 10px 30px #142f4626; z-index: 20; }
+  .sidebar nav button, .sidebar nav button:nth-child(2) { display: flex; width: 100%; min-height: 48px; padding: 12px; font-size: 14px; }
+  .sidebar nav button > span:first-child, .sidebar nav button:nth-child(2) > span:first-child { font-size: 22px; }
+}
