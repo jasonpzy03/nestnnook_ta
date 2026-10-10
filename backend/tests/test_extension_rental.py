@@ -12,6 +12,9 @@ from backend.placeholders import fields_for
     ('2026-10-17','2027-10-16',False),
     ('2026-10-17','2027-04-15',False),
     ('2026-10-17','2027-04-17',False),
+    ('2025-10-10','2026-05-01',True),
+    ('2026-10-01','2027-04-01',True),
+    ('2026-10-17','2027-11-01',False),
 ])
 def test_only_exact_six_months_get_extension(start,end,expected,aircon,tenancy_type):
     d=Details(start_date=start,end_date=end,rent='1200.50',aircon=aircon,tenancy_type=tenancy_type)

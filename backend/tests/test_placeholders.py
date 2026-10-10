@@ -96,8 +96,8 @@ def test_inventory_and_guardian_fields_keep_existing_rules():
         {'name': 'Bedframe / Divan', 'quantity': 0, 'condition': 'Not supplied'},
         {'name': 'Mattress', 'quantity': 1, 'condition': 'Fair', 'remarks': 'Small mark'}], makeup_table_drawer='with')
     fields = fields_for('move_in', details)
-    assert (fields['q1'], fields['g1'], fields['b1']) == ('-', '-', '-')
+    assert (fields['q1'], fields['g1']) == ('-', '-')
     assert fields['r2'] == 'Fair: Small mark'
     assert fields['q3'] == '1' and fields['g3'] == 'YES'
-    assert fields['drawer_with'] == '[X]' and fields['drawer_without'] == '[ ]'
+    assert 'drawer_with' not in fields and 'b1' not in fields
     assert fields['guardian_date'] == '-'

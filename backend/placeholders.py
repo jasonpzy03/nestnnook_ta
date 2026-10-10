@@ -35,7 +35,7 @@ def fields_for(kind, d):
     for key in ('carpark_agreement_date','carpark_start_date','carpark_end_date'):
         value=getattr(d,key)
         fields[key]=value.strftime('%d/%m/%Y') if value else '-'
-    fields['carpark_tenure'] = tenure(d.model_copy(update={'start_date':d.carpark_start_date,'end_date':d.carpark_end_date})) if d.carpark_start_date and d.carpark_end_date else '-'
+    fields['carpark_tenure'] = tenure(d.model_copy(update={'start_date':d.carpark_start_date,'end_date':d.carpark_end_date}), prorated=False) if d.carpark_start_date and d.carpark_end_date else '-'
     if kind == 'offer' and not d.reference.strip():
         if not d.agreement_date:
             raise TemplateError('An agreement date is required for the offer invoice.')
@@ -45,22 +45,22 @@ def fields_for(kind, d):
     unknown = items.keys() - set(INVENTORY_NAMES)
     if kind == 'move_in' and unknown:
         raise TemplateError('The move-in template has no row for: '+', '.join(sorted(unknown)))
+    room_notes = d.room_remarks
+    if d.room_condition and d.room_condition.lower() != 'good':
+        room_notes = d.room_condition + (': '+room_notes if room_notes else '')
     fields.update(q0='-', g0='YES' if d.room_condition.lower() == 'good' else 'NO' if d.room_condition else '-',
-                  b0='YES' if d.room_condition.lower() == 'damaged' else '-',
-                  r0=d.room_remarks or (d.room_condition if d.room_condition.lower() not in ('good', 'damaged') else '') or '-')
+                  r0=room_notes or '-')
     for index, name in enumerate(INVENTORY_NAMES, 1):
         item = items.get(name)
         qty, condition = (item.quantity, item.condition) if item else (1, 'Good')
         supplied = qty > 0 and condition != 'Not supplied'
         notes = item.remarks if item else ''
-        if supplied and condition == 'Fair':
-            notes = 'Fair'+(': '+notes if notes else '')
+        if supplied and condition in ('Fair', 'Damaged'):
+            notes = condition+(': '+notes if notes else '')
         for prefix, value in [('q', str(qty) if supplied else '-'),
                               ('g', 'YES' if supplied and condition == 'Good' else 'NO' if supplied else '-'),
-                              ('b', 'YES' if supplied and condition == 'Damaged' else '-'), ('r', notes or '-')]:
+                              ('r', notes or '-')]:
             fields[f'{prefix}{index}'] = value
-    fields['drawer_with'] = '[X]' if d.makeup_table_drawer == 'with' else '[ ]'
-    fields['drawer_without'] = '[X]' if d.makeup_table_drawer == 'without' else '[ ]'
     return fields
 
 

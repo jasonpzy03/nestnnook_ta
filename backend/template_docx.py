@@ -71,7 +71,13 @@ def date_text(d,upper=False):
     value=f'{d.day} {d.strftime("%B %Y")}'
     return value.upper() if upper else value
 
-def tenure(d):
+def tenure(d, prorated=True):
+    # Exclude the partial move-in month and recognise the first-day expiry
+    # used by the tenancy form. Keep legacy anniversary dates readable too.
+    full_months=(d.end_date.year-d.start_date.year)*12+d.end_date.month-d.start_date.month
+    if d.start_date.day!=1:full_months-=1
+    if prorated and d.end_date.day==1 and full_months in (6,12):
+        return '6 Months' if full_months==6 else '1 Year'
     months=(d.end_date.year-d.start_date.year)*12+d.end_date.month-d.start_date.month
     if d.end_date.day>=d.start_date.day:months+=1
     if months>0:
@@ -86,7 +92,7 @@ def tenure(d):
     return f'{(d.end_date-d.start_date).days+1} Days'
 def amount(v,zero='-'):return f'RM{v:,.2f}' if v else zero
 
-INVENTORY_NAMES=['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key']
+INVENTORY_NAMES=['Bedframe / Divan','Mattress','Pillow','Study table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key','Lamp']
 
 def fill_docx(kind,d:Details):
     from .placeholders import fields_for,fill_package

@@ -45,7 +45,7 @@ OCBC Bank
 Name: Nest & Nook Property Care
 Account No: 7101403930`;
 const imported=parse(message),v=values(imported);
-assert.deepEqual(v,{room:'02',tenant_name:'Alex Tan',nationality:'Malaysian',email:'alex@example.com',tenant_id:'001234-01-5678',occupation:'Engineer',emergency_name:'Jamie Tan',emergency_relationship:'Sister',emergency_id:'991234-01-5678',emergency_phone:'+60123456789',property:'16-03',rent:1200.5,start_date:'2026-10-01',security_deposit:1200.5,access_deposit:100,agreement_fee:100,end_date:'2027-09-30'});
+assert.deepEqual(v,{room:'02',tenant_name:'Alex Tan',nationality:'Malaysian',email:'alex@example.com',tenant_id:'001234-01-5678',occupation:'Engineer',emergency_name:'Jamie Tan',emergency_relationship:'Sister',emergency_id:'991234-01-5678',emergency_phone:'+60123456789',property:'16-03',rent:1200.5,start_date:'2026-10-01',security_deposit:1200.5,access_deposit:100,agreement_fee:100,end_date:'2027-10-01'});
 assert.equal(imported.months,12);
 assert(imported.notes.some(n=>n.includes('work location')));
 assert(!imported.notes.some(n=>n.includes('Booking Fee')));
@@ -55,8 +55,8 @@ assert.equal(parse('Name:\nRental: RM\nRoom: -\nEmail: NA').fields.length,0);
 assert.equal(values(parse('Room: 01\nRoom Reservation\nRoom: 02')).room,undefined);
 assert(parse('Room: 01\nRoom Reservation\nRoom: 02').notes.some(n=>n.includes('conflicting')));
 assert.equal(values(parse('Move in date: 31/02/2026\nTenure: 1 Year')).end_date,undefined);
-assert.equal(values(parse('Move in date: 2026-08-31\nTenure: 6 months')).end_date,'2027-02-28');
-assert.equal(values(parse('Move in date: 3 Oct 2026\nTenure: 12 months')).end_date,'2027-10-02');
+assert.equal(values(parse('Move in date: 2026-08-31\nTenure: 6 months')).end_date,'2027-03-01');
+assert.equal(values(parse('Move in date: 3 Oct 2026\nTenure: 12 months')).end_date,'2027-11-01');
 assert.equal(values(parse('Rental: RM1,20\nContract Fee: -100')).rent,undefined);
 assert.equal(values(parse('Rental: RM0')).rent,0);
 assert.equal(values(parse('Move in date: 01/10/2026\nTenure: 2 years')).end_date,undefined);

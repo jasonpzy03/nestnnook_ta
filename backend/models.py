@@ -4,7 +4,7 @@ import re
 from decimal import Decimal, ROUND_HALF_UP
 from calendar import monthrange
 from typing import Literal, Annotated
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator, field_validator
 Text = Annotated[str, StringConstraints(strip_whitespace=True, max_length=300)]
 Required = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 Money = Annotated[Decimal, Field(ge=0, le=1000000, max_digits=12, decimal_places=2)]
@@ -25,6 +25,10 @@ class InventoryItem(StrictModel):
     quantity: int = Field(default=1,ge=0,le=100)
     condition: Literal['Not supplied','Good','Fair','Damaged'] = 'Good'
     remarks: Text = ''
+    @field_validator('name')
+    @classmethod
+    def migrate_table_name(cls, value):
+        return 'Study table' if value == 'Makeup table' else value
 class Details(StrictModel):
     tenant_name: Text = ''
     tenant_id: Text = ''
@@ -59,7 +63,6 @@ class Details(StrictModel):
     special_conditions: Annotated[str, StringConstraints(strip_whitespace=True,max_length=3000)] = ''
     room_condition: Text = ''
     room_remarks: Text = ''
-    makeup_table_drawer: Literal['not_applicable','with','without'] = 'not_applicable'
     meter_reading: Text = ''
     inventory: list[InventoryItem] = Field(default_factory=list,max_length=30)
     include_aml: bool = True
@@ -72,6 +75,12 @@ class Details(StrictModel):
     carpark_rent: Money = Decimal('300')
     carpark_deposit: Money = Decimal('0')
     carpark_earnest_deposit: Money = Decimal('0')
+    @model_validator(mode='before')
+    @classmethod
+    def discard_legacy_drawer(cls, value):
+        if isinstance(value, dict) and 'makeup_table_drawer' in value:
+            value = {key: item for key, item in value.items() if key != 'makeup_table_drawer'}
+        return value
     @model_validator(mode='after')
     def dates(self):
         if self.end_date and self.start_date and self.end_date < self.start_date:

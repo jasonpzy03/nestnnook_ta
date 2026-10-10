@@ -2,17 +2,18 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { expiryDate, proratedRental } from './dates';
+import { expiryDate, tenancyExpiryDate, proratedRental } from './dates';
 import { parseTenantMessage, TenantImport } from './tenant-import';
 import { Language, LanguagePreference, LANGUAGE_COOKIE, detectLanguage, readLanguagePreference, translate } from './language';
+import { Portfolio, RentalInput } from './portfolio';
 
 
 interface Field { key: string; label: string; type?: string; required?: boolean; placeholder?: string; wide?: boolean; }
 interface Inventory { name: string; quantity: number; condition: string; remarks: string; }
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Makeup table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key'];
-const fresh = (): Record<string, any> => ({carpark_lot:'',carpark_address:'',carpark_agreement_date:today(),carpark_start_date:today(),carpark_end_date:'',carpark_rent:300,carpark_deposit:null,carpark_earnest_deposit:null,tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,tenancy_type:'new',aircon_kwh:40,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',makeup_table_drawer:'not_applicable',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
-@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./app.html'})
+const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Study table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key','Lamp'];
+const fresh = (): Record<string, any> => ({carpark_lot:'',carpark_address:'',carpark_agreement_date:today(),carpark_start_date:today(),carpark_end_date:'',carpark_rent:300,carpark_deposit:null,carpark_earnest_deposit:null,tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,tenancy_type:'new',aircon_kwh:40,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
+@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,Portfolio],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
 
   languagePreference:LanguagePreference=readLanguagePreference(document.cookie);
@@ -51,6 +52,7 @@ export class App implements OnInit, OnDestroy {
 
   wordPdfAvailable=true;
   shareOpen=false; sharePreparing=false; sharing=false; shareMessage=''; shareError=''; shareFiles:File[]=[];
+  shareRental:RentalInput|null=null; sharePortfolioChoice:'ask'|'edit'|'done'='done'; sharePortfolioSaved=false;
   private shareAbort?:AbortController;
   get canShareFiles(){return this.supportsShare(this.shareFiles);}
   supportsShare(files:File[]){try{return files.length>0&&typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files});}catch{return false;}}
@@ -93,7 +95,7 @@ export class App implements OnInit, OnDestroy {
   chooseTerm(months:number){this.expiryMonths=months;this.updateExpiry();}
   updateExpiry(){
     if(!this.expiryMonths||!this.d['start_date'])return;
-    this.d['end_date']=expiryDate(this.d['start_date'],this.expiryMonths);
+    this.d['end_date']=tenancyExpiryDate(this.d['start_date'],this.expiryMonths);
   }
   startDocuments(id?:string){
     if(id)this.docs.forEach(doc=>doc.selected=doc.id===id);
@@ -137,7 +139,7 @@ export class App implements OnInit, OnDestroy {
     if(agreement)for(const key of ['aircon','guardian_name','guardian_id','special_conditions','include_aml'])details[key]=this.d[key];
     if(documentIds.includes('tenancy'))details['tenancy_type']=this.d['tenancy_type'];
     if(documentIds.includes('tenancy')&&this.d['aircon'])details['aircon_kwh']=this.d['aircon_kwh'];
-    if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','makeup_table_drawer','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
+    if(moveIn)for(const key of ['agreement_date','inventory','room_condition','room_remarks','meter_reading',...this.emergencyFields.map(f=>f.key)])details[key]=this.d[key];
     if(agreement)for(const f of this.moneyFields)details[f.key]=f.key==='advance_rent'?(this.proratedRent||0):(this.d[f.key]||0);
     if(documentIds.includes('carpark')){for(const f of [...this.carparkFields,...this.carparkMoneyFields])details[f.key]=f.type==='date'||f.required?this.d[f.key]:(this.d[f.key]||0);details['carpark_earnest_deposit']=this.carparkEarnest||0;}
     return JSON.parse(JSON.stringify(details));
@@ -161,6 +163,7 @@ export class App implements OnInit, OnDestroy {
     const documentIds=ids||this.selected.map(doc=>doc.id);
     if(!blankRules&&!this.validate(documentIds))return;
     const details=this.documentDetails(documentIds,blankRules);
+    const rental=!blankRules&&documentIds.some(id=>['tenancy','offer','move_in'].includes(id))?this.rentalSnapshot():null;
     this.closeShare();
     const controller=new AbortController();this.shareAbort=controller;
     this.shareOpen=true;this.sharePreparing=true;this.busy=true;
@@ -176,6 +179,7 @@ export class App implements OnInit, OnDestroy {
       }
       if(controller.signal.aborted)return;
       this.shareFiles=files;
+      this.shareRental=rental;this.sharePortfolioChoice=rental?'ask':'done';
     }catch(e){
       if(!controller.signal.aborted)this.shareError=e instanceof Error?e.message:'Could not prepare PDFs. Try again.';
     }finally{
@@ -183,7 +187,7 @@ export class App implements OnInit, OnDestroy {
     }
   }
   async sharePrepared(files:File[]=this.shareFiles){
-    if(this.sharing||!this.supportsShare(files))return;
+    if(this.sharing||this.sharePortfolioChoice!=='done'||!this.supportsShare(files))return;
     this.sharing=true;this.shareError='';this.shareMessage='';
     try{
       // Files are already prepared: invoke sharing directly from this button tap on iOS.
@@ -199,6 +203,12 @@ export class App implements OnInit, OnDestroy {
     if(this.sharePreparing)this.busy=false;
     this.shareOpen=false;this.sharePreparing=false;this.sharing=false;
     this.shareFiles=[];this.shareMessage='';this.shareError='';
+    this.shareRental=null;this.sharePortfolioChoice='done';this.sharePortfolioSaved=false;
+  }
+  rentalSnapshot():RentalInput{
+    let last=this.d['end_date']||'';
+    if(last.endsWith('-01')){const [y,m]=last.split('-').map(Number);const previous=new Date(y,m-1,0);last=`${previous.getFullYear()}-${String(previous.getMonth()+1).padStart(2,'0')}-${String(previous.getDate()).padStart(2,'0')}`;}
+    return {unit:this.d['property']||'',room:this.d['room']||'',rent:this.d['rent'],parking:this.d['parking']||0,start_date:this.d['start_date']||'',last_rental_date:last,active:true};
   }
   download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
   saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:{...this.d,advance_rent:this.proratedRent,carpark_earnest_deposit:this.carparkEarnest},documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
@@ -213,7 +223,9 @@ export class App implements OnInit, OnDestroy {
         if(key==='company'){for(const k of Object.keys(base.company)){if(typeof src.company?.[k]==='string'&&src.company[k].length<=300)base.company[k]=src.company[k];}}
         else if(key==='inventory'){
           if(!Array.isArray(src.inventory)||src.inventory.length>30)throw Error('Invalid inventory in draft.');
-          base.inventory=src.inventory.map((i:any)=>{if(typeof i.name!=='string'||i.name.length>200||!Number.isInteger(i.quantity)||i.quantity<0||i.quantity>100||!['Not supplied','Good','Fair','Damaged'].includes(i.condition)||typeof i.remarks!=='string'||i.remarks.length>300)throw Error('Invalid inventory in draft.');return {name:i.name,quantity:i.quantity,condition:i.condition,remarks:i.remarks};});
+          const saved:Inventory[]=src.inventory.map((i:any)=>{if(!i||typeof i.name!=='string'||i.name.length>200||!Number.isInteger(i.quantity)||i.quantity<0||i.quantity>100||!['Not supplied','Good','Fair','Damaged'].includes(i.condition)||typeof i.remarks!=='string'||i.remarks.length>300)throw Error('Invalid inventory in draft.');return {name:i.name==='Makeup table'?'Study table':i.name,quantity:i.quantity,condition:i.condition,remarks:i.remarks};});
+          if(saved.some(i=>!inventoryNames.includes(i.name))||new Set(saved.map(i=>i.name)).size!==saved.length)throw Error('Invalid inventory in draft.');
+          base.inventory=base.inventory.map((item:Inventory)=>saved.find(i=>i.name===item.name)||item);
         }else if(src[key]!==undefined){
           if(key==='tenancy_type'&&!['new','renewal'].includes(src[key]))throw Error('Choose New tenant or Renewal.');
           if(key==='aircon_kwh'){

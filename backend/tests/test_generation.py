@@ -101,9 +101,9 @@ def test_new_inventory_columns_and_dashes(details):
     for table in r.xpath('//w:txbxContent/w:tbl',namespaces=NS):
         rows=table.findall('w:tr',NS)
         headers=[''.join(c.xpath('.//w:t/text()',namespaces=NS)) for c in rows[0].findall('w:tc',NS)]
-        assert headers==['Items','Qty','Good Condition','Broken','Remarks:']
+        assert headers==['Items','Qty','Good Condition','Remarks:']
         bed=[''.join(c.xpath('.//w:t/text()',namespaces=NS)) for c in rows[2].findall('w:tc',NS)]
-        assert bed[1:]==['1','YES','-','-']
+        assert bed[1:]==['1','YES','-']
     for kind in ['tenancy','move_in']:
         t=text(fill_docx(kind,d))
         assert 'NIL' not in t and '>NA<' not in t
@@ -121,6 +121,24 @@ def test_tenure_matches_expiry_shortcuts(details,start,end,wanted):
     from backend.template_docx import tenure
     details.update(start_date=start,end_date=end)
     assert tenure(Details(**details))==wanted
+
+
+@pytest.mark.parametrize('aircon',[True,False])
+@pytest.mark.parametrize('start,end,wanted',[
+    ('2025-10-10','2026-05-01','6 Months'),
+    ('2026-04-10','2027-05-01','1 Year'),
+    ('2026-10-01','2027-04-01','6 Months'),
+    ('2026-08-31','2027-03-01','6 Months'),
+    ('2024-02-29','2025-03-01','1 Year'),
+])
+def test_rounded_tenancy_tenure_in_word_and_pdf(details,aircon,start,end,wanted):
+    from backend.placeholders import fields_for
+    from backend.converted_pdf import fill_converted
+    details.update(aircon=aircon,start_date=start,end_date=end)
+    d=Details(**details)
+    assert fields_for('tenancy',d)['tenure']==wanted
+    for data in [fill_docx('tenancy',d),fill_converted('tenancy',d)]:
+        assert wanted in text(data)
 
 
 def test_rules_without_tenancy_details():
@@ -150,27 +168,30 @@ def test_move_in_requires_identity_and_date():
 @pytest.mark.parametrize('aircon',[True,False])
 def test_pdf_pack_without_word(details,aircon,monkeypatch):
     from backend import renderers
+    from backend.filenames import pdf_filename
     def no_word(*args):raise AssertionError('Runtime must not invoke Word')
     monkeypatch.setattr(renderers,'word_pdf',no_word)
     details['aircon']=aircon
+    kinds={pdf_filename(kind,Details(**details)):kind for kind in ('tenancy','rules','move_in','offer')}
     response=client.post('/api/generate',json={'details':details,'documents':['tenancy','rules','move_in','offer'],'format':'pdf'})
     assert response.status_code==200,response.text
     with ZipFile(BytesIO(response.content)) as pack:
         assert len(pack.namelist())==4
         for name in pack.namelist():
             data=pack.read(name);content=text(data)
+            kind=kinds[name]
             assert name.endswith('.pdf')
             assert 'Alex Tan' in content and 'TEST-P12345' in content
             for stale in ['DI CHIA SENG','TENG YING YING','HII HUI CHIN','Shamsunder','VANGUARD','Vanguard','1102047977','961004-01-5879','PCR0033666']:
                 assert stale not in content,(name,stale)
             with fitz.open(stream=data,filetype='pdf') as doc:
-                key=('ac' if aircon else 'noac') if 'tenancy' in name else 'offer' if 'offer' in name else 'move_in' if 'move_in' in name else 'rules'
+                key=('ac' if aircon else 'noac') if kind=='tenancy' else kind
                 with fitz.open(ROOT/'agreements/pdf'/f'{key}.pdf') as template:
                     assert len(doc)==len(template)
-            if 'tenancy' in name:
+            if kind=='tenancy':
                 assert '150' in content and 'transfer' in content.lower()
                 assert 'Refundable Room Deposit' in content
-            if 'move_in' in name:assert 'CARD-123' in content
+            if kind=='move_in':assert 'CARD-123' in content
 
 
 def test_rules_pdf_without_details():
@@ -180,12 +201,11 @@ def test_rules_pdf_without_details():
 
 
 @pytest.mark.parametrize('choice',["not_applicable","with","without"])
-def test_pdf_drawer_placeholders(details,choice):
+def test_legacy_drawer_choice_is_ignored(details,choice):
     from backend.converted_pdf import fill_converted
     content=text(fill_converted('move_in',Details(**details,makeup_table_drawer=choice)))
-    assert ('[X] with drawer' in content)==(choice=='with')
-    assert ('[X] without drawer' in content)==(choice=='without')
-    assert content.count('[X]')==(0 if choice=='not_applicable' else 1)
+    assert 'drawer' not in content.lower()
+    assert 'Study Table' in content and 'Lamp' in content
 
 
 def test_converted_pdf_overflow(details):

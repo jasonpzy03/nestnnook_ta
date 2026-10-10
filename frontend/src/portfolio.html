@@ -1,0 +1,63 @@
+<section class="portfolio" [class.portfolio-capture]="mode==='capture'">
+  @if(mode==='dashboard'){
+    <div class="portfolio-toolbar"><label>{{t('Projection month')}}<input type="month" [(ngModel)]="month" (ngModelChange)="load()" min="1900-01" max="9999-12" [disabled]="saving"></label><button class="button secondary" [disabled]="loading||saving" (click)="load()">{{t('Refresh')}}</button></div>
+    <p class="section-description">{{t('Room rent and parking, pro-rated for partial months. Deposits and one-time fees are excluded.')}}</p>
+  }
+  @if(error){<p class="notice error" role="alert">{{t(error)}}</p>}
+  @if(notice){<p class="notice success" role="status">{{t(notice)}}</p>}
+  @if(loading){<p role="status">{{t('Loading rental portfolio…')}}</p>}
+  @if(mode==='dashboard'&&data){
+    <div class="income-cards" aria-live="polite">
+      <article class="card income-card"><span>{{t('Projected rental income')}}</span><strong>{{data.rental_income|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{data.earning_rooms}} {{t('rooms earning rent this month')}}</small></article>
+      <article class="card income-card"><span>{{t('Fixed monthly expenses')}}</span><strong>{{data.fixed_expenses|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{data.expenses.length}} {{t('recurring expenses')}}</small></article>
+      <article class="card income-card net-income" [class.negative-income]="data.net_income<0"><span>{{t('Projected net income')}}</span><strong>{{data.net_income|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Rental income − fixed expenses')}}</small></article>
+    </div>
+    <p class="field-hint">{{t('This is a projection, not a record of payments received. Changes to rooms and fixed expenses apply to every monthly projection.')}}</p>
+  }
+  @if(editor){
+    <article class="card portfolio-editor">
+      <h2>{{t(editor==='room'?(editId?'Edit room rental':'Add room rental'):(editId?'Edit fixed expense':'Add fixed expense'))}}</h2>
+      <form #entryForm (submit)="$event.preventDefault();entryForm.reportValidity()&&save()">
+        <fieldset [disabled]="saving">
+          @if(editor==='room'){
+            <p class="section-description">{{t('One rental per unit and room. Only rental details are saved; tenant identity and contact details are not stored.')}}</p>
+            <div class="field-grid">
+              <label>{{t('Unit number')}}<input name="portfolio_unit" [(ngModel)]="rental.unit" required maxlength="100" [readonly]="!!editId" (ngModelChange)="conflict=null"></label>
+              <label>{{t('Room number')}}<input name="portfolio_room" [(ngModel)]="rental.room" required maxlength="100" [readonly]="!!editId" (ngModelChange)="conflict=null"></label>
+              <label>{{t('Monthly room rental')}}<input name="portfolio_rent" [(ngModel)]="rental.rent" type="number" required min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label>
+              <label>{{t('Monthly car park rental')}}<input name="portfolio_parking" [(ngModel)]="rental.parking" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label>
+              <label>{{t('Move-in date (optional)')}}<input name="portfolio_start" [(ngModel)]="rental.start_date" type="date" (ngModelChange)="conflict=null"></label>
+              <label>{{t('Last rental day (optional)')}}<input name="portfolio_end" [(ngModel)]="rental.last_rental_date" type="date" [min]="rental.start_date" (ngModelChange)="conflict=null"></label>
+            </div>
+            <p class="field-hint">{{t('Leave dates blank for an ongoing rental. For an expiry on the 1st, the last rental day is the previous day.')}}</p>
+            <label class="check-label"><input name="portfolio_active" type="checkbox" [(ngModel)]="rental.active" (ngModelChange)="conflict=null">{{t('Include this room in projections')}}</label>
+          }@else{
+            <div class="field-grid"><label>{{t('Expense name')}}<input name="expense_name" [(ngModel)]="expense.name" required maxlength="100" (ngModelChange)="conflict=null"></label><label>{{t('Monthly amount (RM)')}}<input name="expense_amount" [(ngModel)]="expense.amount" required type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label></div>
+            <p class="field-hint">{{t('This fixed amount is deducted every month, including months without rental income.')}}</p>
+          }
+          @if(conflict){
+            <div class="portfolio-conflict"><h3>{{t('Review existing record')}}</h3>
+              @if(conflict.kind==='room'){<p>{{conflict.unit}} · {{conflict.room}}</p><p>{{t('Saved monthly rent')}}: {{conflict.rent|currency:'MYR':'RM ':'1.2-2'}} + {{conflict.parking|currency:'MYR':'RM ':'1.2-2'}} {{t('parking')}}</p><p>{{conflict.start_date||'—'}} → {{conflict.last_rental_date||'—'}} · {{t(conflict.active?'Included':'Excluded')}}</p>}
+              @else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
+              <p>{{t('Replace the saved record with the values above? This will not add a second copy.')}}</p><button type="button" class="button primary" (click)="entryForm.reportValidity()&&save(true)">{{t('Update saved record')}}</button>
+            </div>
+          }
+          <div class="modal-actions"><button type="button" class="button secondary" (click)="cancel()">{{t(mode==='capture'?'Not now':'Cancel')}}</button>@if(!conflict){<button type="submit" class="button primary">{{t(saving?'Saving…':'Save to rental portfolio')}}</button>}</div>
+        </fieldset>
+      </form>
+    </article>
+  }
+  @if(mode==='dashboard'&&data){
+    <article class="card portfolio-list"><div class="portfolio-list-heading"><h2>{{t('Room rentals')}}</h2><button class="button primary" [disabled]="saving" (click)="editRoom()">{{t('＋ Add room rental')}}</button></div>
+      @if(!data.rooms.length){<div class="portfolio-empty"><h3>{{t('Build your rental portfolio')}}</h3><p>{{t('Add existing rooms here, or save a rental when sharing its PDFs.')}}</p></div>}
+      @else{<div class="portfolio-table-scroll"><table class="portfolio-table"><thead><tr><th>{{t('Unit / room')}}</th><th>{{t('Monthly rent + parking')}}</th><th>{{t('Rental dates')}}</th><th>{{t('This month')}}</th><th>{{t('Actions')}}</th></tr></thead><tbody>
+        @for(row of data.rooms;track row.id){<tr><td><strong>{{row.unit}} · {{row.room}}</strong><small>{{t(row.active?'Included':'Excluded')}}</small></td><td>{{row.rent+row.parking|currency:'MYR':'RM ':'1.2-2'}}<small>{{row.rent|currency:'MYR':'RM ':'1.2-2'}} + {{row.parking|currency:'MYR':'RM ':'1.2-2'}}</small></td><td>{{row.start_date||'—'}}<small>{{row.last_rental_date||t('Ongoing')}}</small></td><td><strong>{{row.expected|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{row.rental_days}} {{t('rental days')}}</small></td><td><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editRoom(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></td></tr>}
+      </tbody></table></div>}
+    </article>
+    <article class="card portfolio-list"><div class="portfolio-list-heading"><h2>{{t('Fixed monthly expenses')}}</h2><button class="button secondary" [disabled]="saving" (click)="editExpense()">{{t('＋ Add fixed expense')}}</button></div>
+      @if(!data.expenses.length){<p class="portfolio-empty">{{t('Add recurring costs such as unit rent, internet, cleaning, or utilities.')}}</p>}
+      @for(row of data.expenses;track row.id){<div class="portfolio-expense"><span>{{row.name}}</span><strong>{{row.amount|currency:'MYR':'RM ':'1.2-2'}}</strong><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editExpense(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></div>}
+    </article>
+  }
+  @if(removal){<div class="portfolio-remove notice" role="alert"><strong>{{t('Remove this record from all projections?')}}</strong><p>{{removal.kind==='room'?removal.unit+' · '+removal.room:removal.name}}</p><div class="modal-actions"><button class="button secondary" [disabled]="saving" (click)="removal=null">{{t('Cancel')}}</button><button class="button primary" [disabled]="saving" (click)="remove()">{{t('Remove record')}}</button></div></div>}
+</section>

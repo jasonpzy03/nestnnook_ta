@@ -1,6 +1,6 @@
 # Deploy to Vercel with Upstash Redis
 
-The code is prepared for cloud login and saved addresses. Your Vercel and Upstash accounts still need the configuration below. This change has not deployed the site or created a Redis database.
+The code is prepared for cloud login, saved addresses, and the shared rental portfolio. Your Vercel and Upstash accounts still need the configuration below. This change has not deployed the site or created a Redis database.
 
 ## 1. Create Redis
 
@@ -28,7 +28,7 @@ To export it again, run from the repository root:
 .\.venv\Scripts\python.exe -m backend.setup_access --export-vercel
 ```
 
-For Preview deployments, configure the same variable names separately with prefix `nestnnook:preview`. Prefer a separate Redis database and password for previews. Do not reuse the production prefix: prefixes separate sessions, attempt limits, and address lists.
+For Preview deployments, configure the same variable names separately with prefix `nestnnook:preview`. Prefer a separate Redis database and password for previews. Do not reuse the production prefix: prefixes separate sessions, attempt limits, address lists, and rental portfolios.
 
 ## 3. Update Vercel build settings
 
@@ -53,6 +53,9 @@ The Python function serves the built frontend after checking staff authenticatio
 - Before signing in, `/api/addresses` must return 401 and `/main.js` must redirect to sign-in.
 - Sign in with your existing staff password.
 - Add an address, reload, then confirm the same address appears from a second signed-in device.
+- In **Income dashboard**, add a test room and a fixed expense. Reload and check the same totals from a second signed-in device. Verify the pro-rated move-in month, a full month, and the month after expiry.
+- Share a room PDF, opt into **Add to rental portfolio?**, and confirm a repeated unit/room asks for an update rather than duplicating the rental. Choose **Not now** to verify that sharing does not save a record.
+- Remove test portfolio records when finished. Portfolio updates use Redis Lua commands and revision checks; storage failures must show an error rather than a successful save.
 - Sign out and confirm the API returns 401 again.
 - Download each document as PDF (including both tenancy variants), and check a Word download.
 
@@ -76,8 +79,8 @@ Enter the destination REST URL and token when prompted. The token is hidden. The
 - Logout deletes the session immediately across instances.
 - Login attempts are reserved atomically in Redis, limited to five per client IP per 15 minutes. On Vercel, the platform-provided forwarded IP is used; local servers ignore that header.
 - Address additions are atomic and case-insensitively deduplicated, with a 500-address limit. Addresses have no expiry.
-- Tenant details and generated documents are not saved in Redis. Document processing still receives them transiently on the server.
-- Local use without Vercel/Redis variables retains the existing file-backed addresses and in-memory sessions.
+- Rental portfolio records are saved only on explicit opt-in: unit, room, rent, parking, dates, inclusion status, and fixed expense names/amounts. Records have no expiry. Tenant identity/contact details and generated documents are not saved in Redis. Document processing still receives them transiently on the server.
+- Local use without Vercel/Redis variables stores the portfolio in `.local/portfolio.json`, with file-backed addresses and in-memory sessions. Local portfolios are not automatically migrated to cloud.
 
 ## PDF template status
 

@@ -1,4 +1,4 @@
-import { expiryDate } from './dates';
+import { tenancyExpiryDate } from './dates';
 
 export interface ImportedField { key:string; label:string; value:string|number; }
 export interface TenantImport { fields:ImportedField[]; notes:string[]; months:number; }
@@ -86,7 +86,7 @@ export function parseTenantMessage(message:string):TenantImport {
   if(invalidTerm)months=0;
   if(months){
     const start=fields.get('start_date');
-    if(start)add('end_date',expiryDate(String(start.value),months));
+    if(start)add('end_date',tenancyExpiryDate(String(start.value),months));
     else months=0;
   }
   return {fields:[...fields.values()],notes:[...new Set(notes)],months};

@@ -44,7 +44,7 @@ Use double braces around each name, e.g. `{{tenant_name}}`.
 | Payments | `rent`, `parking`, `security_deposit`, `access_deposit`, `advance_rent`, `agreement_fee`, `total` |
 | Tenancy rental label | `rental_label` — shows `Rental (Extend 6 months @RM …)` for new tenants with exactly six months, using monthly rent minus RM100; otherwise shows `Rental` |
 | Offer | `reference` (automatic invoice number when blank), `special_conditions` |
-| Move-in | `meter_reading`, `drawer_with`, `drawer_without` |
+| Move-in | `meter_reading` |
 | Company | `company.name`, `company.registration`, `company.address`, `company.phone`, `company.contact`, `company.email`, `company.account_name`, `company.account_number`, `company.bank` |
 | Car park | `carpark_lot`, `carpark_address`, `carpark_agreement_date`, `carpark_start_date`, `carpark_end_date`, `carpark_tenure`, `carpark_rent`, `carpark_deposit`, `carpark_earnest_deposit` |
 
@@ -62,7 +62,7 @@ The AC allowance is editable under **Tenancy & payments** when an AC tenancy agr
 
 ### Inventory fields
 
-Short names fit the narrow inventory columns: `{{q1}}` is quantity, `{{g1}}` is good condition, `{{b1}}` is broken, and `{{r1}}` is remarks. The suffix identifies the item, regardless of where its row is moved.
+Short names fit the narrow inventory columns: `{{q1}}` is quantity, `{{g1}}` is good condition, and `{{r1}}` is remarks. The Broken column has been removed. The suffix identifies the item, regardless of where its row is moved.
 
 | Suffix | Item |
 | --- | --- |
@@ -70,7 +70,7 @@ Short names fit the narrow inventory columns: `{{q1}}` is quantity, `{{g1}}` is 
 | 1 | Bedframe / Divan |
 | 2 | Mattress |
 | 3 | Pillow |
-| 4 | Makeup table |
+| 4 | Study table |
 | 5 | Chair |
 | 6 | Plant decor |
 | 7 | Curtain |
@@ -86,8 +86,9 @@ Short names fit the narrow inventory columns: `{{q1}}` is quantity, `{{g1}}` is 
 | 17 | Access card |
 | 18 | Room key |
 | 19 | Main door key |
+| 20 | Lamp |
 
-Missing inventory entries default to quantity 1 / Good. Unsupplied items use dashes. Fair condition is included in remarks. Drawer choices use `[X]` and `[ ]`, filled from their placeholders. Both the modern and legacy copies of Word text boxes are filled. Some narrow cells compress placeholder text for editing; the filler removes that compression for actual values.
+Missing inventory entries default to quantity 1 / Good. Unsupplied items use dashes. Fair and Damaged conditions are included in remarks. Study table has no drawer selection. Older draft makeup-table entries are migrated to Study table; obsolete drawer selections are ignored. Both the modern and legacy copies of Word text boxes are filled. Some narrow cells compress placeholder text for editing; the filler removes that compression for actual values.
 
 ## PDF layout metadata
 

@@ -1,6 +1,6 @@
 # Nest & Nook tenancy documents
 
-Mobile-friendly Angular TypeScript app with a Python FastAPI backend. Local file storage, with Redis for cloud login and saved addresses. Documents in `agreements/` provide the base templates. All active Word templates use named placeholders. See [template editing and restore instructions](agreements/README.md).
+Mobile-friendly Angular TypeScript app with a Python FastAPI backend. Local file storage, with Redis for cloud login, saved addresses, and the shared rental portfolio. Documents in `agreements/` provide the base templates. All active Word templates use named placeholders. See [template editing and restore instructions](agreements/README.md).
 
 ## Run
 
@@ -25,7 +25,7 @@ UI translations are maintained in `frontend/src/language.ts`; sign-in translatio
 
 **PDF** fills converted copies of the Word templates. All document types work without Word at runtime. **Word** downloads filled `.docx` templates, including the offer. Multiple documents arrive in one ZIP. See [template editing instructions](agreements/README.md) for editing the offer and refreshing its PDF copy.
 
-On iPhone, choose **Share PDFs**, wait for preparation, then tap **Share PDFs** in the dialog and choose WhatsApp and the customer. Each document remains a separate PDF. The second tap opens the native share sheet directly, as required by mobile browsers. The app checks support for the actual files and offers individual Share/Download buttons as a fallback. Use the HTTPS deployment in Safari. WhatsApp availability and acceptance of multiple files depend on the installed app. Files stay in browser memory until the dialog closes; nothing is automatically sent or stored on the server. The Download action still provides the existing ZIP for multiple documents.
+On iPhone, choose **Share PDFs**, wait for preparation, then tap **Share PDFs** in the dialog and choose WhatsApp and the customer. Each document remains a separate PDF. The second tap opens the native share sheet directly, as required by mobile browsers. The app checks support for the actual files and offers individual Share/Download buttons as a fallback. Use the HTTPS deployment in Safari. WhatsApp availability and acceptance of multiple files depend on the installed app. Files stay in browser memory until the dialog closes; nothing is automatically sent. Rental details are saved only when you explicitly choose Save to rental portfolio. The Download action still provides the existing ZIP for multiple documents.
 
 Offer invoice numbers are generated automatically when blank, for example `NN-20261002-A1B2C3D4E5`. The date uses the signing date and the suffix is random, not sequential. The same number is retained for previews, downloads and sharing within the current form, and included in saved drafts. Start a new tenancy for a new offer; manually entered invoice numbers are preserved.
 
@@ -69,6 +69,21 @@ Changing source structure requires reviewing the field mapping and rerunning che
 
 The Linux Docker image and Vercel support PDF previews and downloads for every document type, along with Original formats.
 
+## Monthly income dashboard
+
+Open **Income dashboard** from the sidebar or top navigation. **Projected net income** is room rent plus monthly car-park rent, minus manually entered fixed monthly expenses. Select a month to see each room's projected contribution.
+
+- **Share PDFs** for a tenancy, offer, or move-in form asks **Add to rental portfolio?** Review the prefilled unit, room, rent, parking and dates, then save or choose **Not now**. Skipping never writes a rental record and does not prevent sharing. House rules alone and standalone car-park agreements do not add room rentals.
+- Add existing rentals directly using **＋ Add room rental**. Unit + room is the unique identity; whitespace/case and numeric room prefixes are normalised (`Room 02`, `R2`, and `2` identify the same room). Re-sharing an existing room requires explicit review before updating it, so it is never counted twice.
+- The move-in day is included in pro-rating. Room rent and parking are each pro-rated using the month's actual day count and rounded to cents. A TA expiry on the first is imported as a last rental day of the preceding month. Full intervening months use the full monthly rent and parking amount.
+- Dates are optional for manually added ongoing rentals. Excluded rooms contribute zero. Fixed expenses repeat every month, even without rental income, so projected net income can be negative.
+- This is a projection of the currently saved portfolio, not a payment ledger or historical rent schedule. Editing or removing a rental or expense affects every month's projection. One current rental is retained per unit/room.
+- Staff can add, edit, exclude or remove rentals, and add, edit or remove fixed expenses. Removal asks for confirmation. Concurrent changes are checked using revisions; stale updates never overwrite newer values silently.
+
+Local data uses `.local/portfolio.json` with atomic writes (one backend worker). Cloud deployments use the existing Upstash configuration and a persistent `portfolio` hash under `NEST_REDIS_PREFIX`, with no expiration. There is a combined limit of 2,000 rental/expense records. No new environment variables are needed. Local records are not automatically copied to Redis. Back up the local file or Redis database as appropriate. All portfolio endpoints use the existing staff authentication and no-cache policy.
+
+Checks: `node scripts/test_portfolio.cjs`, `node scripts/test_sharing.cjs`, and `.venv/Scripts/python.exe -m pytest backend/tests/test_portfolio.py -q`.
+
 ## Staff access
 
 The website and all API endpoints require the shared staff password. There is no public registration. The initial password for this installation is in `.local/initial-login.txt`; save it in your password manager and remove that file. Only share it with authorised staff.
@@ -85,8 +100,8 @@ Run one backend worker: sessions and attempt limits are held in memory. For Dock
 
 This remains a local-network app. Authentication does not create a VPN or firewall restriction. For access beyond your trusted Wi-Fi, use a private VPN or an HTTPS deployment with access controls; do not forward this plain HTTP port to the internet. HTTPS requests receive Secure session cookies; set `NEST_SECURE_COOKIE=1` when using an HTTPS reverse proxy. Configure trusted proxy headers only for that proxy. Do not use the Angular development server for staff access; use the Python-served production build on port 8000.
 
-Saved property addresses are in `.local/addresses.json` on the server. No tenant records are stored. Expiry shortcuts end the day before the anniversary; when the anniversary day is missing (for example August 31 to February), expiry uses the target month’s last day. Old drafts omit the removed fee fields when loaded.
+Saved property addresses are in `.local/addresses.json` on the server. Rental portfolio entries are saved in `.local/portfolio.json`; tenant identity/contact details and generated documents are not stored. Tenancy expiry shortcuts round up to the first day of the month: a partial move-in month is pro-rated and excluded from the 6-month or 1-year term (10 October 2025 + 6 months → 1 May 2026). Move-ins on the first start their full term immediately. Both AC and non-AC TAs display the whole term without a day count. Car park shortcuts retain their anniversary-minus-one-day calculation. Old drafts omit the removed fee fields when loaded.
 
 ## Vercel deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for the combined Angular/FastAPI deployment, Upstash setup, password-hash export, and address migration. On Vercel, Redis stores sessions, rate limits and shared address options. The local Windows setup remains available. The converted templates and field maps are included for full PDF generation.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the combined Angular/FastAPI deployment, Upstash setup, password-hash export, and address migration. On Vercel, Redis stores sessions, rate limits, shared address options, and the rental portfolio. The local Windows setup remains available. The converted templates and field maps are included for full PDF generation.

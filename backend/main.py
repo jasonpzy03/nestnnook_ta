@@ -14,6 +14,8 @@ app=FastAPI(title='Nest & Nook document studio',docs_url=None,redoc_url=None,ope
 app.middleware('http')(auth.dispatch)
 from .addresses import router as address_router
 app.include_router(address_router)
+from .portfolio import router as portfolio_router
+app.include_router(portfolio_router)
 @app.middleware('http')
 async def no_cache(request,call_next):
     response=await call_next(request)

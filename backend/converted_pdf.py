@@ -99,9 +99,6 @@ def fill_converted(kind,details,blank=False):
                 x=rect.x0+(rect.width-width)/2 if slot['align']==1 else rect.x1-width if slot['align']==2 else rect.x0
                 page.insert_text((x,y),row,fontsize=size,fontname=alias)
                 y+=leading
-        if key=='move_in' and mapping.get('drawer') and details.makeup_table_drawer!='not_applicable':
-            drawer=mapping['drawer'];x,y=drawer[details.makeup_table_drawer]
-            doc[drawer['page']].draw_line((x,y+8),(x+8.8,y),width=.8)
         if kind=='offer' and not details.include_aml:
             doc.delete_pages(mapping['aml_page'],len(doc)-1)
         doc.set_metadata({})

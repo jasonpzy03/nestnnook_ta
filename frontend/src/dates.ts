@@ -11,6 +11,14 @@ export function proratedRental(start:string, rent:number|null):number|null {
   return Math.round(Math.round(rent*100)*(days-day+1)/days)/100;
 }
 
+export function tenancyExpiryDate(start:string, months:number):string {
+  if(![6,12].includes(months)||proratedRental(start,0)===null)return '';
+  const [year,month,day]=start.split('-').map(Number);
+  // A partial move-in month is pro-rated; the full term begins on the next 1st.
+  const target=new Date(year,month-1+months+(day===1?0:1),1);
+  return `${target.getFullYear()}-${String(target.getMonth()+1).padStart(2,'0')}-01`;
+}
+
 export function expiryDate(start:string, months:number):string {
   if(!start || ![6,12].includes(months))return '';
   const [y,m,day]=start.split('-').map(Number);

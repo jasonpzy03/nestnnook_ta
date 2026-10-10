@@ -8,6 +8,16 @@ const expiry=mod.exports.expiryDate;
 for(const [start,months,end] of [['2026-10-01',6,'2027-03-31'],['2026-10-01',12,'2027-09-30'],['2026-08-31',6,'2027-02-28'],['2024-02-29',12,'2025-02-28'],['2023-08-31',6,'2024-02-29']])assert.equal(expiry(start,months),end);
 console.log('5 expiry date cases passed');
 
+const tenancyExpiry=mod.exports.tenancyExpiryDate;
+for(const [start,months,end] of [
+ ['2025-10-10',6,'2026-05-01'],['2026-04-10',6,'2026-11-01'],
+ ['2026-04-10',12,'2027-05-01'],['2026-10-01',6,'2027-04-01'],
+ ['2026-10-01',12,'2027-10-01'],['2026-08-31',6,'2027-03-01'],
+ ['2024-02-29',12,'2025-03-01'],['2026-12-31',6,'2027-07-01'],
+ ['',6,''],['2026-02-30',6,''],['2026-04-10',3,'']
+])assert.equal(tenancyExpiry(start,months),end);
+console.log('11 tenancy expiry cases passed');
+
 const prorate=mod.exports.proratedRental;
 for(const [start,rent,expected] of [
  ['2026-10-17',1000,483.87],['2026-10-01',1000,1000],['2026-10-31',1000,32.26],

@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 function load(name,globals={}){
   const mod={exports:{}};
   const source=ts.transpileModule(fs.readFileSync(`frontend/src/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,experimentalDecorators:true}}).outputText;
-  vm.runInNewContext(source,{exports:mod.exports,require:id=>id.startsWith('./')?load(id.slice(2)):id==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{}}:id==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:{},Date,console,...globals});
+  vm.runInNewContext(source,{exports:mod.exports,require:id=>id.startsWith('./')?load(id.slice(2)):id==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{},Input:()=>()=>{},Output:()=>()=>{},EventEmitter:class{emit(){}}}:id==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:{},Date,console,...globals});
   return mod.exports;
 }
 const language=load('language');
@@ -15,7 +15,7 @@ assert.equal(language.translate('Full name','en'),'Full name');
 assert.equal(language.translate('Download 3 documents','zh'),'下载3份文件');
 assert.equal(language.translate('Room number has conflicting values. Enter it manually.','zh'),'房间号码有不同的值，请手动填写。');
 // Every explicit static translation in the Angular template has a Chinese entry.
-const template=fs.readFileSync('frontend/src/app.html','utf8').replaceAll('&quot;','"').replaceAll('&#x27;',"'");
+const template=['app.html','portfolio.html'].map(file=>fs.readFileSync('frontend/src/'+file,'utf8')).join('\n').replaceAll('&quot;','"').replaceAll('&#x27;',"'");
 for(const match of template.matchAll(/\bt\(("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\)/g)){
   const key=match[1].slice(1,-1);assert(Object.hasOwn(language.chinese,key),`Missing translation: ${key}`);
 }

@@ -7,6 +7,11 @@ const source=ts.transpileModule(fs.readFileSync('frontend/src/main.ts','utf8'),{
 vm.runInNewContext(source,{exports:exportsObject,require:(name)=>name==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{}}:name==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:name==='./language'?{readLanguagePreference:()=> 'en',detectLanguage:()=> 'en',translate:text=>text}:name==='./dates'?dates:{},document:{cookie:''},window:{scrollTo(){}},console,Date});
 const app=new exportsObject.App();
 const form={reportValidity:()=>true};
+app.d.start_date='2025-10-10';app.chooseTerm(6);
+assert.equal(app.d.end_date,'2026-05-01');
+app.d.start_date='2026-04-10';app.updateExpiry();
+assert.equal(app.d.end_date,'2026-11-01');
+app.chooseTerm(12);assert.equal(app.d.end_date,'2027-05-01');
 for(const [id,path] of [['offer',[0,1,3]],['tenancy',[0,1,3]],['move_in',[0,2,3]],['rules',[0,3]]]){
   app.startDocuments(id);assert.equal(JSON.stringify(app.activeSteps),JSON.stringify(path));
   app.d.end_date='2027-10-01';
@@ -60,3 +65,22 @@ assert.equal(app.documentDetails(['carpark']).tenancy_type,undefined);
 app.d.aircon=false;assert(app.visibleMoneyFields.some(f=>f.key==='parking'));
 app.startDocuments('offer');assert(!app.visibleMoneyFields.some(f=>f.key==='parking'));
 console.log('TA parking, tenancy type and independent car park inputs passed');
+
+(async()=>{
+  app.reset();
+  assert.equal(app.inventory.length,20);
+  assert(app.inventory.some(i=>i.name==='Study table'));
+  assert(app.inventory.some(i=>i.name==='Lamp'));
+  const inventory=app.inventory.filter(i=>i.name!=='Lamp').map(i=>i.name==='Study table'?{...i,name:'Makeup table',quantity:2,condition:'Fair',remarks:'Existing desk'}:i);
+  const draft={version:1,details:{...app.d,inventory,makeup_table_drawer:'with'},documents:['move_in']};
+  const input={files:[{size:1000,text:async()=>JSON.stringify(draft)}],value:'draft.json'};
+  await app.loadDraft({target:input});
+  assert.equal(app.error,'');
+  const table=app.inventory.find(i=>i.name==='Study table');
+  assert.equal(table.quantity,2);assert.equal(table.remarks,'Existing desk');
+  assert.equal(app.inventory.find(i=>i.name==='Lamp').quantity,1);
+  assert.equal(app.inventory.length,20);
+  assert(!('makeup_table_drawer' in app.documentDetails(['move_in'])));
+  assert(!fs.readFileSync('frontend/src/app.html','utf8').includes('makeup_table_drawer'));
+  console.log('Study table, Lamp, obsolete drawer removal and older draft migration passed');
+})().catch(error=>{console.error(error);process.exitCode=1;});
