@@ -189,8 +189,8 @@ def test_authenticated_access_and_cross_site_protection(monkeypatch,tmp_path):
 
 def test_property_expenses_fixed_and_monthly_breakdown(client):
     unit = property_unit(fixed_costs={'house_rental':'1800.50','wifi':100,'indah_water':8},
-        monthly_costs={'2026-10':{'electricity':'210.25','water':'30.10','others':[{'name':'Cleaning','amount':80},{'name':'Repair','amount':'45.20'}]},
-                       '2026-11':{'electricity':0,'water':0,'others':[]}})
+        monthly_costs={'2026-10':{'electricity':'210.25','water':'30.10','cleaning':80,'others':[{'name':'Repair','amount':'45.20'}]},
+                       '2026-11':{'electricity':0,'water':0,'cleaning':0,'others':[]}})
     assert client.post('/api/portfolio/units',json=unit).status_code == 200
     client.post('/api/portfolio/rooms',json=rental())
     client.post('/api/portfolio/expenses',json={'name':'Legacy cost','amount':20})
@@ -203,12 +203,13 @@ def test_property_expenses_fixed_and_monthly_breakdown(client):
     row = result['units'][0]
     assert row['fixed_expenses'] == 1908.50 and row['total_expenses'] == 2274.05
     assert row['net_income'] == -1504.05 and row['missing_expenses'] == []
-    assert len(row['selected_month_costs']['others']) == 2
+    assert len(row['selected_month_costs']['others']) == 1
+    assert row['selected_month_costs']['cleaning'] == '80'
     november = client.get('/api/portfolio?month=2026-11').json()
     assert november['variable_expenses'] == 0 and november['missing_expense_units'] == 0
     december = client.get('/api/portfolio?month=2026-12').json()
     assert december['variable_expenses'] == 0 and december['missing_expense_units'] == 1
-    assert december['units'][0]['missing_expenses'] == ['electricity','water','others']
+    assert december['units'][0]['missing_expenses'] == ['electricity','water','cleaning','others']
     # Fixed costs continue for vacant months; variable costs never carry forward.
     empty = client.get('/api/portfolio?month=2027-06').json()
     assert empty['net_income'] == -1928.50
@@ -220,8 +221,8 @@ def test_expense_missing_values_and_multi_unit_totals(client):
     result = client.get('/api/portfolio?month=2026-10').json()
     assert result['fixed_expenses'] == 1600 and result['variable_expenses'] == 12
     assert result['net_income'] == -1612 and result['missing_expense_units'] == 2
-    assert result['units'][0]['missing_expenses'] == ['water','others']
-    assert result['units'][1]['missing_expenses'] == ['electricity']
+    assert result['units'][0]['missing_expenses'] == ['water','cleaning','others']
+    assert result['units'][1]['missing_expenses'] == ['electricity','cleaning']
     # Older property records have valid zero fixed costs and missing variable costs.
     old = property_unit(unit='Old')
     old.update(kind='unit',id=portfolio.unit_key('Old'),revision='v1')
@@ -231,7 +232,7 @@ def test_expense_missing_values_and_multi_unit_totals(client):
 
 def test_expense_validation_and_revision_protection(client):
     for patch in ({'fixed_costs':{'wifi':-1}}, {'fixed_costs':{'indah_water':'1.001'}},
-                  {'monthly_costs':{'2026-13':{}}}, {'monthly_costs':{'2026-10':{'water':-1}}},
+                  {'monthly_costs':{'2026-10':{'cleaning':-1}}}, {'monthly_costs':{'2026-10':{'cleaning':'1.001'}}}, {'monthly_costs':{'2026-13':{}}}, {'monthly_costs':{'2026-10':{'water':-1}}},
                   {'monthly_costs':{'2026-10':{'others':[{'name':' ','amount':1}]}}},
                   {'monthly_costs':{'2026-10':{'others':[{'name':'Repair','amount':None}]}}}):
         assert client.post('/api/portfolio/units',json=property_unit(**patch)).status_code == 422
@@ -243,3 +244,54 @@ def test_expense_validation_and_revision_protection(client):
     assert stale.status_code == 409
     assert stale.json()['detail']['record']['monthly_costs']['2026-10']['electricity'] == '100'
     assert client.get('/api/portfolio?month=2026-10').json()['variable_expenses'] == 100
+
+
+def test_correct_rental_unit_moves_record_and_occupancy(client):
+    client.post('/api/portfolio/units',json=property_unit())
+    client.post('/api/portfolio/units',json=property_unit(unit='17-03'))
+    saved = client.post('/api/portfolio/rooms',json=rental(tenant_name='Alex')).json()
+    corrected = {**rental(tenant_name='Alex'),'unit':'17-03','revision':saved['revision']}
+    result = client.put('/api/portfolio/rooms/'+saved['id'],json=corrected)
+    assert result.status_code == 200
+    moved = result.json()
+    assert moved['id'] == portfolio.room_key('17-03','02') and moved['revision'] != saved['revision']
+    dashboard = client.get('/api/portfolio?month=2026-10').json()
+    assert len(dashboard['rooms']) == 1 and dashboard['rental_income'] == 770
+    assert dashboard['rooms'][0]['tenant_name'] == 'Alex'
+    assert dashboard['units'][0]['occupied_room_days'] == 0
+    assert dashboard['units'][1]['occupied_room_days'] == 7
+    assert client.put('/api/portfolio/rooms/'+saved['id'],json=corrected).status_code == 404
+    assert client.post('/api/portfolio/rooms',json={**rental(),'unit':'17-03'}).status_code == 409
+    # Inventory itself was not renamed or removed.
+    assert {u['unit'] for u in dashboard['units']} == {'16-03','17-03'}
+
+
+def test_rental_correction_duplicate_stale_and_inventory_guards(client):
+    saved = client.post('/api/portfolio/rooms',json=rental()).json()
+    other = client.post('/api/portfolio/rooms',json={**rental(),'unit':'17-03','rent':900}).json()
+    url = '/api/portfolio/rooms/'+saved['id']
+    correction = {**rental(),'unit':'17-03','revision':saved['revision']}
+    duplicate = client.put(url,json=correction)
+    assert duplicate.status_code == 409 and isinstance(duplicate.json()['detail'],str)
+    assert len(client.get('/api/portfolio?month=2026-10').json()['rooms']) == 2
+    client.post('/api/portfolio/units',json=property_unit(unit='B',rooms=[{'room':'1','standard_rent':1000}]))
+    assert client.put(url,json={**correction,'unit':'B'}).status_code == 422
+    updated = client.put(url,json={**rental(),'rent':3200,'revision':saved['revision']}).json()
+    assert client.put(url,json={**correction,'unit':'C'}).status_code == 409
+    current = client.get('/api/portfolio?month=2026-10').json()['rooms']
+    assert next(r for r in current if r['id']==saved['id'])['rent'] == 3200
+    assert next(r for r in current if r['id']==other['id'])['rent'] == 900
+    # A text-format correction keeps the same normalised identity.
+    normalised = client.put(url,json={**rental(),'unit':' Unit 16-03 ','revision':updated['revision']})
+    assert normalised.status_code == 200 and normalised.json()['id'] == saved['id']
+
+
+def test_concurrent_rental_corrections_do_not_overwrite_destination(client):
+    a = client.post('/api/portfolio/rooms',json=rental()).json()
+    b = client.post('/api/portfolio/rooms',json={**rental(),'unit':'B'}).json()
+    def move(row):
+        return client.put('/api/portfolio/rooms/'+row['id'],json={**rental(),'unit':'C','revision':row['revision']}).status_code
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        assert sorted(pool.map(move,[a,b])) == [200,409]
+    rows = client.get('/api/portfolio?month=2026-10').json()['rooms']
+    assert len(rows) == 2 and sum(r['unit']=='C' for r in rows) == 1

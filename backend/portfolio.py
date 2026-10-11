@@ -57,6 +57,7 @@ class OtherCost(StrictModel):
 class MonthlyCosts(StrictModel):
     electricity: Money | None = None
     water: Money | None = None
+    cleaning: Money | None = None
     # None means not entered; [] explicitly confirms no other expenses.
     others: list[OtherCost] | None = Field(default=None, max_length=50)
 
@@ -148,10 +149,12 @@ def records():
         raise HTTPException(503, 'Rental portfolio is unavailable. Please try again.') from None
 
 
-def mutate(kind, identifier, payload=None, expected=None, delete=False):
+def mutate(kind, identifier, payload=None, expected=None, delete=False, destination=None):
     """Compare revisions atomically, so re-sharing cannot duplicate or overwrite a room silently."""
     field = kind+':'+identifier
-    record = None if delete else {**payload, 'kind':kind, 'id':identifier, 'revision':uuid.uuid4().hex}
+    destination = destination or identifier
+    destination_field = kind+':'+destination
+    record = None if delete else {**payload, 'kind':kind, 'id':destination, 'revision':uuid.uuid4().hex}
     if record and kind == 'unit':
         record['room_ids'] = [room_key(payload['unit'], room['room']) for room in payload['rooms']]
     unit_field = 'unit:'+unit_key(payload['unit']) if payload and kind == 'room' else ''
@@ -166,6 +169,7 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
                 if not old then return {404,''} end
                 if cjson.decode(old).revision~=ARGV[2] then return {409,old} end
             end
+            if ARGV[8]~=ARGV[1] and redis.call('HEXISTS',KEYS[1],ARGV[8])==1 then return {425,''} end
             if ARGV[5]=='room' and ARGV[3]~='delete' then
                 local unit=redis.call('HGET',KEYS[1],ARGV[6])
                 if unit then
@@ -182,10 +186,13 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
                 end
             end
             if ARGV[3]=='delete' then redis.call('HDEL',KEYS[1],ARGV[1])
-            else redis.call('HSET',KEYS[1],ARGV[1],ARGV[4]) end
+            else
+                redis.call('HSET',KEYS[1],ARGV[8],ARGV[4])
+                if ARGV[8]~=ARGV[1] then redis.call('HDEL',KEYS[1],ARGV[1]) end
+            end
             return {200,''}"""
             code, old = store.command('EVAL', script, 1, store.key('portfolio'), field,
-                                      expected or '', 'delete' if delete else 'save', json.dumps(record), kind, unit_field, identifier)
+                                      expected or '', 'delete' if delete else 'save', json.dumps(record), kind, unit_field, destination, destination_field)
             old = json.loads(old) if old else None
         else:
             with LOCK:
@@ -194,7 +201,9 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
                 code = (409 if old else 422 if len(data)>=2000 else 200) if expected is None else (
                     404 if not old else 409 if old['revision'] != expected else 200)
                 if code == 200:
-                    if kind == 'room' and not delete and unit_field in data and identifier not in data[unit_field]['room_ids']:
+                    if destination_field != field and destination_field in data:
+                        raise HTTPException(409, 'A rental already exists for the corrected unit and room. No records were changed.')
+                    if kind == 'room' and not delete and unit_field in data and destination not in data[unit_field]['room_ids']:
                         raise HTTPException(422, 'This room is not in the property inventory. Add the room to the unit first.')
                     if kind == 'unit' and old:
                         removed = set(old['room_ids']) - set(record['room_ids'] if record else [])
@@ -203,7 +212,9 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
                     if delete:
                         data.pop(field)
                     else:
-                        data[field] = record
+                        data[destination_field] = record
+                        if destination_field != field:
+                            data.pop(field)
                     FILE.parent.mkdir(parents=True, exist_ok=True)
                     temporary = FILE.with_suffix('.tmp')
                     temporary.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
@@ -216,6 +227,8 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
             raise HTTPException(422, 'This room is not in the property inventory. Add the room to the unit first.')
         if code == 424:
             raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
+        if code == 425:
+            raise HTTPException(409, 'A rental already exists for the corrected unit and room. No records were changed.')
         if code != 200:
             raise HTTPException(422, 'The rental portfolio is full.')
         return record or {'deleted':True}
@@ -268,11 +281,12 @@ def property_costs(unit, month):
     monthly = MonthlyCosts.model_validate(unit.get('monthly_costs', {}).get(month, {}))
     fixed_total = sum((fixed.house_rental, fixed.wifi, fixed.indah_water), Decimal('0'))
     variable_total = (monthly.electricity or Decimal('0')) + (monthly.water or Decimal('0'))
+    variable_total += monthly.cleaning or Decimal('0')
     variable_total += sum((item.amount for item in monthly.others or []), Decimal('0'))
     return {'fixed_costs':fixed.model_dump(mode='json'), 'selected_month_costs':monthly.model_dump(mode='json'),
             'fixed_expenses':float(fixed_total), 'variable_expenses':float(variable_total),
             'total_expenses':float(fixed_total+variable_total),
-            'missing_expenses':[name for name in ('electricity','water','others') if getattr(monthly,name) is None]}
+            'missing_expenses':[name for name in ('electricity','water','cleaning','others') if getattr(monthly,name) is None]}
 
 
 def occupancy_projection(data, rentals, days_in_month):
@@ -346,9 +360,14 @@ def add_room(value: Rental):
 
 @router.put('/rooms/{identifier}')
 def update_room(identifier: str, value: RentalUpdate):
-    if room_key(value.unit, value.room) != identifier:
-        raise HTTPException(422, 'Unit and room identify this rental and cannot be changed. Add a different room instead.')
-    return mutate('room', identifier, value.model_dump(mode='json', exclude={'revision'}), value.revision)
+    destination = room_key(value.unit, value.room)
+    if destination != identifier:
+        old = next((row for row in records() if row['kind']=='room' and row['id']==identifier), None)
+        if old is None:
+            raise HTTPException(404, 'This record no longer exists. Refresh the dashboard.')
+        if room_key(value.unit, old['room']) != destination:
+            raise HTTPException(422, 'The room number cannot be changed. Add a different room instead.')
+    return mutate('room', identifier, value.model_dump(mode='json', exclude={'revision'}), value.revision, destination=destination)
 
 
 @router.post('/expenses')

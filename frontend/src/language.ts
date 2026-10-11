@@ -15,6 +15,9 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Cleaning fees':'清洁费',
+  'A rental already exists for the corrected unit and room. No records were changed.':'更正后的单位及房间已有租赁记录，未作任何更改。',
+  'The room number cannot be changed. Add a different room instead.':'房间号码不能更改，请另行添加房间。',
   "Monthly expenses":"每月开支",
   "Fixed":"固定",
   "Variable":"浮动",

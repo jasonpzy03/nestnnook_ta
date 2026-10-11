@@ -5,7 +5,7 @@ import { Language, translate } from './language';
 
 export interface RentalInput { unit:string; room:string; rent:number|null; parking:number|null; start_date:string; last_rental_date:string; active:boolean; tenant_name?:string; }
 interface FixedCosts {house_rental:number|null;wifi:number|null;indah_water:number|null;}
-interface MonthlyCosts {electricity:number|null;water:number|null;others:{name:string;amount:number|null}[]|null;}
+interface MonthlyCosts {cleaning:number|null;electricity:number|null;water:number|null;others:{name:string;amount:number|null}[]|null;}
 export interface PropertyInput {fixed_costs:FixedCosts;monthly_costs:Record<string,MonthlyCosts>;unit:string; property_name:string; address:string; bathrooms:number; carparks:number; notes:string; rooms:{room:string;standard_rent:number|null}[];}
 export interface PropertyRecord extends Omit<PropertyInput,'fixed_costs'|'monthly_costs'> {id:string;revision:string;kind:'unit';fixed_costs?:FixedCosts;monthly_costs?:Record<string,MonthlyCosts>;}
 interface OccupancyRoom {id:string;room:string;standard_rent:number;tenant_name:string;rental:RentalRecord|null;occupied_days:number;vacant_days:number;vacancy_loss:number;expected_income:number;}
@@ -14,7 +14,7 @@ interface RentalRecord extends RentalInput {id:string; revision:string; kind:'ro
 interface ExpenseRecord {id:string; revision:string; kind:'expense'; name:string; amount:number;}
 interface Projection {variable_expenses:number;total_expenses:number;missing_expense_units:number;month:string; rooms:RentalRecord[]; expenses:ExpenseRecord[]; rental_income:number; fixed_expenses:number; net_income:number; earning_rooms:number;units:UnitProjection[];total_bedrooms:number;total_carparks:number;occupancy_rate:number|null;vacancy_loss:number;unlinked_rentals:number;occupied_room_days:number;available_room_days:number;}
 const emptyRental=():RentalInput=>({unit:'',room:'',rent:null,parking:0,start_date:'',last_rental_date:'',active:true,tenant_name:''});
-const emptyMonthly=():MonthlyCosts=>({electricity:null,water:null,others:null});
+const emptyMonthly=():MonthlyCosts=>({electricity:null,water:null,cleaning:null,others:null});
 const emptyProperty=():PropertyInput=>({fixed_costs:{house_rental:0,wifi:0,indah_water:0},monthly_costs:{},unit:'',property_name:'',address:'',bathrooms:0,carparks:0,notes:'',rooms:[{room:'01',standard_rent:null}]});
 
 @Component({selector:'rental-portfolio',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./portfolio.html'})
@@ -47,13 +47,13 @@ export class Portfolio implements OnInit, OnDestroy {
         monthly_costs:JSON.parse(JSON.stringify(row.monthly_costs||{})),rooms:row.rooms.map(r=>({...r,standard_rent:Number(r.standard_rent)}))};
       this.bedroomCount=row.rooms.length;this.editId=row.id;this.revision=row.revision;
       const monthly=this.property.monthly_costs[this.expenseMonth]||emptyMonthly();
-      this.monthlyCosts={electricity:monthly.electricity===null?null:Number(monthly.electricity),water:monthly.water===null?null:Number(monthly.water),others:null};
+      this.monthlyCosts={cleaning:monthly.cleaning==null?null:Number(monthly.cleaning),electricity:monthly.electricity===null?null:Number(monthly.electricity),water:monthly.water===null?null:Number(monthly.water),others:null};
       this.otherCosts=(monthly.others||[]).map(item=>({name:item.name,amount:Number(item.amount)}));this.othersReviewed=monthly.others!==null;
     }
   }
   addOtherCost(){if(this.otherCosts.length<50){this.otherCosts.push({name:'',amount:null});this.othersReviewed=true;this.conflict=null;}}
   removeOtherCost(index:number){this.otherCosts.splice(index,1);if(!this.otherCosts.length)this.othersReviewed=false;this.conflict=null;}
-  expenseLabel(key:string){return ({electricity:'Electricity',water:'Water',others:'Others'} as Record<string,string>)[key]||key;}
+  expenseLabel(key:string){return ({electricity:'Electricity',water:'Water',cleaning:'Cleaning fees',others:'Others'} as Record<string,string>)[key]||key;}
   focusEditor(){if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>document.querySelector<HTMLElement>('.portfolio-editor')?.scrollIntoView({behavior:'smooth',block:'start'}));}
   resizeBedrooms(){
     const count=Number(this.bedroomCount);if(!Number.isInteger(count)||count<1||count>30)return;
@@ -97,7 +97,7 @@ export class Portfolio implements OnInit, OnDestroy {
     const id=conflict?.id||this.editId;const revision=conflict?.revision||this.revision;
     if(this.editor==='unit'){
       const history=conflict?.kind==='unit'?conflict.monthly_costs:this.property.monthly_costs;
-      this.property.monthly_costs={...(history||{}),[this.expenseMonth]:{electricity:this.monthlyCosts.electricity??null,water:this.monthlyCosts.water??null,others:this.othersReviewed?this.otherCosts.map(item=>({...item})):null}};
+      this.property.monthly_costs={...(history||{}),[this.expenseMonth]:{cleaning:this.monthlyCosts.cleaning??null,electricity:this.monthlyCosts.electricity??null,water:this.monthlyCosts.water??null,others:this.othersReviewed?this.otherCosts.map(item=>({...item})):null}};
     }
     const payload=this.editor==='room'?{...this.rental,parking:this.rental.parking??0,start_date:this.rental.start_date||null,last_rental_date:this.rental.last_rental_date||null}:this.editor==='unit'?{...this.property}:{...this.expense};
     this.saving=true;this.error='';this.conflict=null;
