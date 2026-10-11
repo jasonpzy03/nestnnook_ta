@@ -15,6 +15,12 @@ app.navigateTool('studio');assert.equal(app.page,'studio');assert.equal(app.step
 app.mobileToolsOpen=true;app.navigateTool('settings');assert.equal(app.settings,true);assert.equal(app.mobileToolsOpen,false);
 app.settings=false;app.reset();
 console.log('Team Tools navigation, chooser fallback and unsaved form preservation passed');
+app.propertyUnits=[{id:'unit1',unit:'A-01',address:'Test street',rooms:[{room:'02',standard_rent:'1200'}]}];
+app.d.tenant_name='Alex';app.chooseProperty('unit1');app.choosePropertyRoom('02');
+assert.equal(app.d.property,'A-01');assert.equal(app.d.address,'Test street');assert.equal(app.d.room,'02');assert.equal(app.d.rent,1200);assert.equal(app.d.tenant_name,'Alex');
+assert.equal(app.rentalSnapshot().tenant_name,'Alex');assert(!('tenant_id' in app.rentalSnapshot()));
+app.chooseProperty('');assert.equal(app.d.room,'02','Manual mode preserves entered details');
+app.reset();
 const form={reportValidity:()=>true};
 app.d.start_date='2025-10-10';app.chooseTerm(6);
 assert.equal(app.d.end_date,'2026-05-01');

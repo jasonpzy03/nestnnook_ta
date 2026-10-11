@@ -16,14 +16,15 @@
   }
   @if(editor){
     <article class="card portfolio-editor">
-      <h2>{{t(editor==='room'?(editId?'Edit room rental':'Add room rental'):(editId?'Edit fixed expense':'Add fixed expense'))}}</h2>
+      <h2>{{t(editor==='unit'?(editId?'Edit property unit':'Add property unit'):editor==='room'?(editId?'Edit room rental':'Add room rental'):(editId?'Edit fixed expense':'Add fixed expense'))}}</h2>
       <form #entryForm (submit)="$event.preventDefault();entryForm.reportValidity()&&save()">
         <fieldset [disabled]="saving">
           @if(editor==='room'){
-            <p class="section-description">{{t('One rental per unit and room. Only rental details are saved; tenant identity and contact details are not stored.')}}</p>
+            <p class="section-description">{{t('One tenancy per unit and room. Tenant name and rental details are saved; identity documents and contact details are not stored.')}}</p>
             <div class="field-grid">
               <label>{{t('Unit number')}}<input name="portfolio_unit" [(ngModel)]="rental.unit" required maxlength="100" [readonly]="!!editId" (ngModelChange)="conflict=null"></label>
               <label>{{t('Room number')}}<input name="portfolio_room" [(ngModel)]="rental.room" required maxlength="100" [readonly]="!!editId" (ngModelChange)="conflict=null"></label>
+              <label class="wide">{{t('Tenant name (optional)')}}<input name="portfolio_tenant" [(ngModel)]="rental.tenant_name" maxlength="200" (ngModelChange)="conflict=null"></label>
               <label>{{t('Monthly room rental')}}<input name="portfolio_rent" [(ngModel)]="rental.rent" type="number" required min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label>
               <label>{{t('Monthly car park rental')}}<input name="portfolio_parking" [(ngModel)]="rental.parking" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label>
               <label>{{t('Move-in date (optional)')}}<input name="portfolio_start" [(ngModel)]="rental.start_date" type="date" (ngModelChange)="conflict=null"></label>
@@ -31,6 +32,18 @@
             </div>
             <p class="field-hint">{{t('Leave dates blank for an ongoing rental. For an expiry on the 1st, the last rental day is the previous day.')}}</p>
             <label class="check-label"><input name="portfolio_active" type="checkbox" [(ngModel)]="rental.active" (ngModelChange)="conflict=null">{{t('Include this room in projections')}}</label>
+          }@else if(editor==='unit'){
+            <div class="field-grid">
+              <label>{{t('Unit number')}}<input name="unit_number" [(ngModel)]="property.unit" required maxlength="100" [readonly]="!!editId" (ngModelChange)="conflict=null"></label>
+              <label>{{t('Property name')}}<input name="property_name" [(ngModel)]="property.property_name" maxlength="200" (ngModelChange)="conflict=null"></label>
+              <label class="wide">{{t('Property address')}}<textarea name="unit_address" [(ngModel)]="property.address" maxlength="600" rows="2" (ngModelChange)="conflict=null"></textarea></label>
+              <label>{{t('Bedrooms')}}<input name="unit_bedrooms" [(ngModel)]="bedroomCount" (ngModelChange)="resizeBedrooms()" type="number" min="1" max="30" step="1" required></label>
+              <label>{{t('Car parks')}}<input name="unit_carparks" [(ngModel)]="property.carparks" type="number" min="0" max="100" step="1" required (ngModelChange)="conflict=null"></label>
+              <label>{{t('Bathrooms')}}<input name="unit_bathrooms" [(ngModel)]="property.bathrooms" type="number" min="0" max="30" step="1" required (ngModelChange)="conflict=null"></label>
+              <label class="wide">{{t('Property notes')}}<textarea name="unit_notes" [(ngModel)]="property.notes" maxlength="1000" rows="2" (ngModelChange)="conflict=null"></textarea></label>
+            </div>
+            <h3>{{t('Rooms and standard rents')}}</h3><p class="field-hint">{{t('Increase Bedrooms to add rooms. To reduce the count, remove a specific room below. Linked rentals must be removed first.')}}</p>
+            @for(room of property.rooms;track $index;let i=$index){<div class="property-room-editor"><label>{{t('Room number')}}<input [name]="'unit_room_'+i" [(ngModel)]="room.room" required maxlength="100" (ngModelChange)="conflict=null"></label><label>{{t('Standard monthly rent (RM)')}}<input [name]="'unit_rate_'+i" [(ngModel)]="room.standard_rent" required type="number" min="0" max="1000000" step="0.01" (ngModelChange)="conflict=null"></label><button type="button" class="text-button" [disabled]="property.rooms.length===1" (click)="removePropertyRoom(i)">{{t('Remove room')}}</button></div>}
           }@else{
             <div class="field-grid"><label>{{t('Expense name')}}<input name="expense_name" [(ngModel)]="expense.name" required maxlength="100" (ngModelChange)="conflict=null"></label><label>{{t('Monthly amount (RM)')}}<input name="expense_amount" [(ngModel)]="expense.amount" required type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label></div>
             <p class="field-hint">{{t('This fixed amount is deducted every month, including months without rental income.')}}</p>
@@ -38,7 +51,7 @@
           @if(conflict){
             <div class="portfolio-conflict"><h3>{{t('Review existing record')}}</h3>
               @if(conflict.kind==='room'){<p>{{conflict.unit}} · {{conflict.room}}</p><p>{{t('Saved monthly rent')}}: {{conflict.rent|currency:'MYR':'RM ':'1.2-2'}} + {{conflict.parking|currency:'MYR':'RM ':'1.2-2'}} {{t('parking')}}</p><p>{{conflict.start_date||'—'}} → {{conflict.last_rental_date||'—'}} · {{t(conflict.active?'Included':'Excluded')}}</p>}
-              @else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
+              @else if(conflict.kind==='unit'){<p>{{conflict.unit}} · {{conflict.property_name}}</p><p>{{conflict.rooms.length}} {{t('Bedrooms')}} · {{conflict.carparks}} {{t('Car parks')}}</p>}@else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
               <p>{{t('Replace the saved record with the values above? This will not add a second copy.')}}</p><button type="button" class="button primary" (click)="entryForm.reportValidity()&&save(true)">{{t('Update saved record')}}</button>
             </div>
           }
@@ -48,10 +61,41 @@
     </article>
   }
   @if(mode==='dashboard'&&data){
+    <section class="occupancy-overview">
+      <div class="portfolio-list-heading"><h2>{{t('Properties and occupancy')}}</h2><button class="button primary" [disabled]="saving" (click)="editProperty()">{{t('＋ Add property unit')}}</button></div>
+      @if(!data.units.length){<div class="card portfolio-empty property-empty"><h3>{{t('Register every room, including vacant rooms')}}</h3><p>{{t('Add your properties and standard room rents to measure occupancy and vacancy loss. Existing rentals are matched by unit and room number.')}}</p></div>}
+      @else{
+        <label class="unit-filter">{{t('Occupancy view')}}<select [(ngModel)]="unitFilter"><option value="">{{t('All units')}}</option>@for(unit of data.units;track unit.id){<option [value]="unit.id">{{unit.unit}} · {{unit.property_name}}</option>}</select></label>
+        <div class="income-cards occupancy-cards" aria-live="polite">
+          <article class="card income-card"><span>{{t('Monthly occupancy')}}</span><strong>{{occupancySummary.occupancy_rate|number:'1.0-1'}}%</strong><small>{{t('Based on occupied room-days')}}</small></article>
+          <article class="card income-card"><span>{{t('Potential rent lost to vacancy')}}</span><strong>{{occupancySummary.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Standard room rent × vacant days ÷ days in month')}}</small></article>
+          <article class="card income-card"><span>{{t('Registered capacity')}}</span><strong>{{occupancySummary.bedrooms}} {{t('Bedrooms')}}</strong><small>{{occupancySummary.carparks}} {{t('Car parks')}}</small></article>
+        </div>
+        <p class="field-hint">{{t('Occupancy counts occupied room-days, not just rooms with a tenancy. Vacancy loss covers bedroom rent only; parking income remains in projected income. A lower agreed rent is not vacancy loss.')}}</p>
+        @for(unit of visibleUnits;track unit.id){
+          <article class="card property-card">
+            <div class="portfolio-list-heading"><div><h3>{{unit.unit}} <span>{{unit.property_name}}</span></h3><p>{{unit.address||'—'}}</p><small>{{unit.bedrooms}} {{t('Bedrooms')}} · {{unit.bathrooms}} {{t('Bathrooms')}} · {{unit.carparks}} {{t('Car parks')}}</small></div><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editProperty(unit)">{{t('Edit property')}}</button><button class="text-button" [disabled]="saving" (click)="removal=unit">{{t('Remove')}}</button></div></div>
+            <div class="property-metrics"><div><span>{{t('Monthly occupancy')}}</span><strong>{{unit.occupancy_rate|number:'1.0-1'}}%</strong></div><div><span>{{t('Potential rent lost to vacancy')}}</span><strong>{{unit.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</strong></div><div><span>{{t('Projected rental income')}}</span><strong>{{unit.expected_income|currency:'MYR':'RM ':'1.2-2'}}</strong></div></div>
+            <details [open]="!!unitFilter||data.units.length===1"><summary>{{t('Rooms and tenants')}}</summary>
+              <div class="property-room-grid">@for(room of unit.room_rows;track room.id){<section class="property-room-card" [class.vacant-room]="room.occupied_days===0"><h4>{{room.room}} <span>{{t(room.occupied_days===0?'Vacant this month':room.vacant_days?'Partly occupied':'Fully occupied')}}</span></h4>
+                <p>{{room.occupied_days?(room.tenant_name||t('Tenant name not recorded')):t('No tenant occupying this month')}}</p>
+                @if(room.rental){<small>{{t('Linked tenancy')}}: {{room.tenant_name||'—'}} · {{room.rental.start_date||'—'}} → {{room.rental.last_rental_date||t('Ongoing')}}</small>}
+                <dl><div><dt>{{t('Standard rent')}}</dt><dd>{{room.standard_rent|currency:'MYR':'RM ':'1.2-2'}}</dd></div><div><dt>{{t('Occupied / vacant days')}}</dt><dd>{{room.occupied_days}} / {{room.vacant_days}}</dd></div><div><dt>{{t('Vacancy loss')}}</dt><dd>{{room.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</dd></div></dl>
+                <button class="button secondary" [disabled]="saving" (click)="assignRental(unit,room)">{{t(room.rental?'Edit linked tenancy':'Assign tenant')}}</button>
+              </section>}</div>
+            </details>
+            @if(unit.notes){<p class="field-hint">{{unit.notes}}</p>}
+          </article>
+        }
+      }
+      @if(data.unlinked_rentals){<p class="notice" role="status">{{data.unlinked_rentals}} {{t('rentals are not linked to registered rooms. Their income is included, but they are excluded from occupancy. Register the matching units and rooms.')}}</p>}
+    </section>
+  }
+  @if(mode==='dashboard'&&data){
     <article class="card portfolio-list"><div class="portfolio-list-heading"><h2>{{t('Room rentals')}}</h2><button class="button primary" [disabled]="saving" (click)="editRoom()">{{t('＋ Add room rental')}}</button></div>
       @if(!data.rooms.length){<div class="portfolio-empty"><h3>{{t('Build your rental portfolio')}}</h3><p>{{t('Add existing rooms here, or save a rental when sharing its PDFs.')}}</p></div>}
       @else{<div class="portfolio-table-scroll"><table class="portfolio-table"><thead><tr><th>{{t('Unit / room')}}</th><th>{{t('Monthly rent + parking')}}</th><th>{{t('Rental dates')}}</th><th>{{t('This month')}}</th><th>{{t('Actions')}}</th></tr></thead><tbody>
-        @for(row of data.rooms;track row.id){<tr><td><strong>{{row.unit}} · {{row.room}}</strong><small>{{t(row.active?'Included':'Excluded')}}</small></td><td>{{row.rent+row.parking|currency:'MYR':'RM ':'1.2-2'}}<small>{{row.rent|currency:'MYR':'RM ':'1.2-2'}} + {{row.parking|currency:'MYR':'RM ':'1.2-2'}}</small></td><td>{{row.start_date||'—'}}<small>{{row.last_rental_date||t('Ongoing')}}</small></td><td><strong>{{row.expected|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{row.rental_days}} {{t('rental days')}}</small></td><td><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editRoom(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></td></tr>}
+        @for(row of data.rooms;track row.id){<tr><td><strong>{{row.unit}} · {{row.room}}</strong><small>{{row.tenant_name||t('Tenant name not recorded')}}</small><small>{{t(row.active?'Included':'Excluded')}}</small></td><td>{{row.rent+row.parking|currency:'MYR':'RM ':'1.2-2'}}<small>{{row.rent|currency:'MYR':'RM ':'1.2-2'}} + {{row.parking|currency:'MYR':'RM ':'1.2-2'}}</small></td><td>{{row.start_date||'—'}}<small>{{row.last_rental_date||t('Ongoing')}}</small></td><td><strong>{{row.expected|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{row.rental_days}} {{t('rental days')}}</small></td><td><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editRoom(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></td></tr>}
       </tbody></table></div>}
     </article>
     <article class="card portfolio-list"><div class="portfolio-list-heading"><h2>{{t('Fixed monthly expenses')}}</h2><button class="button secondary" [disabled]="saving" (click)="editExpense()">{{t('＋ Add fixed expense')}}</button></div>
@@ -59,5 +103,5 @@
       @for(row of data.expenses;track row.id){<div class="portfolio-expense"><span>{{row.name}}</span><strong>{{row.amount|currency:'MYR':'RM ':'1.2-2'}}</strong><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editExpense(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></div>}
     </article>
   }
-  @if(removal){<div class="portfolio-remove notice" role="alert"><strong>{{t('Remove this record from all projections?')}}</strong><p>{{removal.kind==='room'?removal.unit+' · '+removal.room:removal.name}}</p><div class="modal-actions"><button class="button secondary" [disabled]="saving" (click)="removal=null">{{t('Cancel')}}</button><button class="button primary" [disabled]="saving" (click)="remove()">{{t('Remove record')}}</button></div></div>}
+  @if(removal){<div class="portfolio-remove notice" role="alert"><strong>{{t('Remove this record from all projections?')}}</strong><p>{{removal.kind==='room'?removal.unit+' · '+removal.room:removal.kind==='unit'?removal.unit:removal.name}}</p><div class="modal-actions"><button class="button secondary" [disabled]="saving" (click)="removal=null">{{t('Cancel')}}</button><button class="button primary" [disabled]="saving" (click)="remove()">{{t('Remove record')}}</button></div></div>}
 </section>

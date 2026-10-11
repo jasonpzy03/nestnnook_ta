@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { expiryDate, tenancyExpiryDate, proratedRental } from './dates';
 import { parseTenantMessage, TenantImport } from './tenant-import';
 import { Language, LanguagePreference, LANGUAGE_COOKIE, detectLanguage, readLanguagePreference, translate } from './language';
-import { Portfolio, RentalInput } from './portfolio';
+import { Portfolio, RentalInput, PropertyRecord } from './portfolio';
 
 
 interface Field { key: string; label: string; type?: string; required?: boolean; placeholder?: string; wide?: boolean; }
@@ -109,6 +109,22 @@ export class App implements OnInit, OnDestroy {
     if(!this.expiryMonths||!this.d['start_date'])return;
     this.d['end_date']=tenancyExpiryDate(this.d['start_date'],this.expiryMonths);
   }
+  propertyUnits:PropertyRecord[]=[];
+  selectedProperty=''; propertyLoadError='';
+  get selectedPropertyRooms(){return this.propertyUnits.find(u=>u.id===this.selectedProperty)?.rooms||[];}
+  async loadPropertyUnits(){
+    this.propertyLoadError='';
+    try{const response=await fetch('/api/portfolio/units');if(!response.ok)throw Error();this.propertyUnits=(await response.json()).units;}
+    catch{this.propertyUnits=[];this.propertyLoadError='Could not load property inventory. You can still enter property details manually.';}
+  }
+  chooseProperty(id:string){
+    this.selectedProperty=id;const unit=this.propertyUnits.find(u=>u.id===id);if(!unit)return;
+    this.d['property']=unit.unit;this.d['address']=unit.address;this.d['room']='';this.d['rent']=null;
+  }
+  choosePropertyRoom(room:string){
+    const selected=this.selectedPropertyRooms.find(r=>r.room===room);if(!selected)return;
+    this.d['room']=selected.room;this.d['rent']=Number(selected.standard_rent);
+  }
   startDocuments(id?:string){
     if(id)this.docs.forEach(doc=>doc.selected=doc.id===id);
     if(!this.selected.length){this.error='Choose at least one document.';return;}
@@ -116,7 +132,7 @@ export class App implements OnInit, OnDestroy {
     this.page='studio';this.go(0);
   }
   back(){const index=this.activeSteps.indexOf(this.step);if(index>0)this.go(this.activeSteps[index-1]);else this.page='templates';}
-  go(n:number){if(n===4&&!this.carparkLotInitialized){this.d['carpark_lot'] ||= this.d['property'];this.carparkLotInitialized=true;}this.step=n;this.error='';this.status='';window.scrollTo({top:0,behavior:'smooth'});}
+  go(n:number){if(n===1)void this.loadPropertyUnits();if(n===4&&!this.carparkLotInitialized){this.d['carpark_lot'] ||= this.d['property'];this.carparkLotInitialized=true;}this.step=n;this.error='';this.status='';window.scrollTo({top:0,behavior:'smooth'});}
   next(form:HTMLFormElement){if(form.reportValidity()){if(this.step===4&&!this.validate(['carpark']))return;if(this.step===1&&this.d['end_date']<this.d['start_date']){this.error='Expiry date must be on or after the move-in date.';return;}this.go(this.activeSteps[Math.min(this.activeSteps.length-1,this.activeSteps.indexOf(this.step)+1)]);}}
   validate(ids:string[]):boolean{
     const agreement=ids.some(id=>['tenancy','offer'].includes(id));
@@ -220,7 +236,7 @@ export class App implements OnInit, OnDestroy {
   rentalSnapshot():RentalInput{
     let last=this.d['end_date']||'';
     if(last.endsWith('-01')){const [y,m]=last.split('-').map(Number);const previous=new Date(y,m-1,0);last=`${previous.getFullYear()}-${String(previous.getMonth()+1).padStart(2,'0')}-${String(previous.getDate()).padStart(2,'0')}`;}
-    return {unit:this.d['property']||'',room:this.d['room']||'',rent:this.d['rent'],parking:this.d['parking']||0,start_date:this.d['start_date']||'',last_rental_date:last,active:true};
+    return {unit:this.d['property']||'',room:this.d['room']||'',tenant_name:this.d['tenant_name']||'',rent:this.d['rent'],parking:this.d['parking']||0,start_date:this.d['start_date']||'',last_rental_date:last,active:true};
   }
   download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
   saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:{...this.d,advance_rent:this.proratedRent,carpark_earnest_deposit:this.carparkEarnest},documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
@@ -253,10 +269,10 @@ export class App implements OnInit, OnDestroy {
           if(typeof src[key]!==typeof base[key]||(typeof src[key]==='string'&&src[key].length>3000))throw Error('Invalid field in draft: '+key);base[key]=src[key];
         }
       }
-      this.d=base;this.expiryMonths=0;this.carparkExpiryMonths=0;this.carparkLotInitialized=!!base['carpark_lot'];if(Array.isArray(parsed.documents))this.docs.forEach(doc=>doc.selected=parsed.documents.includes(doc.id));this.page=this.selected.length?'studio':'templates';this.go(0);this.status='Draft loaded. Review the details before generating documents.';
+      this.d=base;this.selectedProperty='';this.expiryMonths=0;this.carparkExpiryMonths=0;this.carparkLotInitialized=!!base['carpark_lot'];if(Array.isArray(parsed.documents))this.docs.forEach(doc=>doc.selected=parsed.documents.includes(doc.id));this.page=this.selected.length?'studio':'templates';this.go(0);this.status='Draft loaded. Review the details before generating documents.';
     }catch(e){this.error=e instanceof Error?e.message:'Unable to read draft.';}finally{input.value='';}
   }
-  reset(){this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.carparkExpiryMonths=0;this.carparkLotInitialized=false;this.tenantMessage='';this.importPreview=null;this.importNotice='';this.importNotes=[];this.resetPrompt=false;this.go(0);this.closePreview();}
+  reset(){this.selectedProperty='';this.closeShare();this.page='templates';this.docs.forEach(doc=>doc.selected=false);this.d=fresh();this.expiryMonths=0;this.carparkExpiryMonths=0;this.carparkLotInitialized=false;this.tenantMessage='';this.importPreview=null;this.importNotice='';this.importNotes=[];this.resetPrompt=false;this.go(0);this.closePreview();}
   async renderPreview(blob:Blob){
     this.previewLoading=true;this.previewError='';const session=this.previewSession;
     let pdfDocument:any;

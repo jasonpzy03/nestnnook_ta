@@ -29,7 +29,7 @@ On iPhone, choose **Share PDFs**, wait for preparation, then tap **Share PDFs** 
 
 Offer invoice numbers are generated automatically when blank, for example `NN-20261002-A1B2C3D4E5`. The date uses the signing date and the suffix is random, not sequential. The same number is retained for previews, downloads and sharing within the current form, and included in saved drafts. Start a new tenancy for a new offer; manually entered invoice numbers are preserved.
 
-Company details are editable. Drafts are saved only when you choose Save draft. Reloading the page clears unsaved entries. PDF generation runs in memory; the app keeps no tenant records. Saved drafts and downloads contain the entered personal information.
+Company details are editable. Drafts are saved only when you choose Save draft. Reloading the page clears unsaved entries. PDF generation runs in memory; the app stores tenant names only when staff save rental portfolio entries. Saved drafts and downloads contain the entered personal information.
 
 ## Template filling
 
@@ -80,7 +80,7 @@ Open **Income dashboard** from the sidebar or top navigation. **Projected net in
 - This is a projection of the currently saved portfolio, not a payment ledger or historical rent schedule. Editing or removing a rental or expense affects every month's projection. One current rental is retained per unit/room.
 - Staff can add, edit, exclude or remove rentals, and add, edit or remove fixed expenses. Removal asks for confirmation. Concurrent changes are checked using revisions; stale updates never overwrite newer values silently.
 
-Local data uses `.local/portfolio.json` with atomic writes (one backend worker). Cloud deployments use the existing Upstash configuration and a persistent `portfolio` hash under `NEST_REDIS_PREFIX`, with no expiration. There is a combined limit of 2,000 rental/expense records. No new environment variables are needed. Local records are not automatically copied to Redis. Back up the local file or Redis database as appropriate. All portfolio endpoints use the existing staff authentication and no-cache policy.
+Local data uses `.local/portfolio.json` with atomic writes (one backend worker). Cloud deployments use the existing Upstash configuration and a persistent `portfolio` hash under `NEST_REDIS_PREFIX`, with no expiration. There is a combined limit of 2,000 property/rental/expense records. No new environment variables are needed. Local records are not automatically copied to Redis. Back up the local file or Redis database as appropriate. All portfolio endpoints use the existing staff authentication and no-cache policy.
 
 Checks: `node scripts/test_portfolio.cjs`, `node scripts/test_sharing.cjs`, and `.venv/Scripts/python.exe -m pytest backend/tests/test_portfolio.py -q`.
 
@@ -100,8 +100,19 @@ Run one backend worker: sessions and attempt limits are held in memory. For Dock
 
 This remains a local-network app. Authentication does not create a VPN or firewall restriction. For access beyond your trusted Wi-Fi, use a private VPN or an HTTPS deployment with access controls; do not forward this plain HTTP port to the internet. HTTPS requests receive Secure session cookies; set `NEST_SECURE_COOKIE=1` when using an HTTPS reverse proxy. Configure trusted proxy headers only for that proxy. Do not use the Angular development server for staff access; use the Python-served production build on port 8000.
 
-Saved property addresses are in `.local/addresses.json` on the server. Rental portfolio entries are saved in `.local/portfolio.json`; tenant identity/contact details and generated documents are not stored. Tenancy expiry shortcuts round up to the first day of the month: a partial move-in month is pro-rated and excluded from the 6-month or 1-year term (10 October 2025 + 6 months → 1 May 2026). Move-ins on the first start their full term immediately. Both AC and non-AC TAs display the whole term without a day count. Car park shortcuts retain their anniversary-minus-one-day calculation. Old drafts omit the removed fee fields when loaded.
+Saved property addresses are in `.local/addresses.json` on the server. Rental portfolio entries are saved in `.local/portfolio.json`; tenant identity documents/contact details and generated documents are not stored. Tenancy expiry shortcuts round up to the first day of the month: a partial move-in month is pro-rated and excluded from the 6-month or 1-year term (10 October 2025 + 6 months → 1 May 2026). Move-ins on the first start their full term immediately. Both AC and non-AC TAs display the whole term without a day count. Car park shortcuts retain their anniversary-minus-one-day calculation. Old drafts omit the removed fee fields when loaded.
 
 ## Vercel deployment
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the combined Angular/FastAPI deployment, Upstash setup, password-hash export, and address migration. On Vercel, Redis stores sessions, rate limits, shared address options, and the rental portfolio. The local Windows setup remains available. The converted templates and field maps are included for full PDF generation.
+
+
+### Property inventory and monthly occupancy
+
+Register each property under **Income dashboard → Add property unit**, including its address, bathrooms, parking count, bedroom numbers and standard monthly rent per bedroom. Bedroom count follows the room list. Registered units and rooms are matched to rentals using the same normalised unit + room identity. Existing rentals remain intact; unmatched rentals contribute income but are flagged and excluded from occupancy until registered.
+
+The TA form offers **Use a registered room** to fill the unit, address and standard rent. Review the actual agreed rent; explicitly saving to the rental portfolio from Share PDFs links the tenant name and dates. Existing tenants can be entered through **Assign tenant** or **Add room rental**. Identity documents and contact details are not saved in the portfolio.
+
+Monthly occupancy = occupied bedroom-days / available bedroom-days. Vacancy loss = each bedroom’s standard rent × vacant days / days in the month, rounded per room to cents. Parking is included in income but excluded from bedroom occupancy and vacancy loss. Discounted agreed rent is not vacancy loss. Use **Occupancy view** for all units or one unit; the top income/expense cards remain portfolio-wide. Property cards show each unit’s income and rooms.
+
+Linked rentals must be removed before deleting their rooms/property. Revision checks prevent stale edits. One tenancy record is retained per room: replacing it changes previous projections; this is not a tenancy-history ledger. Property inventory and standard-rate edits also affect all selected months. Inventory has no acquisition/disposal date. Property records use the same local file/Redis hash and authentication as rentals, with no new configuration.

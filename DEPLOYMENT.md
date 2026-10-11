@@ -79,7 +79,7 @@ Enter the destination REST URL and token when prompted. The token is hidden. The
 - Logout deletes the session immediately across instances.
 - Login attempts are reserved atomically in Redis, limited to five per client IP per 15 minutes. On Vercel, the platform-provided forwarded IP is used; local servers ignore that header.
 - Address additions are atomic and case-insensitively deduplicated, with a 500-address limit. Addresses have no expiry.
-- Rental portfolio records are saved only on explicit opt-in: unit, room, rent, parking, dates, inclusion status, and fixed expense names/amounts. Records have no expiry. Tenant identity/contact details and generated documents are not saved in Redis. Document processing still receives them transiently on the server.
+- Rental portfolio records are saved only on explicit opt-in: tenant name, unit, room, rent, parking, dates, inclusion status, and fixed expense names/amounts. Records have no expiry. Tenant identity documents/contact details and generated documents are not saved in Redis. Document processing still receives them transiently on the server.
 - Local use without Vercel/Redis variables stores the portfolio in `.local/portfolio.json`, with file-backed addresses and in-memory sessions. Local portfolios are not automatically migrated to cloud.
 
 ## PDF template status
@@ -114,3 +114,16 @@ Runtime logs now report a safe diagnostic code, without credentials or Redis pay
 | `redis_response_invalid` | URL points to the Upstash REST endpoint. |
 
 Missing or invalid `NEST_STAFF_PASSWORD_RECORD` produces a separate staff-password configuration page. Share only diagnostic codes and variable names when troubleshooting, never their secret values.
+
+
+### Property inventory and monthly occupancy
+
+Register each property under **Income dashboard → Add property unit**, including its address, bathrooms, parking count, bedroom numbers and standard monthly rent per bedroom. Bedroom count follows the room list. Registered units and rooms are matched to rentals using the same normalised unit + room identity. Existing rentals remain intact; unmatched rentals contribute income but are flagged and excluded from occupancy until registered.
+
+The TA form offers **Use a registered room** to fill the unit, address and standard rent. Review the actual agreed rent; explicitly saving to the rental portfolio from Share PDFs links the tenant name and dates. Existing tenants can be entered through **Assign tenant** or **Add room rental**. Identity documents and contact details are not saved in the portfolio.
+
+Monthly occupancy = occupied bedroom-days / available bedroom-days. Vacancy loss = each bedroom’s standard rent × vacant days / days in the month, rounded per room to cents. Parking is included in income but excluded from bedroom occupancy and vacancy loss. Discounted agreed rent is not vacancy loss. Use **Occupancy view** for all units or one unit; the top income/expense cards remain portfolio-wide. Property cards show each unit’s income and rooms.
+
+Linked rentals must be removed before deleting their rooms/property. Revision checks prevent stale edits. One tenancy record is retained per room: replacing it changes previous projections; this is not a tenancy-history ledger. Property inventory and standard-rate edits also affect all selected months. Inventory has no acquisition/disposal date. Property records use the same local file/Redis hash and authentication as rentals, with no new configuration.
+
+Published-server validation: register a test unit with two rooms and parking; assign a tenant starting on the 25th to one room, then check occupancy and vacancy loss for that month and the following full month. Verify the unit filter, TA room picker, reload persistence on a second signed-in device, duplicate/stale update warnings, and the linked-room deletion guard. Remove the test rental before removing its property.

@@ -30,6 +30,66 @@ def rental(**patch):
                 start_date='2026-10-25', last_rental_date='2027-04-30', active=True, **patch)
 
 
+def property_unit(**patch):
+    return {**dict(unit='16-03', property_name='Trellis', address='Test address', bathrooms=2,
+                   carparks=2, rooms=[{'room':'01','standard_rent':1550},{'room':'02','standard_rent':3100}]), **patch}
+
+
+def test_inventory_matches_existing_rental_and_weights_occupancy(client):
+    client.post('/api/portfolio/rooms',json=rental(tenant_name='Alex'))
+    initial = client.get('/api/portfolio?month=2026-10').json()
+    assert initial['occupancy_rate'] is None and initial['unlinked_rentals'] == 1
+    assert client.post('/api/portfolio/units',json=property_unit()).status_code == 200
+    assert client.post('/api/portfolio/units',json=property_unit(unit='B',carparks=1,rooms=[{'room':'1','standard_rent':620}])).status_code == 200
+    result = client.get('/api/portfolio?month=2026-10').json()
+    assert result['total_bedrooms'] == 3 and result['total_carparks'] == 3
+    assert result['occupied_room_days'] == 7 and result['available_room_days'] == 93
+    assert result['occupancy_rate'] == 7.53 and result['unlinked_rentals'] == 0
+    assert result['vacancy_loss'] == 1550 + 2400 + 620
+    unit = result['units'][0]
+    assert unit['occupancy_rate'] == 11.29 and unit['vacancy_loss'] == 3950
+    assert unit['expected_income'] == 770  # Seven days room rent plus parking.
+    assert unit['room_rows'][1]['tenant_name'] == 'Alex'
+    assert unit['room_rows'][1]['vacant_days'] == 24
+    full = client.get('/api/portfolio?month=2026-11').json()
+    assert full['units'][0]['occupancy_rate'] == 50
+    assert full['units'][0]['vacancy_loss'] == 1550
+    expired = client.get('/api/portfolio?month=2027-05').json()
+    assert expired['occupancy_rate'] == 0 and expired['vacancy_loss'] == 5270
+
+
+def test_free_or_discounted_rent_is_still_occupied(client):
+    client.post('/api/portfolio/units',json=property_unit(rooms=[{'room':'1','standard_rent':1200}]))
+    saved = client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'1','rent':0,'start_date':'2024-02-29'}).json()
+    result = client.get('/api/portfolio?month=2024-02').json()
+    assert result['occupancy_rate'] == 3.45 and result['vacancy_loss'] == 1158.62
+    assert client.get('/api/portfolio?month=2024-03').json()['vacancy_loss'] == 0
+    client.put('/api/portfolio/rooms/'+saved['id'],json={'unit':'16-03','room':'1','rent':800,'active':False,'revision':saved['revision']})
+    result = client.get('/api/portfolio?month=2024-03').json()
+    assert result['occupancy_rate'] == 0 and result['vacancy_loss'] == 1200
+
+
+def test_property_validation_and_atomic_link_guards(client):
+    for patch in ({'rooms':[]},{'carparks':-1},{'bathrooms':1.5},
+                  {'rooms':[{'room':'1','standard_rent':-1}]},
+                  {'rooms':[{'room':'Room 01','standard_rent':10},{'room':'R1','standard_rent':20}]}):
+        assert client.post('/api/portfolio/units',json=property_unit(**patch)).status_code == 422
+    unit = client.post('/api/portfolio/units',json=property_unit()).json()
+    assert len(client.get('/api/portfolio/units').json()['units']) == 1
+    assert client.post('/api/portfolio/units',json=property_unit(unit=' Unit 16-03 ')).status_code == 409
+    assert client.post('/api/portfolio/rooms',json={**rental(),'room':'3'}).status_code == 422
+    tenant = client.post('/api/portfolio/rooms',json=rental()).json()
+    url = '/api/portfolio/units/'+unit['id']
+    assert client.delete(url,params={'revision':unit['revision']}).status_code == 422
+    assert client.put(url,json={**property_unit(rooms=[{'room':'1','standard_rent':100}]),'revision':unit['revision']}).status_code == 422
+    updated = client.put(url,json={**property_unit(notes='Updated'),'revision':unit['revision']})
+    assert updated.status_code == 200
+    assert client.put(url,json={**property_unit(),'revision':unit['revision']}).status_code == 409
+    assert client.delete(url,params={'revision':unit['revision']}).status_code == 409
+    assert client.delete('/api/portfolio/rooms/'+tenant['id'],params={'revision':tenant['revision']}).status_code == 200
+    assert client.delete(url,params={'revision':updated.json()['revision']}).status_code == 200
+
+
 def test_projection_partial_full_and_expiry_months(client):
     assert client.post('/api/portfolio/rooms',json=rental()).status_code == 200
     assert client.post('/api/portfolio/expenses',json={'name':'Internet and cleaning','amount':500}).status_code == 200

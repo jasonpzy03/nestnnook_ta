@@ -29,12 +29,39 @@ class Rental(StrictModel):
     start_date: date | None = None
     last_rental_date: date | None = None
     active: bool = True
+    tenant_name: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] = ''
 
     @model_validator(mode='after')
     def valid_dates(self):
         if self.start_date and self.last_rental_date and self.last_rental_date < self.start_date:
             raise ValueError('Last rental day must be on or after the move-in date.')
         return self
+
+
+class PropertyRoom(StrictModel):
+    room: Label
+    standard_rent: Money
+
+
+class PropertyUnit(StrictModel):
+    unit: Label
+    property_name: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] = ''
+    address: Annotated[str, StringConstraints(strip_whitespace=True, max_length=600)] = ''
+    bathrooms: int = Field(default=0, ge=0, le=30)
+    carparks: int = Field(default=0, ge=0, le=100)
+    notes: Annotated[str, StringConstraints(strip_whitespace=True, max_length=1000)] = ''
+    rooms: list[PropertyRoom] = Field(min_length=1, max_length=30)
+
+    @model_validator(mode='after')
+    def unique_rooms(self):
+        keys = [room_key(self.unit, room.room) for room in self.rooms]
+        if len(set(keys)) != len(keys):
+            raise ValueError('Room numbers must be unique within a unit.')
+        return self
+
+
+class PropertyUpdate(PropertyUnit):
+    revision: str = Field(min_length=1, max_length=40)
 
 
 class Expense(StrictModel):
@@ -61,6 +88,10 @@ def room_key(unit, room):
     return hashlib.sha256(json.dumps([unit, room]).encode()).hexdigest()
 
 
+def unit_key(unit):
+    return room_key(unit, '__property__')
+
+
 def read_local():
     try:
         if not FILE.exists():
@@ -85,10 +116,10 @@ def records():
             with LOCK:
                 data = list(read_local().values())
         for row in data:
-            model = Rental if row['kind'] == 'room' else Expense if row['kind'] == 'expense' else None
+            model = {'room':Rental,'expense':Expense,'unit':PropertyUnit}.get(row['kind'])
             if model is None or not isinstance(row['id'], str) or not isinstance(row['revision'], str):
                 raise ValueError()
-            model.model_validate({k:v for k,v in row.items() if k not in ('id','kind','revision')})
+            model.model_validate({k:v for k,v in row.items() if k not in ('id','kind','revision','room_ids')})
         return data
     except (StorageError, ValueError, KeyError, TypeError):
         raise HTTPException(503, 'Rental portfolio is unavailable. Please try again.') from None
@@ -98,6 +129,9 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
     """Compare revisions atomically, so re-sharing cannot duplicate or overwrite a room silently."""
     field = kind+':'+identifier
     record = None if delete else {**payload, 'kind':kind, 'id':identifier, 'revision':uuid.uuid4().hex}
+    if record and kind == 'unit':
+        record['room_ids'] = [room_key(payload['unit'], room['room']) for room in payload['rooms']]
+    unit_field = 'unit:'+unit_key(payload['unit']) if payload and kind == 'room' else ''
     try:
         if cloud_enabled():
             store = RedisStore()
@@ -109,11 +143,26 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
                 if not old then return {404,''} end
                 if cjson.decode(old).revision~=ARGV[2] then return {409,old} end
             end
+            if ARGV[5]=='room' and ARGV[3]~='delete' then
+                local unit=redis.call('HGET',KEYS[1],ARGV[6])
+                if unit then
+                    local found=false
+                    for _,id in ipairs(cjson.decode(unit).room_ids) do if id==ARGV[7] then found=true end end
+                    if not found then return {423,''} end
+                end
+            end
+            if ARGV[5]=='unit' and old then
+                local keep={}
+                if ARGV[3]~='delete' then for _,id in ipairs(cjson.decode(ARGV[4]).room_ids) do keep[id]=true end end
+                for _,id in ipairs(cjson.decode(old).room_ids) do
+                    if not keep[id] and redis.call('HEXISTS',KEYS[1],'room:'..id)==1 then return {424,''} end
+                end
+            end
             if ARGV[3]=='delete' then redis.call('HDEL',KEYS[1],ARGV[1])
             else redis.call('HSET',KEYS[1],ARGV[1],ARGV[4]) end
             return {200,''}"""
             code, old = store.command('EVAL', script, 1, store.key('portfolio'), field,
-                                      expected or '', 'delete' if delete else 'save', json.dumps(record))
+                                      expected or '', 'delete' if delete else 'save', json.dumps(record), kind, unit_field, identifier)
             old = json.loads(old) if old else None
         else:
             with LOCK:
@@ -122,6 +171,12 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
                 code = (409 if old else 422 if len(data)>=2000 else 200) if expected is None else (
                     404 if not old else 409 if old['revision'] != expected else 200)
                 if code == 200:
+                    if kind == 'room' and not delete and unit_field in data and identifier not in data[unit_field]['room_ids']:
+                        raise HTTPException(422, 'This room is not in the property inventory. Add the room to the unit first.')
+                    if kind == 'unit' and old:
+                        removed = set(old['room_ids']) - set(record['room_ids'] if record else [])
+                        if any('room:'+key in data for key in removed):
+                            raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
                     if delete:
                         data.pop(field)
                     else:
@@ -134,6 +189,10 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False):
             raise HTTPException(409, {'message':'This record already exists or was changed. Review the saved values before updating.', 'record':old})
         if code == 404:
             raise HTTPException(404, 'This record no longer exists. Refresh the dashboard.')
+        if code == 423:
+            raise HTTPException(422, 'This room is not in the property inventory. Add the room to the unit first.')
+        if code == 424:
+            raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
         if code != 200:
             raise HTTPException(422, 'The rental portfolio is full.')
         return record or {'deleted':True}
@@ -161,14 +220,74 @@ def project(data, month):
             expected = money(rental.rent*days/last.day) + money(rental.parking*days/last.day)
             rooms.append({**row, 'rent':float(rental.rent), 'parking':float(rental.parking), 'rental_days':days, 'expected':float(expected)})
             total_rent += expected
-        else:
+        elif row['kind'] == 'expense':
             amount = Decimal(str(row['amount']))
             total_expenses += amount
             expenses.append({**row, 'amount':float(amount)})
-    return {'month':month, 'rooms':sorted(rooms, key=lambda r:(r['unit'].casefold(),r['room'].casefold())),
+    occupancy = occupancy_projection(data, rooms, last.day)
+    return {**occupancy, 'month':month, 'rooms':sorted(rooms, key=lambda r:(r['unit'].casefold(),r['room'].casefold())),
             'expenses':sorted(expenses, key=lambda e:e['name'].casefold()),
             'rental_income':float(total_rent), 'fixed_expenses':float(total_expenses),
             'net_income':float(total_rent-total_expenses), 'earning_rooms':sum(r['rental_days']>0 for r in rooms)}
+
+
+def occupancy_projection(data, rentals, days_in_month):
+    by_room = {row['id']:row for row in rentals}
+    units = []
+    linked = set()
+    for row in data:
+        if row['kind'] != 'unit':
+            continue
+        room_rows = []
+        loss = Decimal('0')
+        potential = Decimal('0')
+        expected = Decimal('0')
+        occupied_days = 0
+        for room in row['rooms']:
+            identifier = room_key(row['unit'], room['room'])
+            linked.add(identifier)
+            rental = by_room.get(identifier)
+            days = rental['rental_days'] if rental else 0
+            standard = Decimal(str(room['standard_rent']))
+            vacancy = money(standard*(days_in_month-days)/days_in_month)
+            amount = Decimal(str(rental['expected'])) if rental else Decimal('0')
+            room_rows.append({'id':identifier, 'room':room['room'], 'standard_rent':float(standard),
+                              'tenant_name':rental.get('tenant_name','') if rental else '',
+                              'rental':rental, 'occupied_days':days, 'vacant_days':days_in_month-days,
+                              'vacancy_loss':float(vacancy), 'expected_income':float(amount)})
+            occupied_days += days
+            loss += vacancy
+            potential += standard
+            expected += amount
+        available_days = len(room_rows)*days_in_month
+        units.append({**row, 'rooms':[{**r,'standard_rent':float(r['standard_rent'])} for r in row['rooms']],
+                      'room_rows':room_rows, 'bedrooms':len(room_rows), 'occupied_room_days':occupied_days,
+                      'available_room_days':available_days, 'occupancy_rate':round(100*occupied_days/available_days,2),
+                      'vacancy_loss':float(loss), 'potential_room_rent':float(potential), 'expected_income':float(expected)})
+    occupied = sum(unit['occupied_room_days'] for unit in units)
+    available = sum(unit['available_room_days'] for unit in units)
+    return {'units':sorted(units,key=lambda u:u['unit'].casefold()), 'total_bedrooms':sum(u['bedrooms'] for u in units),
+            'total_carparks':sum(u['carparks'] for u in units), 'occupancy_rate':round(100*occupied/available,2) if available else None,
+            'occupied_room_days':occupied, 'available_room_days':available,
+            'vacancy_loss':float(sum((Decimal(str(u['vacancy_loss'])) for u in units),Decimal('0'))),
+            'unlinked_rentals':sum(row['id'] not in linked for row in rentals)}
+
+
+@router.get('/units')
+def list_units():
+    return {'units':[row for row in records() if row['kind']=='unit']}
+
+
+@router.post('/units')
+def add_unit(value: PropertyUnit):
+    return mutate('unit',unit_key(value.unit),value.model_dump(mode='json'))
+
+
+@router.put('/units/{identifier}')
+def update_unit(identifier: str, value: PropertyUpdate):
+    if unit_key(value.unit) != identifier:
+        raise HTTPException(422, 'The unit number cannot be changed. Add a different property instead.')
+    return mutate('unit',identifier,value.model_dump(mode='json',exclude={'revision'}),value.revision)
 
 
 @router.get('')
@@ -200,6 +319,6 @@ def update_expense(identifier: str, value: ExpenseUpdate):
 
 @router.delete('/{collection}/{identifier}')
 def remove_record(collection: str, identifier: str, revision: Annotated[str, Query(min_length=1, max_length=40)]):
-    if collection not in ('rooms', 'expenses'):
+    if collection not in ('rooms', 'expenses', 'units'):
         raise HTTPException(404, 'Not found')
-    return mutate('room' if collection == 'rooms' else 'expense', identifier, expected=revision, delete=True)
+    return mutate({'rooms':'room','expenses':'expense','units':'unit'}[collection], identifier, expected=revision, delete=True)
