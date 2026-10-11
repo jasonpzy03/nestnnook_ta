@@ -118,7 +118,7 @@ Missing or invalid `NEST_STAFF_PASSWORD_RECORD` produces a separate staff-passwo
 
 ### Property inventory and monthly occupancy
 
-Register each property under **Income dashboard → Add property unit**, including its address, bathrooms, parking count, bedroom numbers and standard monthly rent per bedroom. Bedroom count follows the room list. Registered units and rooms are matched to rentals using the same normalised unit + room identity. Existing rentals remain intact; unmatched rentals contribute income but are flagged and excluded from occupancy until registered.
+Register each property under **Income dashboard → Add property unit**, using the existing saved-address dropdown, parking count, bedroom numbers and standard monthly rent per bedroom. Bedroom count follows the room list. Registered units and rooms are matched to rentals using the same normalised unit + room identity. Existing rentals remain intact; unmatched rentals contribute income but are flagged and excluded from occupancy until registered.
 
 The TA form offers **Use a registered room** to fill the unit, address and standard rent. Review the actual agreed rent; explicitly saving to the rental portfolio from Share PDFs links the tenant name and dates. Existing tenants can be entered through **Assign tenant** or **Add room rental**. Identity documents and contact details are not saved in the portfolio.
 

@@ -35,12 +35,10 @@
           }@else if(editor==='unit'){
             <div class="field-grid">
               <label>{{t('Unit number')}}<input name="unit_number" [(ngModel)]="property.unit" required maxlength="100" [readonly]="!!editId" (ngModelChange)="conflict=null"></label>
-              <label>{{t('Property name')}}<input name="property_name" [(ngModel)]="property.property_name" maxlength="200" (ngModelChange)="conflict=null"></label>
-              <label class="wide">{{t('Property address')}}<textarea name="unit_address" [(ngModel)]="property.address" maxlength="600" rows="2" (ngModelChange)="conflict=null"></textarea></label>
+              <label class="wide">{{t('Property address')}}<select class="property-address-select" name="unit_address" [(ngModel)]="property.address" required (ngModelChange)="conflict=null"><option value="" disabled>{{t('Select an address')}}</option>@for(address of addresses;track address){<option [value]="address">{{address}}</option>}@if(property.address&&!addresses.includes(property.address)){<option [value]="property.address">{{property.address}}</option>}</select></label>
+              @if(addressError){<p class="notice error wide" role="alert">{{t(addressError)}}</p>}
               <label>{{t('Bedrooms')}}<input name="unit_bedrooms" [(ngModel)]="bedroomCount" (ngModelChange)="resizeBedrooms()" type="number" min="1" max="30" step="1" required></label>
               <label>{{t('Car parks')}}<input name="unit_carparks" [(ngModel)]="property.carparks" type="number" min="0" max="100" step="1" required (ngModelChange)="conflict=null"></label>
-              <label>{{t('Bathrooms')}}<input name="unit_bathrooms" [(ngModel)]="property.bathrooms" type="number" min="0" max="30" step="1" required (ngModelChange)="conflict=null"></label>
-              <label class="wide">{{t('Property notes')}}<textarea name="unit_notes" [(ngModel)]="property.notes" maxlength="1000" rows="2" (ngModelChange)="conflict=null"></textarea></label>
             </div>
             <h3>{{t('Rooms and standard rents')}}</h3><p class="field-hint">{{t('Increase Bedrooms to add rooms. To reduce the count, remove a specific room below. Linked rentals must be removed first.')}}</p>
             @for(room of property.rooms;track $index;let i=$index){<div class="property-room-editor"><label>{{t('Room number')}}<input [name]="'unit_room_'+i" [(ngModel)]="room.room" required maxlength="100" (ngModelChange)="conflict=null"></label><label>{{t('Standard monthly rent (RM)')}}<input [name]="'unit_rate_'+i" [(ngModel)]="room.standard_rent" required type="number" min="0" max="1000000" step="0.01" (ngModelChange)="conflict=null"></label><button type="button" class="text-button" [disabled]="property.rooms.length===1" (click)="removePropertyRoom(i)">{{t('Remove room')}}</button></div>}
@@ -51,7 +49,7 @@
           @if(conflict){
             <div class="portfolio-conflict"><h3>{{t('Review existing record')}}</h3>
               @if(conflict.kind==='room'){<p>{{conflict.unit}} · {{conflict.room}}</p><p>{{t('Saved monthly rent')}}: {{conflict.rent|currency:'MYR':'RM ':'1.2-2'}} + {{conflict.parking|currency:'MYR':'RM ':'1.2-2'}} {{t('parking')}}</p><p>{{conflict.start_date||'—'}} → {{conflict.last_rental_date||'—'}} · {{t(conflict.active?'Included':'Excluded')}}</p>}
-              @else if(conflict.kind==='unit'){<p>{{conflict.unit}} · {{conflict.property_name}}</p><p>{{conflict.rooms.length}} {{t('Bedrooms')}} · {{conflict.carparks}} {{t('Car parks')}}</p>}@else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
+              @else if(conflict.kind==='unit'){<p>{{conflict.unit}}</p><p>{{conflict.rooms.length}} {{t('Bedrooms')}} · {{conflict.carparks}} {{t('Car parks')}}</p>}@else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
               <p>{{t('Replace the saved record with the values above? This will not add a second copy.')}}</p><button type="button" class="button primary" (click)="entryForm.reportValidity()&&save(true)">{{t('Update saved record')}}</button>
             </div>
           }
@@ -65,7 +63,7 @@
       <div class="portfolio-list-heading"><h2>{{t('Properties and occupancy')}}</h2><button class="button primary" [disabled]="saving" (click)="editProperty()">{{t('＋ Add property unit')}}</button></div>
       @if(!data.units.length){<div class="card portfolio-empty property-empty"><h3>{{t('Register every room, including vacant rooms')}}</h3><p>{{t('Add your properties and standard room rents to measure occupancy and vacancy loss. Existing rentals are matched by unit and room number.')}}</p></div>}
       @else{
-        <label class="unit-filter">{{t('Occupancy view')}}<select [(ngModel)]="unitFilter"><option value="">{{t('All units')}}</option>@for(unit of data.units;track unit.id){<option [value]="unit.id">{{unit.unit}} · {{unit.property_name}}</option>}</select></label>
+        <label class="unit-filter">{{t('Occupancy view')}}<select [(ngModel)]="unitFilter"><option value="">{{t('All units')}}</option>@for(unit of data.units;track unit.id){<option [value]="unit.id">{{unit.unit}}</option>}</select></label>
         <div class="income-cards occupancy-cards" aria-live="polite">
           <article class="card income-card"><span>{{t('Monthly occupancy')}}</span><strong>{{occupancySummary.occupancy_rate|number:'1.0-1'}}%</strong><small>{{t('Based on occupied room-days')}}</small></article>
           <article class="card income-card"><span>{{t('Potential rent lost to vacancy')}}</span><strong>{{occupancySummary.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Standard room rent × vacant days ÷ days in month')}}</small></article>
@@ -74,7 +72,7 @@
         <p class="field-hint">{{t('Occupancy counts occupied room-days, not just rooms with a tenancy. Vacancy loss covers bedroom rent only; parking income remains in projected income. A lower agreed rent is not vacancy loss.')}}</p>
         @for(unit of visibleUnits;track unit.id){
           <article class="card property-card">
-            <div class="portfolio-list-heading"><div><h3>{{unit.unit}} <span>{{unit.property_name}}</span></h3><p>{{unit.address||'—'}}</p><small>{{unit.bedrooms}} {{t('Bedrooms')}} · {{unit.bathrooms}} {{t('Bathrooms')}} · {{unit.carparks}} {{t('Car parks')}}</small></div><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editProperty(unit)">{{t('Edit property')}}</button><button class="text-button" [disabled]="saving" (click)="removal=unit">{{t('Remove')}}</button></div></div>
+            <div class="portfolio-list-heading"><div><h3>{{unit.unit}}</h3><p>{{unit.address||'—'}}</p><small>{{unit.bedrooms}} {{t('Bedrooms')}} · {{unit.carparks}} {{t('Car parks')}}</small></div><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editProperty(unit)">{{t('Edit property')}}</button><button class="text-button" [disabled]="saving" (click)="removal=unit">{{t('Remove')}}</button></div></div>
             <div class="property-metrics"><div><span>{{t('Monthly occupancy')}}</span><strong>{{unit.occupancy_rate|number:'1.0-1'}}%</strong></div><div><span>{{t('Potential rent lost to vacancy')}}</span><strong>{{unit.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</strong></div><div><span>{{t('Projected rental income')}}</span><strong>{{unit.expected_income|currency:'MYR':'RM ':'1.2-2'}}</strong></div></div>
             <details [open]="!!unitFilter||data.units.length===1"><summary>{{t('Rooms and tenants')}}</summary>
               <div class="property-room-grid">@for(room of unit.room_rows;track room.id){<section class="property-room-card" [class.vacant-room]="room.occupied_days===0"><h4>{{room.room}} <span>{{t(room.occupied_days===0?'Vacant this month':room.vacant_days?'Partly occupied':'Fully occupied')}}</span></h4>
@@ -84,7 +82,6 @@
                 <button class="button secondary" [disabled]="saving" (click)="assignRental(unit,room)">{{t(room.rental?'Edit linked tenancy':'Assign tenant')}}</button>
               </section>}</div>
             </details>
-            @if(unit.notes){<p class="field-hint">{{unit.notes}}</p>}
           </article>
         }
       }

@@ -17,6 +17,8 @@ const emptyProperty=():PropertyInput=>({unit:'',property_name:'',address:'',bath
 @Component({selector:'rental-portfolio',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./portfolio.html'})
 export class Portfolio implements OnInit, OnDestroy {
   @Input() language:Language='en';
+  @Input() addresses:string[]=[];
+  @Input() addressError='';
   @Input() mode:'dashboard'|'capture'='dashboard';
   @Input() seed:RentalInput|null=null;
   @Output() saved=new EventEmitter<void>();
