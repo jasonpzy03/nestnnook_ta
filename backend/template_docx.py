@@ -72,11 +72,13 @@ def date_text(d,upper=False):
     return value.upper() if upper else value
 
 def tenure(d, prorated=True):
-    # Exclude the partial move-in month and recognise the first-day expiry
-    # used by the tenancy form. Keep legacy anniversary dates readable too.
+    # Exclude the partial move-in month. Recognise inclusive month-end expiry
+    # as well as older drafts with first-day expiry and anniversary dates.
     full_months=(d.end_date.year-d.start_date.year)*12+d.end_date.month-d.start_date.month
     if d.start_date.day!=1:full_months-=1
-    if prorated and d.end_date.day==1 and full_months in (6,12):
+    month_end=d.end_date.day==monthrange(d.end_date.year,d.end_date.month)[1]
+    if month_end:full_months+=1
+    if prorated and (d.end_date.day==1 or month_end) and full_months in (6,12):
         return '6 Months' if full_months==6 else '1 Year'
     months=(d.end_date.year-d.start_date.year)*12+d.end_date.month-d.start_date.month
     if d.end_date.day>=d.start_date.day:months+=1

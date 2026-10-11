@@ -126,6 +126,10 @@ def test_tenure_matches_expiry_shortcuts(details,start,end,wanted):
 @pytest.mark.parametrize('aircon',[True,False])
 @pytest.mark.parametrize('start,end,wanted',[
     ('2025-10-10','2026-05-01','6 Months'),
+    ('2025-10-10','2026-04-30','6 Months'),
+    ('2026-04-10','2027-04-30','1 Year'),
+    ('2026-10-01','2027-03-31','6 Months'),
+    ('2023-08-31','2024-02-29','6 Months'),
     ('2026-04-10','2027-05-01','1 Year'),
     ('2026-10-01','2027-04-01','6 Months'),
     ('2026-08-31','2027-03-01','6 Months'),

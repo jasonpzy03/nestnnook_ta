@@ -23,10 +23,11 @@ app.chooseProperty('');assert.equal(app.d.room,'02','Manual mode preserves enter
 app.reset();
 const form={reportValidity:()=>true};
 app.d.start_date='2025-10-10';app.chooseTerm(6);
-assert.equal(app.d.end_date,'2026-05-01');
+assert.equal(app.d.end_date,'2026-04-30');
 app.d.start_date='2026-04-10';app.updateExpiry();
-assert.equal(app.d.end_date,'2026-11-01');
-app.chooseTerm(12);assert.equal(app.d.end_date,'2027-05-01');
+assert.equal(app.d.end_date,'2026-10-31');
+app.chooseTerm(12);assert.equal(app.d.end_date,'2027-04-30');
+assert.equal(app.rentalSnapshot().last_rental_date,'2027-04-30');
 for(const [id,path] of [['offer',[0,1,3]],['tenancy',[0,1,3]],['move_in',[0,2,3]],['rules',[0,3]]]){
   app.startDocuments(id);assert.equal(JSON.stringify(app.activeSteps),JSON.stringify(path));
   app.d.end_date='2027-10-01';
@@ -43,7 +44,7 @@ assert.equal(app.documentDetails(['tenancy']).aircon_kwh,65);
 assert.equal(app.documentDetails(['offer']).aircon_kwh,undefined);
 app.d.aircon=false;assert.equal(app.documentDetails(['tenancy']).aircon_kwh,undefined);
 app.d.aircon=true;app.d.aircon_kwh=null;assert.equal(app.validate(['tenancy']),false);
-app.reset();assert.equal(app.d.aircon_kwh,40);
+app.reset();assert.equal(app.d.aircon_kwh,42.86);
 console.log('AC allowance payload, validation and reset checks passed');
 
 app.d.reference='TEST-PRORATE';app.d.start_date='2026-10-17';app.d.rent=1000;app.d.advance_rent=999;

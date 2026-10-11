@@ -52,7 +52,7 @@ class Details(StrictModel):
     end_date: date | None = None
     aircon: bool = True
     tenancy_type: Literal['new','renewal'] = 'new'
-    aircon_kwh: Decimal = Field(default=Decimal('40'), ge=0, le=100000, allow_inf_nan=False)
+    aircon_kwh: Decimal = Field(default=Decimal('42.86'), ge=0, le=100000, allow_inf_nan=False)
     rent: Money = Decimal('0')
     parking: Money = Decimal('0')
     security_deposit: Money = Decimal('0')

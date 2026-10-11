@@ -12,12 +12,12 @@ from backend.converted_pdf import fill_converted
 from backend.rich_pdf import styled_expression
 
 
-@pytest.mark.parametrize('value',[0,40,65,100000])
+@pytest.mark.parametrize('value',[0,1.5,42.86,65,100000])
 def test_allowance_values(value):
     assert fields_for('tenancy',Details(aircon_kwh=value))['aircon_kwh']==str(value)
 
 
-@pytest.mark.parametrize('value',[-1,1.5,100001,None,True])
+@pytest.mark.parametrize('value',[-1,100001,None,True])
 def test_allowance_rejects_invalid_values(value):
     with pytest.raises(ValidationError):Details(aircon_kwh=value)
 
