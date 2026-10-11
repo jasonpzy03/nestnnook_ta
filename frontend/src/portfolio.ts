@@ -6,16 +6,16 @@ import { Language, translate } from './language';
 export interface RentalInput { unit:string; room:string; rent:number|null; parking:number|null; start_date:string; last_rental_date:string; active:boolean; tenant_name?:string; }
 interface FixedCosts {house_rental:number|null;wifi:number|null;indah_water:number|null;}
 interface MonthlyCosts {cleaning:number|null;electricity:number|null;water:number|null;others:{name:string;amount:number|null}[]|null;}
-export interface PropertyInput {fixed_costs:FixedCosts;monthly_costs:Record<string,MonthlyCosts>;unit:string; property_name:string; address:string; bathrooms:number; carparks:number; notes:string; rooms:{room:string;standard_rent:number|null}[];}
+export interface PropertyInput {standard_parking_rent:number|null;fixed_costs:FixedCosts;monthly_costs:Record<string,MonthlyCosts>;unit:string; property_name:string; address:string; bathrooms:number; carparks:number; notes:string; rooms:{room:string;standard_rent:number|null}[];}
 export interface PropertyRecord extends Omit<PropertyInput,'fixed_costs'|'monthly_costs'> {id:string;revision:string;kind:'unit';fixed_costs?:FixedCosts;monthly_costs?:Record<string,MonthlyCosts>;}
 interface OccupancyRoom {id:string;room:string;standard_rent:number;tenant_name:string;rental:RentalRecord|null;occupied_days:number;vacant_days:number;vacancy_loss:number;expected_income:number;}
-interface UnitProjection extends PropertyRecord {fixed_costs:FixedCosts;selected_month_costs:MonthlyCosts;fixed_expenses:number;variable_expenses:number;total_expenses:number;net_income:number;missing_expenses:string[];bedrooms:number;room_rows:OccupancyRoom[];occupied_room_days:number;available_room_days:number;occupancy_rate:number;vacancy_loss:number;potential_room_rent:number;expected_income:number;}
+interface UnitProjection extends PropertyRecord {parking_rate_missing:boolean;parking_over_capacity:boolean;fixed_costs:FixedCosts;selected_month_costs:MonthlyCosts;fixed_expenses:number;variable_expenses:number;total_expenses:number;net_income:number;missing_expenses:string[];bedrooms:number;room_rows:OccupancyRoom[];occupied_room_days:number;available_room_days:number;occupancy_rate:number;vacancy_loss:number;potential_room_rent:number;expected_income:number;}
 interface RentalRecord extends RentalInput {id:string; revision:string; kind:'room'; rent:number; parking:number; expected:number; rental_days:number;}
 interface ExpenseRecord {id:string; revision:string; kind:'expense'; name:string; amount:number;}
-interface Projection {variable_expenses:number;total_expenses:number;missing_expense_units:number;month:string; rooms:RentalRecord[]; expenses:ExpenseRecord[]; rental_income:number; fixed_expenses:number; net_income:number; earning_rooms:number;units:UnitProjection[];total_bedrooms:number;total_carparks:number;occupancy_rate:number|null;vacancy_loss:number;unlinked_rentals:number;occupied_room_days:number;available_room_days:number;}
+interface Projection {parking_rate_missing_units:number;variable_expenses:number;total_expenses:number;missing_expense_units:number;month:string; rooms:RentalRecord[]; expenses:ExpenseRecord[]; rental_income:number; fixed_expenses:number; net_income:number; earning_rooms:number;units:UnitProjection[];total_bedrooms:number;total_carparks:number;occupancy_rate:number|null;vacancy_loss:number;unlinked_rentals:number;occupied_room_days:number;available_room_days:number;}
 const emptyRental=():RentalInput=>({unit:'',room:'',rent:null,parking:0,start_date:'',last_rental_date:'',active:true,tenant_name:''});
 const emptyMonthly=():MonthlyCosts=>({electricity:null,water:null,cleaning:null,others:null});
-const emptyProperty=():PropertyInput=>({fixed_costs:{house_rental:0,wifi:0,indah_water:0},monthly_costs:{},unit:'',property_name:'',address:'',bathrooms:0,carparks:0,notes:'',rooms:[{room:'01',standard_rent:null}]});
+const emptyProperty=():PropertyInput=>({standard_parking_rent:null,fixed_costs:{house_rental:0,wifi:0,indah_water:0},monthly_costs:{},unit:'',property_name:'',address:'',bathrooms:0,carparks:0,notes:'',rooms:[{room:'01',standard_rent:null}]});
 
 @Component({selector:'rental-portfolio',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./portfolio.html'})
 export class Portfolio implements OnInit, OnDestroy {
@@ -42,7 +42,7 @@ export class Portfolio implements OnInit, OnDestroy {
     this.clearEditor();this.editor='unit';this.expenseMonth=this.month;this.focusEditor();
     if(row){
       const costs=row.fixed_costs||{house_rental:0,wifi:0,indah_water:0};
-      this.property={unit:row.unit,property_name:row.property_name,address:row.address,bathrooms:row.bathrooms,carparks:row.carparks,notes:row.notes,
+      this.property={standard_parking_rent:row.standard_parking_rent==null?null:Number(row.standard_parking_rent),unit:row.unit,property_name:row.property_name,address:row.address,bathrooms:row.bathrooms,carparks:row.carparks,notes:row.notes,
         fixed_costs:{house_rental:Number(costs.house_rental),wifi:Number(costs.wifi),indah_water:Number(costs.indah_water)},
         monthly_costs:JSON.parse(JSON.stringify(row.monthly_costs||{})),rooms:row.rooms.map(r=>({...r,standard_rent:Number(r.standard_rent)}))};
       this.bedroomCount=row.rooms.length;this.editId=row.id;this.revision=row.revision;

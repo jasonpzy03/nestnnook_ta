@@ -295,3 +295,124 @@ def test_concurrent_rental_corrections_do_not_overwrite_destination(client):
         assert sorted(pool.map(move,[a,b])) == [200,409]
     rows = client.get('/api/portfolio?month=2026-10').json()['rooms']
     assert len(rows) == 2 and sum(r['unit']=='C' for r in rows) == 1
+
+
+def test_parking_loss_is_combined_with_room_loss_at_advertised_rate(client):
+    client.post('/api/portfolio/units',json=property_unit(standard_parking_rent=310))
+    client.post('/api/portfolio/rooms',json={**rental(),'parking':100})
+    result = client.get('/api/portfolio?month=2026-10').json()
+    # Room loss 3950 + 55 vacant parking-space days * 310 / 31.
+    assert result['vacancy_loss'] == 4500
+    assert result['units'][0]['vacancy_loss'] == 4500
+    assert result['occupancy_rate'] == 11.29  # Bedroom occupancy unchanged.
+    assert result['rental_income'] == 722.58  # Income uses the agreed 100, not advertised 310.
+    assert result['parking_rate_missing_units'] == 0
+    full = client.get('/api/portfolio?month=2026-11').json()
+    assert full['vacancy_loss'] == 1860  # One vacant room plus one vacant space.
+    expired = client.get('/api/portfolio?month=2027-05').json()
+    assert expired['vacancy_loss'] == 5270
+    client.post('/api/portfolio/units',json=property_unit(unit='B',carparks=1,standard_parking_rent=100,rooms=[{'room':'1','standard_rent':0}]))
+    total = client.get('/api/portfolio?month=2026-10').json()
+    assert total['vacancy_loss'] == 4600
+    assert total['units'][1]['vacancy_loss'] == 100
+
+
+@pytest.mark.parametrize('second_start,second_end,wanted,over_capacity',[
+    ('2026-10-01','2026-10-10',210,True),
+    ('2026-10-21','2026-10-31',100,False),
+])
+def test_parking_vacancy_counts_capacity_per_day(client,second_start,second_end,wanted,over_capacity):
+    client.post('/api/portfolio/units',json=property_unit(carparks=1,standard_parking_rent=310,rooms=[{'room':'1','standard_rent':0},{'room':'2','standard_rent':0}]))
+    client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'1','rent':0,'parking':50,'start_date':'2026-10-01','last_rental_date':'2026-10-10'})
+    response = client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'2','rent':0,'parking':50,'start_date':second_start,'last_rental_date':second_end})
+    assert response.status_code == (422 if over_capacity else 200)
+    row = client.get('/api/portfolio?month=2026-10').json()['units'][0]
+    assert row['vacancy_loss'] == wanted
+    assert row['parking_over_capacity'] is False
+
+
+def test_parking_rate_missing_zero_and_leap_month(client):
+    for value in (-1,'1.001'):
+        assert client.post('/api/portfolio/units',json=property_unit(standard_parking_rent=value)).status_code == 422
+    saved = client.post('/api/portfolio/units',json=property_unit(carparks=1,rooms=[{'room':'1','standard_rent':0}])).json()
+    missing = client.get('/api/portfolio?month=2024-02').json()
+    assert missing['parking_rate_missing_units'] == 1 and missing['vacancy_loss'] == 0
+    updated = client.put('/api/portfolio/units/'+saved['id'],json={**property_unit(carparks=1,standard_parking_rent=290,rooms=[{'room':'1','standard_rent':0}]),'revision':saved['revision']}).json()
+    tenant = client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'1','rent':0,'parking':100,'start_date':'2024-02-29'}).json()
+    assert client.get('/api/portfolio?month=2024-02').json()['vacancy_loss'] == 280
+    assert client.get('/api/portfolio?month=2024-03').json()['vacancy_loss'] == 0
+    client.put('/api/portfolio/rooms/'+tenant['id'],json={'unit':'16-03','room':'1','rent':0,'parking':100,'active':False,'revision':tenant['revision']})
+    assert client.get('/api/portfolio?month=2024-03').json()['vacancy_loss'] == 290
+    client.put('/api/portfolio/units/'+saved['id'],json={**property_unit(carparks=1,standard_parking_rent=0,rooms=[{'room':'1','standard_rent':0}]),'revision':updated['revision']})
+    zero = client.get('/api/portfolio?month=2024-03').json()
+    assert zero['vacancy_loss'] == 0 and zero['parking_rate_missing_units'] == 0
+
+
+def test_parking_capacity_guard_for_updates_dates_and_property_count(client):
+    unit = client.post('/api/portfolio/units',json=property_unit(carparks=1)).json()
+    first_input = {'unit':'16-03','room':'1','rent':1000,'parking':100,'start_date':'2026-10-01','last_rental_date':'2026-10-15'}
+    first = client.post('/api/portfolio/rooms',json=first_input).json()
+    second_input = {**first_input,'room':'2','start_date':'2026-10-16','last_rental_date':'2026-10-31'}
+    second = client.post('/api/portfolio/rooms',json=second_input).json()
+    # Same-day overlaps are blocked; the next day is available.
+    assert client.put('/api/portfolio/rooms/'+second['id'],json={**second_input,'start_date':'2026-10-15','revision':second['revision']}).status_code == 422
+    assert client.put('/api/portfolio/units/'+unit['id'],json={**property_unit(carparks=0),'revision':unit['revision']}).status_code == 422
+    # Editing one's own rental must not count it twice.
+    assert client.put('/api/portfolio/rooms/'+first['id'],json={**first_input,'parking':120,'revision':first['revision']}).status_code == 200
+    # Excluding a rental releases its capacity even with overlapping dates.
+    assert client.put('/api/portfolio/rooms/'+second['id'],json={**second_input,'start_date':'2026-10-01','active':False,'revision':second['revision']}).status_code == 200
+
+
+def test_parking_capacity_guard_for_concurrent_saves(client):
+    client.post('/api/portfolio/units',json=property_unit(carparks=1))
+    def save(room):
+        return client.post('/api/portfolio/rooms',json={'unit':'16-03','room':room,'rent':1000,'parking':100}).status_code
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        codes = sorted(pool.map(save,['1','2']))
+    assert codes[0] == 200 and codes[1] in (409,422)
+    result = client.get('/api/portfolio?month=2026-10').json()
+    assert len(result['rooms']) == 1
+
+
+def test_parking_capacity_blocks_unit_correction_and_legacy_registration(client):
+    client.post('/api/portfolio/units',json=property_unit(carparks=1))
+    client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'1','rent':1000,'parking':100})
+    source = {'unit':'Typo','room':'2','rent':1000,'parking':100}
+    saved = client.post('/api/portfolio/rooms',json=source).json()
+    assert client.put('/api/portfolio/rooms/'+saved['id'],json={**source,'unit':'16-03','revision':saved['revision']}).status_code == 422
+    rooms = client.get('/api/portfolio?month=2026-10').json()['rooms']
+    assert any(r['unit']=='Typo' for r in rooms)
+    # Creating inventory must also validate pre-existing rentals against capacity.
+    assert client.post('/api/portfolio/units',json=property_unit(unit='Typo',carparks=0)).status_code == 422
+    assert client.post('/api/portfolio/units',json=property_unit(unit='Typo',carparks=1)).status_code == 200
+
+
+def test_parking_capacity_zero_charge_and_multiple_spaces(client):
+    unit = client.post('/api/portfolio/units',json=property_unit(carparks=2)).json()
+    for room in ('1','2'):
+        assert client.post('/api/portfolio/rooms',json={'unit':'16-03','room':room,'rent':1000,'parking':100}).status_code == 200
+    assert client.put('/api/portfolio/units/'+unit['id'],json={**property_unit(carparks=1),'revision':unit['revision']}).status_code == 422
+    client.post('/api/portfolio/units',json=property_unit(unit='B',carparks=0))
+    assert client.post('/api/portfolio/rooms',json={'unit':'B','room':'1','rent':1000,'parking':0}).status_code == 200
+    assert client.post('/api/portfolio/rooms',json={'unit':'B','room':'2','rent':1000,'parking':100}).status_code == 422
+
+
+def test_redis_capacity_snapshot_rejects_intervening_reservation(client,monkeypatch):
+    if not portfolio.cloud_enabled():
+        return  # The local path uses a single lock around check and write.
+    client.post('/api/portfolio/units',json=property_unit(carparks=1))
+    command = RedisStore.command
+    injected = False
+    def reserve_between_check_and_write(store,*args):
+        nonlocal injected
+        if args[0]=='EVAL' and not injected:
+            injected = True
+            competing = portfolio.Rental(unit='16-03',room='2',rent=1000,parking=100).model_dump(mode='json')
+            competing.update(kind='room',id=portfolio.room_key('16-03','2'),revision='competing')
+            command(store,'HSET',store.key('portfolio'),'room:'+competing['id'],json.dumps(competing))
+        return command(store,*args)
+    monkeypatch.setattr(RedisStore,'command',reserve_between_check_and_write)
+    result = client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'1','rent':1000,'parking':100})
+    assert result.status_code == 409 and 'Try saving again' in result.json()['detail']
+    rows = client.get('/api/portfolio?month=2026-10').json()['rooms']
+    assert len(rows)==1 and rows[0]['room']=='2'

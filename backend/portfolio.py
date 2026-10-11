@@ -71,6 +71,7 @@ class PropertyUnit(StrictModel):
     address: Annotated[str, StringConstraints(strip_whitespace=True, max_length=600)] = ''
     bathrooms: int = Field(default=0, ge=0, le=30)
     carparks: int = Field(default=0, ge=0, le=100)
+    standard_parking_rent: Money | None = None
     notes: Annotated[str, StringConstraints(strip_whitespace=True, max_length=1000)] = ''
     rooms: list[PropertyRoom] = Field(min_length=1, max_length=30)
     fixed_costs: FixedCosts = Field(default_factory=FixedCosts)
@@ -149,6 +150,30 @@ def records():
         raise HTTPException(503, 'Rental portfolio is unavailable. Please try again.') from None
 
 
+def validate_parking_capacity(data, field, record):
+    if not record or record['kind'] not in ('unit', 'room'):
+        return
+    candidate = {key:value for key,value in data.items() if key != field}
+    candidate[record['kind']+':'+record['id']] = record
+    unit_id = record['id'] if record['kind']=='unit' else unit_key(record['unit'])
+    unit = candidate.get('unit:'+unit_id)
+    if not unit:
+        return  # Legacy rentals may be entered before their property is registered.
+    events = {}
+    for rental in candidate.values():
+        if rental['kind']!='room' or unit_key(rental['unit'])!=unit_id or not rental.get('active',True) or Decimal(str(rental.get('parking',0)))<=0:
+            continue
+        start = date.fromisoformat(rental['start_date']).toordinal() if rental.get('start_date') else date.min.toordinal()
+        end = date.fromisoformat(rental['last_rental_date']).toordinal() if rental.get('last_rental_date') else date.max.toordinal()
+        events[start] = events.get(start,0)+1
+        events[end+1] = events.get(end+1,0)-1
+    occupied = 0
+    for day in sorted(events):
+        occupied += events[day]
+        if occupied > unit['carparks']:
+            raise HTTPException(422, 'Parking rentals overlap beyond this unit’s car-park capacity. Correct the parking amounts, tenancy dates or space count before saving.')
+
+
 def mutate(kind, identifier, payload=None, expected=None, delete=False, destination=None):
     """Compare revisions atomically, so re-sharing cannot duplicate or overwrite a room silently."""
     field = kind+':'+identifier
@@ -161,6 +186,12 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
     try:
         if cloud_enabled():
             store = RedisStore()
+            snapshot = {}
+            if record and kind in ('unit','room'):
+                for raw in store.command('HVALS', store.key('portfolio')):
+                    row = json.loads(raw)
+                    snapshot[row['kind']+':'+row['id']] = raw
+                validate_parking_capacity({key:json.loads(raw) for key,raw in snapshot.items()}, field, record)
             script = """local old=redis.call('HGET',KEYS[1],ARGV[1])
             if ARGV[2]=='' then
                 if old then return {409,old} end
@@ -168,6 +199,15 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
             else
                 if not old then return {404,''} end
                 if cjson.decode(old).revision~=ARGV[2] then return {409,old} end
+            end
+            if ARGV[9]~='' then
+                local expected=cjson.decode(ARGV[9])
+                local count=0
+                for key,value in pairs(expected) do
+                    count=count+1
+                    if redis.call('HGET',KEYS[1],key)~=value then return {426,''} end
+                end
+                if redis.call('HLEN',KEYS[1])~=count then return {426,''} end
             end
             if ARGV[8]~=ARGV[1] and redis.call('HEXISTS',KEYS[1],ARGV[8])==1 then return {425,''} end
             if ARGV[5]=='room' and ARGV[3]~='delete' then
@@ -192,7 +232,8 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
             end
             return {200,''}"""
             code, old = store.command('EVAL', script, 1, store.key('portfolio'), field,
-                                      expected or '', 'delete' if delete else 'save', json.dumps(record), kind, unit_field, destination, destination_field)
+                                      expected or '', 'delete' if delete else 'save', json.dumps(record), kind, unit_field, destination, destination_field,
+                                      json.dumps(snapshot) if record and kind in ('unit','room') else '')
             old = json.loads(old) if old else None
         else:
             with LOCK:
@@ -209,6 +250,7 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
                         removed = set(old['room_ids']) - set(record['room_ids'] if record else [])
                         if any('room:'+key in data for key in removed):
                             raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
+                    validate_parking_capacity(data, field, record)
                     if delete:
                         data.pop(field)
                     else:
@@ -229,6 +271,8 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
             raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
         if code == 425:
             raise HTTPException(409, 'A rental already exists for the corrected unit and room. No records were changed.')
+        if code == 426:
+            raise HTTPException(409, 'The portfolio changed while checking parking availability. Try saving again.')
         if code != 200:
             raise HTTPException(422, 'The rental portfolio is full.')
         return record or {'deleted':True}
@@ -260,7 +304,7 @@ def project(data, month):
             amount = Decimal(str(row['amount']))
             total_expenses += amount
             expenses.append({**row, 'amount':float(amount)})
-    occupancy = occupancy_projection(data, rooms, last.day)
+    occupancy = occupancy_projection(data, rooms, first, last.day)
     variable_total = Decimal('0')
     for unit in occupancy['units']:
         costs = property_costs(unit, month)
@@ -289,7 +333,25 @@ def property_costs(unit, month):
             'missing_expenses':[name for name in ('electricity','water','cleaning','others') if getattr(monthly,name) is None]}
 
 
-def occupancy_projection(data, rentals, days_in_month):
+def parking_vacancy(unit, rentals, first, days_in_month):
+    capacity = unit['carparks']
+    daily = [0]*days_in_month
+    for rental in rentals:
+        if unit_key(rental['unit']) != unit['id'] or rental['parking'] <= 0 or not rental['rental_days']:
+            continue
+        # A tenancy with parking rent occupies one space during its rental dates.
+        start = max(first, date.fromisoformat(rental['start_date']) if rental.get('start_date') else first)
+        last = first.replace(day=days_in_month)
+        end = min(last, date.fromisoformat(rental['last_rental_date']) if rental.get('last_rental_date') else last)
+        for day in range(start.day-1, end.day):
+            daily[day] += 1
+    vacant_days = sum(max(0, capacity-count) for count in daily)
+    rate = unit.get('standard_parking_rent')
+    loss = money(Decimal(str(rate))*vacant_days/days_in_month) if rate is not None else Decimal('0')
+    return loss, bool(capacity and rate is None), any(count>capacity for count in daily)
+
+
+def occupancy_projection(data, rentals, first, days_in_month):
     by_room = {row['id']:row for row in rentals}
     units = []
     linked = set()
@@ -318,16 +380,20 @@ def occupancy_projection(data, rentals, days_in_month):
             potential += standard
             expected += amount
         available_days = len(room_rows)*days_in_month
+        parking_loss, missing_rate, over_capacity = parking_vacancy(row, rentals, first, days_in_month)
+        loss += parking_loss
         units.append({**row, 'rooms':[{**r,'standard_rent':float(r['standard_rent'])} for r in row['rooms']],
                       'room_rows':room_rows, 'bedrooms':len(room_rows), 'occupied_room_days':occupied_days,
                       'available_room_days':available_days, 'occupancy_rate':round(100*occupied_days/available_days,2),
-                      'vacancy_loss':float(loss), 'potential_room_rent':float(potential), 'expected_income':float(expected)})
+                      'vacancy_loss':float(loss), 'potential_room_rent':float(potential), 'expected_income':float(expected),
+                      'parking_rate_missing':missing_rate, 'parking_over_capacity':over_capacity})
     occupied = sum(unit['occupied_room_days'] for unit in units)
     available = sum(unit['available_room_days'] for unit in units)
     return {'units':sorted(units,key=lambda u:u['unit'].casefold()), 'total_bedrooms':sum(u['bedrooms'] for u in units),
             'total_carparks':sum(u['carparks'] for u in units), 'occupancy_rate':round(100*occupied/available,2) if available else None,
             'occupied_room_days':occupied, 'available_room_days':available,
             'vacancy_loss':float(sum((Decimal(str(u['vacancy_loss'])) for u in units),Decimal('0'))),
+            'parking_rate_missing_units':sum(u['parking_rate_missing'] for u in units),
             'unlinked_rentals':sum(row['id'] not in linked for row in rentals)}
 
 

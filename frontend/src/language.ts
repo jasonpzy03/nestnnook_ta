@@ -15,6 +15,15 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Parking rentals overlap beyond this unit’s car-park capacity. Correct the parking amounts, tenancy dates or space count before saving.':'停车租赁的重叠日期超过此单位的车位容量。请更正停车租金、租期或车位数量后再保存。',
+  'The portfolio changed while checking parking availability. Try saving again.':'检查车位时租赁资料已更改，请重新保存。',
+  "Monthly car park rental per space (RM)":"每个停车位月租（RM）",
+  "Advertised rent per parking space, used to calculate vacancy loss. Rental records hold the actual parking income. Each tenancy with parking rent occupies one space for its rental dates.":"每个停车位的招租价格，用于计算空置损失。实际停车收入按租赁记录计算。每份有停车租金的租赁在租期内占用一个车位。",
+  "Room and car-park rent lost during vacant days":"空置期间的房间及停车位租金损失",
+  "Vacancy loss combines vacant rooms and car-park spaces at their advertised rents, pro-rated by day. Occupancy measures bedrooms only. Discounted agreed rent is not vacancy loss.":"空置损失按招租价格及空置天数计算，合并房间和停车位损失。入住率仅计算卧室。约定租金折扣不计为空置损失。",
+  "Some units have no advertised car-park rent. Add it in Edit property to include their parking vacancy loss in the total.":"部分单位未填写停车位招租价格。请在编辑物业中添加，以将停车位空置损失计入总额。",
+  "Set the monthly car-park rent in Edit property. This total does not yet include parking vacancy loss.":"请在编辑物业中填写停车位月租。此总额尚未包含停车位空置损失。",
+  "Parking rentals exceed this unit’s space count on some days. Check the parking count and rental records.":"部分日期的停车租赁数量超过该单位车位数，请核对车位数量和租赁记录。",
   'Cleaning fees':'清洁费',
   'A rental already exists for the corrected unit and room. No records were changed.':'更正后的单位及房间已有租赁记录，未作任何更改。',
   'The room number cannot be changed. Add a different room instead.':'房间号码不能更改，请另行添加房间。',
