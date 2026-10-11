@@ -254,3 +254,9 @@ app-root { display: block; min-width: 0; }
 @media(max-width:680px){.property-card{padding:18px}.property-room-grid,.property-metrics{grid-template-columns:1fr}.property-metrics{gap:14px}.property-metrics>div{display:flex;justify-content:space-between;align-items:center;gap:16px}.property-metrics strong{font-size:18px;white-space:nowrap}.property-room-editor{grid-template-columns:1fr 1fr}.property-room-editor button{grid-column:1/-1;justify-self:end;margin:0}.unit-filter{max-width:none}}
 
 .unit-expense-editor,.unit-expense-summary{border-top:1px solid var(--line);margin:24px 0;padding-top:20px}.unit-expense-editor h4{margin:22px 0 10px}.unit-expense-editor .portfolio-list-heading{margin-top:20px;margin-bottom:10px}.unit-expense-summary .portfolio-list-heading h4{margin:0}.unit-cost-lines>div{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line)}.unit-cost-lines dt{overflow-wrap:anywhere}.unit-cost-lines dd{margin:0;white-space:nowrap}.expense-breakdown{padding:12px;background:#fff8;border-radius:6px}
+@media(max-width:800px){
+  .portfolio .portfolio-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
+  .portfolio .portfolio-toolbar label{display:block;min-width:0;max-width:none}
+  .portfolio .portfolio-toolbar input[type=month],.portfolio .portfolio-toolbar .button{height:48px;min-height:48px;margin-bottom:0}
+  .portfolio .portfolio-toolbar input[type=month]{appearance:none;min-inline-size:0;width:100%}
+}
