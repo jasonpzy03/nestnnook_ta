@@ -185,3 +185,61 @@ def test_authenticated_access_and_cross_site_protection(monkeypatch,tmp_path):
         assert client.post('/api/portfolio/rooms',json=rental()).status_code == 200
         response=client.get('/api/portfolio?month=2026-10')
         assert response.status_code == 200 and response.headers['cache-control']=='no-store'
+
+
+def test_property_expenses_fixed_and_monthly_breakdown(client):
+    unit = property_unit(fixed_costs={'house_rental':'1800.50','wifi':100,'indah_water':8},
+        monthly_costs={'2026-10':{'electricity':'210.25','water':'30.10','others':[{'name':'Cleaning','amount':80},{'name':'Repair','amount':'45.20'}]},
+                       '2026-11':{'electricity':0,'water':0,'others':[]}})
+    assert client.post('/api/portfolio/units',json=unit).status_code == 200
+    client.post('/api/portfolio/rooms',json=rental())
+    client.post('/api/portfolio/expenses',json={'name':'Legacy cost','amount':20})
+    result = client.get('/api/portfolio?month=2026-10').json()
+    assert result['fixed_expenses'] == 1928.50
+    assert result['variable_expenses'] == 365.55
+    assert result['total_expenses'] == 2294.05
+    assert result['rental_income'] == 770 and result['net_income'] == -1524.05
+    assert result['missing_expense_units'] == 0
+    row = result['units'][0]
+    assert row['fixed_expenses'] == 1908.50 and row['total_expenses'] == 2274.05
+    assert row['net_income'] == -1504.05 and row['missing_expenses'] == []
+    assert len(row['selected_month_costs']['others']) == 2
+    november = client.get('/api/portfolio?month=2026-11').json()
+    assert november['variable_expenses'] == 0 and november['missing_expense_units'] == 0
+    december = client.get('/api/portfolio?month=2026-12').json()
+    assert december['variable_expenses'] == 0 and december['missing_expense_units'] == 1
+    assert december['units'][0]['missing_expenses'] == ['electricity','water','others']
+    # Fixed costs continue for vacant months; variable costs never carry forward.
+    empty = client.get('/api/portfolio?month=2027-06').json()
+    assert empty['net_income'] == -1928.50
+
+
+def test_expense_missing_values_and_multi_unit_totals(client):
+    client.post('/api/portfolio/units',json=property_unit(fixed_costs={'house_rental':900},monthly_costs={'2026-10':{'electricity':0}}))
+    client.post('/api/portfolio/units',json=property_unit(unit='B',fixed_costs={'house_rental':700},monthly_costs={'2026-10':{'water':12,'others':[]}}))
+    result = client.get('/api/portfolio?month=2026-10').json()
+    assert result['fixed_expenses'] == 1600 and result['variable_expenses'] == 12
+    assert result['net_income'] == -1612 and result['missing_expense_units'] == 2
+    assert result['units'][0]['missing_expenses'] == ['water','others']
+    assert result['units'][1]['missing_expenses'] == ['electricity']
+    # Older property records have valid zero fixed costs and missing variable costs.
+    old = property_unit(unit='Old')
+    old.update(kind='unit',id=portfolio.unit_key('Old'),revision='v1')
+    projected = portfolio.project([old],'2026-10')
+    assert projected['fixed_expenses'] == 0 and projected['missing_expense_units'] == 1
+
+
+def test_expense_validation_and_revision_protection(client):
+    for patch in ({'fixed_costs':{'wifi':-1}}, {'fixed_costs':{'indah_water':'1.001'}},
+                  {'monthly_costs':{'2026-13':{}}}, {'monthly_costs':{'2026-10':{'water':-1}}},
+                  {'monthly_costs':{'2026-10':{'others':[{'name':' ','amount':1}]}}},
+                  {'monthly_costs':{'2026-10':{'others':[{'name':'Repair','amount':None}]}}}):
+        assert client.post('/api/portfolio/units',json=property_unit(**patch)).status_code == 422
+    first = client.post('/api/portfolio/units',json=property_unit()).json()
+    update = {**property_unit(monthly_costs={'2026-10':{'electricity':100}}),'revision':first['revision']}
+    url = '/api/portfolio/units/'+first['id']
+    assert client.put(url,json=update).status_code == 200
+    stale = client.put(url,json={**update,'monthly_costs':{'2026-11':{'water':50}}})
+    assert stale.status_code == 409
+    assert stale.json()['detail']['record']['monthly_costs']['2026-10']['electricity'] == '100'
+    assert client.get('/api/portfolio?month=2026-10').json()['variable_expenses'] == 100

@@ -61,5 +61,20 @@ const seed={unit:'16-03',room:'02',rent:1200,parking:150,start_date:'2026-10-25'
   assert.equal(inventory.occupancySummary.bedrooms,2);inventory.unitFilter='unit-id';assert.equal(inventory.visibleUnits.length,1);assert.equal(inventory.occupancySummary.occupancy_rate,50);
   inventory.assignRental(property,{room:'1',standard_rent:900,rental:null});assert.equal(inventory.rental.unit,'A');assert.equal(inventory.rental.rent,900);
   inventory.assignRental(property,{rental:{...existing,tenant_name:'Alex'}});assert.equal(inventory.editId,existing.id);assert.equal(inventory.rental.tenant_name,'Alex');
+  const costs=new Portfolio();costs.month='2026-10';
+  const costProperty={...property,fixed_costs:{house_rental:'1000',wifi:'100',indah_water:'8'},monthly_costs:{'2026-09':{electricity:'80',water:'20',others:[{name:'Repair',amount:'50'}]}}};
+  costs.editProperty(costProperty);assert.equal(costs.property.fixed_costs.house_rental,1000);assert.equal(costs.monthlyCosts.electricity,null);assert.equal(costs.othersReviewed,false);
+  costs.monthlyCosts.electricity=120;costs.monthlyCosts.water=0;costs.addOtherCost();costs.otherCosts[0]={name:'Cleaning',amount:30};calls=[];
+  await costs.save();let savedCosts=JSON.parse(calls[0].body);
+  assert.equal(savedCosts.monthly_costs['2026-09'].others[0].amount,'50');assert.equal(savedCosts.monthly_costs['2026-10'].others[0].name,'Cleaning');assert.equal(savedCosts.monthly_costs['2026-10'].water,0);
+  assert(!costProperty.monthly_costs['2026-10'],'Editing must not mutate the saved history');
+  costs.month='2026-09';costs.editProperty(costProperty);assert.equal(costs.monthlyCosts.electricity,80);assert.equal(costs.otherCosts[0].amount,50);
+  costs.removeOtherCost(0);assert.equal(costs.othersReviewed,false);costs.othersReviewed=true;
+  // A reviewed stale update keeps another staff member's edits to other months.
+  costs.conflict={...costProperty,revision:'p2',monthly_costs:{...costProperty.monthly_costs,'2026-11':{electricity:200,water:10,others:[]}}};calls=[];
+  await costs.save(true);savedCosts=JSON.parse(calls[0].body);
+  assert.equal(savedCosts.revision,'p2');assert.equal(savedCosts.monthly_costs['2026-11'].electricity,200);assert.equal(savedCosts.monthly_costs['2026-09'].others.length,0);
+  costs.month='2026-12';costs.editProperty(costProperty);calls=[];await costs.save();savedCosts=JSON.parse(calls[0].body);
+  assert.equal(savedCosts.monthly_costs['2026-12'].electricity,null);assert.equal(savedCosts.monthly_costs['2026-12'].others,null,'Unentered costs must remain missing, not confirmed zero');
   console.log('Portfolio capture, explicit duplicate updates, save errors, double-tap protection, monthly refresh races and revision-aware removal passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,6 +1,6 @@
 <section class="portfolio" [class.portfolio-capture]="mode==='capture'">
   @if(mode==='dashboard'){
-    <div class="portfolio-toolbar"><label>{{t('Projection month')}}<input type="month" [(ngModel)]="month" (ngModelChange)="load()" min="1900-01" max="9999-12" [disabled]="saving"></label><button class="button secondary" [disabled]="loading||saving" (click)="load()">{{t('Refresh')}}</button></div>
+    <div class="portfolio-toolbar"><label>{{t('Projection month')}}<input type="month" [(ngModel)]="month" (ngModelChange)="load()" min="1900-01" max="9999-12" [disabled]="saving||!!editor"></label><button class="button secondary" [disabled]="loading||saving||!!editor" (click)="load()">{{t('Refresh')}}</button></div>
     <p class="section-description">{{t('Room rent and parking, pro-rated for partial months. Deposits and one-time fees are excluded.')}}</p>
   }
   @if(error){<p class="notice error" role="alert">{{t(error)}}</p>}
@@ -9,10 +9,11 @@
   @if(mode==='dashboard'&&data){
     <div class="income-cards" aria-live="polite">
       <article class="card income-card"><span>{{t('Projected rental income')}}</span><strong>{{data.rental_income|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{data.earning_rooms}} {{t('rooms earning rent this month')}}</small></article>
-      <article class="card income-card"><span>{{t('Fixed monthly expenses')}}</span><strong>{{data.fixed_expenses|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{data.expenses.length}} {{t('recurring expenses')}}</small></article>
-      <article class="card income-card net-income" [class.negative-income]="data.net_income<0"><span>{{t('Projected net income')}}</span><strong>{{data.net_income|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Rental income − fixed expenses')}}</small></article>
+      <article class="card income-card"><span>{{t('Monthly expenses')}}</span><strong>{{data.total_expenses|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Fixed')}}: {{data.fixed_expenses|currency:'MYR':'RM ':'1.2-2'}} · {{t('Variable')}}: {{data.variable_expenses|currency:'MYR':'RM ':'1.2-2'}}</small></article>
+      <article class="card income-card net-income" [class.negative-income]="data.net_income<0"><span>{{t('Projected net income')}}</span><strong>{{data.net_income|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Rental income − monthly expenses')}}</small></article>
     </div>
-    <p class="field-hint">{{t('This is a projection, not a record of payments received. Changes to rooms and fixed expenses apply to every monthly projection.')}}</p>
+    <p class="field-hint">{{t('This is a projection, not a record of payments received. Rental and fixed-cost changes apply to every month. Variable costs apply only to their selected month.')}}</p>
+    @if(data.missing_expense_units){<p class="notice" role="status">{{data.missing_expense_units}} {{t('units have missing monthly expenses. Missing amounts count as RM0, so projected net income may be overstated.')}}</p>}
   }
   @if(editor){
     <article class="card portfolio-editor">
@@ -40,6 +41,17 @@
               <label>{{t('Bedrooms')}}<input name="unit_bedrooms" [(ngModel)]="bedroomCount" (ngModelChange)="resizeBedrooms()" type="number" min="1" max="30" step="1" required></label>
               <label>{{t('Car parks')}}<input name="unit_carparks" [(ngModel)]="property.carparks" type="number" min="0" max="100" step="1" required (ngModelChange)="conflict=null"></label>
             </div>
+            <section class="unit-expense-editor">
+              <h3>{{t('Expenses')}}</h3><h4>{{t('Fixed monthly expenses')}}</h4>
+              <p class="field-hint">{{t('These amounts repeat every month, including vacant months. Enter 0 if not applicable.')}}</p>
+              <div class="field-grid">@for(field of fixedCostFields;track field.key){<label>{{t(field.label)}} (RM)<input [name]="'fixed_'+field.key" [(ngModel)]="property.fixed_costs[field.key]" required type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label>}</div>
+              <h4>{{t('Variable expenses')}} · {{expenseMonth}}</h4>
+              <p class="field-hint">{{t('Only for this month. Blank amounts are flagged as missing and counted as RM0. Enter 0 to confirm no charge. To edit another month, close this form and change Projection month.')}}</p>
+              <div class="field-grid"><label>{{t('Electricity')}} (RM)<input name="monthly_electricity" [(ngModel)]="monthlyCosts.electricity" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label><label>{{t('Water')}} (RM)<input name="monthly_water" [(ngModel)]="monthlyCosts.water" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label></div>
+              <div class="portfolio-list-heading"><h4>{{t('Others (breakdown)')}}</h4><button type="button" class="text-button" [disabled]="otherCosts.length>=50" (click)="addOtherCost()">{{t('＋ Add expense item')}}</button></div>
+              @for(item of otherCosts;track $index;let i=$index){<div class="property-room-editor"><label>{{t('Expense name')}}<input [name]="'other_name_'+i" [(ngModel)]="item.name" required pattern=".*\S.*" maxlength="100" (ngModelChange)="conflict=null"></label><label>{{t('Cost (RM)')}}<input [name]="'other_amount_'+i" [(ngModel)]="item.amount" required type="number" min="0" max="1000000" step="0.01" inputmode="decimal" (ngModelChange)="conflict=null"></label><button type="button" class="text-button" (click)="removeOtherCost(i)">{{t('Remove')}}</button></div>}
+              @if(!otherCosts.length){<label class="check-label"><input name="others_reviewed" type="checkbox" [(ngModel)]="othersReviewed" (ngModelChange)="conflict=null">{{t('No other expenses this month')}}</label>}
+            </section>
             <h3>{{t('Rooms and standard rents')}}</h3><p class="field-hint">{{t('Increase Bedrooms to add rooms. To reduce the count, remove a specific room below. Linked rentals must be removed first.')}}</p>
             @for(room of property.rooms;track $index;let i=$index){<div class="property-room-editor"><label>{{t('Room number')}}<input [name]="'unit_room_'+i" [(ngModel)]="room.room" required maxlength="100" (ngModelChange)="conflict=null"></label><label>{{t('Standard monthly rent (RM)')}}<input [name]="'unit_rate_'+i" [(ngModel)]="room.standard_rent" required type="number" min="0" max="1000000" step="0.01" (ngModelChange)="conflict=null"></label><button type="button" class="text-button" [disabled]="property.rooms.length===1" (click)="removePropertyRoom(i)">{{t('Remove room')}}</button></div>}
           }@else{
@@ -49,7 +61,7 @@
           @if(conflict){
             <div class="portfolio-conflict"><h3>{{t('Review existing record')}}</h3>
               @if(conflict.kind==='room'){<p>{{conflict.unit}} · {{conflict.room}}</p><p>{{t('Saved monthly rent')}}: {{conflict.rent|currency:'MYR':'RM ':'1.2-2'}} + {{conflict.parking|currency:'MYR':'RM ':'1.2-2'}} {{t('parking')}}</p><p>{{conflict.start_date||'—'}} → {{conflict.last_rental_date||'—'}} · {{t(conflict.active?'Included':'Excluded')}}</p>}
-              @else if(conflict.kind==='unit'){<p>{{conflict.unit}}</p><p>{{conflict.rooms.length}} {{t('Bedrooms')}} · {{conflict.carparks}} {{t('Car parks')}}</p>}@else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
+              @else if(conflict.kind==='unit'){<p>{{conflict.unit}}</p><p>{{conflict.rooms.length}} {{t('Bedrooms')}} · {{conflict.carparks}} {{t('Car parks')}}</p><p>{{t('Saved expense values')}} · {{expenseMonth}}</p><div class="expense-breakdown">@for(field of fixedCostFields;track field.key){<p>{{t(field.label)}}: {{(conflict.fixed_costs?.[field.key]||0)|currency:'MYR':'RM ':'1.2-2'}}</p>}<p>{{t('Electricity')}}: {{conflict.monthly_costs?.[expenseMonth]?.electricity??t('Not entered')}}</p><p>{{t('Water')}}: {{conflict.monthly_costs?.[expenseMonth]?.water??t('Not entered')}}</p>@for(item of conflict.monthly_costs?.[expenseMonth]?.others||[];track $index){<p>{{item.name}}: {{item.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}</div><p class="field-hint">{{t('Updating replaces the property details, fixed costs and this month’s expenses. Other saved months are preserved.')}}</p>}@else{<p>{{conflict.name}} · {{conflict.amount|currency:'MYR':'RM ':'1.2-2'}}</p>}
               <p>{{t('Replace the saved record with the values above? This will not add a second copy.')}}</p><button type="button" class="button primary" (click)="entryForm.reportValidity()&&save(true)">{{t('Update saved record')}}</button>
             </div>
           }
@@ -74,6 +86,12 @@
           <article class="card property-card">
             <div class="portfolio-list-heading"><div><h3>{{unit.unit}}</h3><p>{{unit.address||'—'}}</p><small>{{unit.bedrooms}} {{t('Bedrooms')}} · {{unit.carparks}} {{t('Car parks')}}</small></div><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editProperty(unit)">{{t('Edit property')}}</button><button class="text-button" [disabled]="saving" (click)="removal=unit">{{t('Remove')}}</button></div></div>
             <div class="property-metrics"><div><span>{{t('Monthly occupancy')}}</span><strong>{{unit.occupancy_rate|number:'1.0-1'}}%</strong></div><div><span>{{t('Potential rent lost to vacancy')}}</span><strong>{{unit.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</strong></div><div><span>{{t('Projected rental income')}}</span><strong>{{unit.expected_income|currency:'MYR':'RM ':'1.2-2'}}</strong></div></div>
+            <section class="unit-expense-summary">
+              <div class="portfolio-list-heading"><h4>{{t('Expenses')}} · {{month}}</h4><button class="text-button" [disabled]="saving" (click)="editProperty(unit)">{{t('Edit expenses')}}</button></div>
+              <div class="property-metrics"><div><span>{{t('Fixed monthly expenses')}}</span><strong>{{unit.fixed_expenses|currency:'MYR':'RM ':'1.2-2'}}</strong></div><div><span>{{t('Variable expenses')}}</span><strong>{{unit.variable_expenses|currency:'MYR':'RM ':'1.2-2'}}</strong></div><div><span>{{t('Projected net income')}}</span><strong>{{unit.net_income|currency:'MYR':'RM ':'1.2-2'}}</strong></div></div>
+              @if(unit.missing_expenses.length){<p class="notice">{{t('Missing expenses (counted as RM0)')}}: @for(key of unit.missing_expenses;track key;let last=$last){ {{t(expenseLabel(key))}}{{last?'':', '}} }</p>}
+              <details><summary>{{t('Expense breakdown')}}</summary><dl class="unit-cost-lines">@for(field of fixedCostFields;track field.key){<div><dt>{{t(field.label)}} · {{t('Fixed')}}</dt><dd>{{unit.fixed_costs[field.key]|currency:'MYR':'RM ':'1.2-2'}}</dd></div>}<div><dt>{{t('Electricity')}}</dt><dd>{{unit.selected_month_costs.electricity===null?t('Not entered'):(unit.selected_month_costs.electricity|currency:'MYR':'RM ':'1.2-2')}}</dd></div><div><dt>{{t('Water')}}</dt><dd>{{unit.selected_month_costs.water===null?t('Not entered'):(unit.selected_month_costs.water|currency:'MYR':'RM ':'1.2-2')}}</dd></div>@for(item of unit.selected_month_costs.others||[];track $index){<div><dt>{{item.name}}</dt><dd>{{item.amount|currency:'MYR':'RM ':'1.2-2'}}</dd></div>}@if(!unit.selected_month_costs.others?.length){<div><dt>{{t('Others')}}</dt><dd>{{unit.selected_month_costs.others===null?t('Not entered'):('0'|currency:'MYR':'RM ':'1.2-2')}}</dd></div>}</dl></details>
+            </section>
             <details [open]="!!unitFilter||data.units.length===1"><summary>{{t('Rooms and tenants')}}</summary>
               <div class="property-room-grid">@for(room of unit.room_rows;track room.id){<section class="property-room-card" [class.vacant-room]="room.occupied_days===0"><h4>{{room.room}} <span>{{t(room.occupied_days===0?'Vacant this month':room.vacant_days?'Partly occupied':'Fully occupied')}}</span></h4>
                 <p>{{room.occupied_days?(room.tenant_name||t('Tenant name not recorded')):t('No tenant occupying this month')}}</p>
@@ -95,10 +113,9 @@
         @for(row of data.rooms;track row.id){<tr><td><strong>{{row.unit}} · {{row.room}}</strong><small>{{row.tenant_name||t('Tenant name not recorded')}}</small><small>{{t(row.active?'Included':'Excluded')}}</small></td><td>{{row.rent+row.parking|currency:'MYR':'RM ':'1.2-2'}}<small>{{row.rent|currency:'MYR':'RM ':'1.2-2'}} + {{row.parking|currency:'MYR':'RM ':'1.2-2'}}</small></td><td>{{row.start_date||'—'}}<small>{{row.last_rental_date||t('Ongoing')}}</small></td><td><strong>{{row.expected|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{row.rental_days}} {{t('rental days')}}</small></td><td><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editRoom(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></td></tr>}
       </tbody></table></div>}
     </article>
-    <article class="card portfolio-list"><div class="portfolio-list-heading"><h2>{{t('Fixed monthly expenses')}}</h2><button class="button secondary" [disabled]="saving" (click)="editExpense()">{{t('＋ Add fixed expense')}}</button></div>
-      @if(!data.expenses.length){<p class="portfolio-empty">{{t('Add recurring costs such as unit rent, internet, cleaning, or utilities.')}}</p>}
+    @if(data.expenses.length){<article class="card portfolio-list"><div class="portfolio-list-heading"><h2>{{t('Existing shared expenses')}}</h2></div><p class="field-hint">{{t('These older expenses still count in the total. Move their costs into the appropriate property, then remove the shared record to avoid counting twice. Add all new expenses within a property unit.')}}</p>
       @for(row of data.expenses;track row.id){<div class="portfolio-expense"><span>{{row.name}}</span><strong>{{row.amount|currency:'MYR':'RM ':'1.2-2'}}</strong><div class="portfolio-row-actions"><button class="text-button" [disabled]="saving" (click)="editExpense(row)">{{t('Edit')}}</button><button class="text-button" [disabled]="saving" (click)="removal=row">{{t('Remove')}}</button></div></div>}
-    </article>
+    </article>}
   }
   @if(removal){<div class="portfolio-remove notice" role="alert"><strong>{{t('Remove this record from all projections?')}}</strong><p>{{removal.kind==='room'?removal.unit+' · '+removal.room:removal.kind==='unit'?removal.unit:removal.name}}</p><div class="modal-actions"><button class="button secondary" [disabled]="saving" (click)="removal=null">{{t('Cancel')}}</button><button class="button primary" [disabled]="saving" (click)="remove()">{{t('Remove record')}}</button></div></div>}
 </section>

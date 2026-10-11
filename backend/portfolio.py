@@ -43,6 +43,27 @@ class PropertyRoom(StrictModel):
     standard_rent: Money
 
 
+class FixedCosts(StrictModel):
+    house_rental: Money = Decimal('0')
+    wifi: Money = Decimal('0')
+    indah_water: Money = Decimal('0')
+
+
+class OtherCost(StrictModel):
+    name: Label
+    amount: Money
+
+
+class MonthlyCosts(StrictModel):
+    electricity: Money | None = None
+    water: Money | None = None
+    # None means not entered; [] explicitly confirms no other expenses.
+    others: list[OtherCost] | None = Field(default=None, max_length=50)
+
+
+Month = Annotated[str, StringConstraints(pattern=r'^(?:19|[2-9]\d)\d{2}-(?:0[1-9]|1[0-2])$')]
+
+
 class PropertyUnit(StrictModel):
     unit: Label
     property_name: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] = ''
@@ -51,6 +72,8 @@ class PropertyUnit(StrictModel):
     carparks: int = Field(default=0, ge=0, le=100)
     notes: Annotated[str, StringConstraints(strip_whitespace=True, max_length=1000)] = ''
     rooms: list[PropertyRoom] = Field(min_length=1, max_length=30)
+    fixed_costs: FixedCosts = Field(default_factory=FixedCosts)
+    monthly_costs: dict[Month, MonthlyCosts] = Field(default_factory=dict, max_length=1200)
 
     @model_validator(mode='after')
     def unique_rooms(self):
@@ -225,10 +248,31 @@ def project(data, month):
             total_expenses += amount
             expenses.append({**row, 'amount':float(amount)})
     occupancy = occupancy_projection(data, rooms, last.day)
+    variable_total = Decimal('0')
+    for unit in occupancy['units']:
+        costs = property_costs(unit, month)
+        unit.update(costs)
+        unit['net_income'] = float(Decimal(str(unit['expected_income']))-Decimal(str(costs['total_expenses'])))
+        total_expenses += Decimal(str(costs['fixed_expenses']))
+        variable_total += Decimal(str(costs['variable_expenses']))
     return {**occupancy, 'month':month, 'rooms':sorted(rooms, key=lambda r:(r['unit'].casefold(),r['room'].casefold())),
             'expenses':sorted(expenses, key=lambda e:e['name'].casefold()),
             'rental_income':float(total_rent), 'fixed_expenses':float(total_expenses),
-            'net_income':float(total_rent-total_expenses), 'earning_rooms':sum(r['rental_days']>0 for r in rooms)}
+            'variable_expenses':float(variable_total), 'total_expenses':float(total_expenses+variable_total),
+            'missing_expense_units':sum(bool(u['missing_expenses']) for u in occupancy['units']),
+            'net_income':float(total_rent-total_expenses-variable_total), 'earning_rooms':sum(r['rental_days']>0 for r in rooms)}
+
+
+def property_costs(unit, month):
+    fixed = FixedCosts.model_validate(unit.get('fixed_costs', {}))
+    monthly = MonthlyCosts.model_validate(unit.get('monthly_costs', {}).get(month, {}))
+    fixed_total = sum((fixed.house_rental, fixed.wifi, fixed.indah_water), Decimal('0'))
+    variable_total = (monthly.electricity or Decimal('0')) + (monthly.water or Decimal('0'))
+    variable_total += sum((item.amount for item in monthly.others or []), Decimal('0'))
+    return {'fixed_costs':fixed.model_dump(mode='json'), 'selected_month_costs':monthly.model_dump(mode='json'),
+            'fixed_expenses':float(fixed_total), 'variable_expenses':float(variable_total),
+            'total_expenses':float(fixed_total+variable_total),
+            'missing_expenses':[name for name in ('electricity','water','others') if getattr(monthly,name) is None]}
 
 
 def occupancy_projection(data, rentals, days_in_month):

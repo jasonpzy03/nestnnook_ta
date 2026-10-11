@@ -122,8 +122,17 @@ Register each property under **Income dashboard → Add property unit**, using t
 
 The TA form offers **Use a registered room** to fill the unit, address and standard rent. Review the actual agreed rent; explicitly saving to the rental portfolio from Share PDFs links the tenant name and dates. Existing tenants can be entered through **Assign tenant** or **Add room rental**. Identity documents and contact details are not saved in the portfolio.
 
-Monthly occupancy = occupied bedroom-days / available bedroom-days. Vacancy loss = each bedroom’s standard rent × vacant days / days in the month, rounded per room to cents. Parking is included in income but excluded from bedroom occupancy and vacancy loss. Discounted agreed rent is not vacancy loss. Use **Occupancy view** for all units or one unit; the top income/expense cards remain portfolio-wide. Property cards show each unit’s income and rooms.
+Monthly occupancy = occupied bedroom-days / available bedroom-days. Vacancy loss = each bedroom’s standard rent × vacant days / days in the month, rounded per room to cents. Parking is included in income but excluded from bedroom occupancy and vacancy loss. Discounted agreed rent is not vacancy loss. Use **Occupancy view** for all units or one unit; the top income/expense cards remain portfolio-wide. Property cards show each unit’s rental income, expenses, net income and rooms.
 
 Linked rentals must be removed before deleting their rooms/property. Revision checks prevent stale edits. One tenancy record is retained per room: replacing it changes previous projections; this is not a tenancy-history ledger. Property inventory and standard-rate edits also affect all selected months. Inventory has no acquisition/disposal date. Property records use the same local file/Redis hash and authentication as rentals, with no new configuration.
 
 Published-server validation: register a test unit with two rooms and parking; assign a tenant starting on the 25th to one room, then check occupancy and vacancy loss for that month and the following full month. Verify the unit filter, TA room picker, reload persistence on a second signed-in device, duplicate/stale update warnings, and the linked-room deletion guard. Remove the test rental before removing its property.
+
+
+### Expenses by property
+
+Add/edit a property unit to enter recurring **House Rental**, **WIFI**, and **Indah Water (sewerage)**. They repeat every month, including vacant months; editing them changes all projections. Enter **Electricity**, **Water**, and **Others (breakdown)** for the dashboard’s selected month. Each Other item has a manual name and cost. Variable expenses never carry forward. To edit another month, close the property form, change **Projection month**, and use **Edit expenses** on the unit.
+
+A blank Electricity/Water amount or unreviewed Others category counts as RM0 and is flagged as missing. Explicit 0 confirms no charge; select **No other expenses this month** to confirm an empty Others list. The dashboard warns that missing amounts may overstate net income. Monthly expense history is retained when editing another month; stale updates require review and preserve other months from the latest record. Up to 50 Other items per month and 1,200 months per unit are supported.
+
+Existing shared expense records still count in overall totals. Staff should enter each cost under the appropriate property and remove its old shared entry to avoid double counting. There is no new global expense creation button. Fixed and monthly costs are stored within the property record in the existing portfolio file/Redis hash, with no additional environment variables or data migration required.

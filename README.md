@@ -71,14 +71,14 @@ The Linux Docker image and Vercel support PDF previews and downloads for every d
 
 ## Monthly income dashboard
 
-Open **Income dashboard** from the sidebar or top navigation. **Projected net income** is room rent plus monthly car-park rent, minus manually entered fixed monthly expenses. Select a month to see each room's projected contribution.
+Open **Income dashboard** from the sidebar or top navigation. **Projected net income** is room rent plus monthly car-park rent, minus property fixed costs and the selected month’s variable expenses. Select a month to see each room's projected contribution.
 
 - **Share PDFs** for a tenancy, offer, or move-in form asks **Add to rental portfolio?** Review the prefilled unit, room, rent, parking and dates, then save or choose **Not now**. Skipping never writes a rental record and does not prevent sharing. House rules alone and standalone car-park agreements do not add room rentals.
 - Add existing rentals directly using **＋ Add room rental**. Unit + room is the unique identity; whitespace/case and numeric room prefixes are normalised (`Room 02`, `R2`, and `2` identify the same room). Re-sharing an existing room requires explicit review before updating it, so it is never counted twice.
 - The move-in day is included in pro-rating. Room rent and parking are each pro-rated using the month's actual day count and rounded to cents. Month-end TA expiry is the inclusive last rental day. Older drafts with expiry on the first are imported as a last rental day of the preceding month. Full intervening months use the full monthly rent and parking amount.
 - Dates are optional for manually added ongoing rentals. Excluded rooms contribute zero. Fixed expenses repeat every month, even without rental income, so projected net income can be negative.
-- This is a projection of the currently saved portfolio, not a payment ledger or historical rent schedule. Editing or removing a rental or expense affects every month's projection. One current rental is retained per unit/room.
-- Staff can add, edit, exclude or remove rentals, and add, edit or remove fixed expenses. Removal asks for confirmation. Concurrent changes are checked using revisions; stale updates never overwrite newer values silently.
+- This is a projection of the currently saved portfolio, not a payment ledger or historical rent schedule. Editing or removing a rental or fixed cost affects every month's projection; monthly variable costs affect only their stored month. One current rental is retained per unit/room.
+- Staff can add, edit, exclude or remove rentals. Enter new expenses inside the property form; existing shared expenses remain editable/removable until allocated to units. Removal asks for confirmation. Concurrent changes are checked using revisions; stale updates never overwrite newer values silently.
 
 Local data uses `.local/portfolio.json` with atomic writes (one backend worker). Cloud deployments use the existing Upstash configuration and a persistent `portfolio` hash under `NEST_REDIS_PREFIX`, with no expiration. There is a combined limit of 2,000 property/rental/expense records. No new environment variables are needed. Local records are not automatically copied to Redis. Back up the local file or Redis database as appropriate. All portfolio endpoints use the existing staff authentication and no-cache policy.
 
@@ -113,6 +113,15 @@ Register each property under **Income dashboard → Add property unit**, using t
 
 The TA form offers **Use a registered room** to fill the unit, address and standard rent. Review the actual agreed rent; explicitly saving to the rental portfolio from Share PDFs links the tenant name and dates. Existing tenants can be entered through **Assign tenant** or **Add room rental**. Identity documents and contact details are not saved in the portfolio.
 
-Monthly occupancy = occupied bedroom-days / available bedroom-days. Vacancy loss = each bedroom’s standard rent × vacant days / days in the month, rounded per room to cents. Parking is included in income but excluded from bedroom occupancy and vacancy loss. Discounted agreed rent is not vacancy loss. Use **Occupancy view** for all units or one unit; the top income/expense cards remain portfolio-wide. Property cards show each unit’s income and rooms.
+Monthly occupancy = occupied bedroom-days / available bedroom-days. Vacancy loss = each bedroom’s standard rent × vacant days / days in the month, rounded per room to cents. Parking is included in income but excluded from bedroom occupancy and vacancy loss. Discounted agreed rent is not vacancy loss. Use **Occupancy view** for all units or one unit; the top income/expense cards remain portfolio-wide. Property cards show each unit’s rental income, expenses, net income and rooms.
 
 Linked rentals must be removed before deleting their rooms/property. Revision checks prevent stale edits. One tenancy record is retained per room: replacing it changes previous projections; this is not a tenancy-history ledger. Property inventory and standard-rate edits also affect all selected months. Inventory has no acquisition/disposal date. Property records use the same local file/Redis hash and authentication as rentals, with no new configuration.
+
+
+### Expenses by property
+
+Add/edit a property unit to enter recurring **House Rental**, **WIFI**, and **Indah Water (sewerage)**. They repeat every month, including vacant months; editing them changes all projections. Enter **Electricity**, **Water**, and **Others (breakdown)** for the dashboard’s selected month. Each Other item has a manual name and cost. Variable expenses never carry forward. To edit another month, close the property form, change **Projection month**, and use **Edit expenses** on the unit.
+
+A blank Electricity/Water amount or unreviewed Others category counts as RM0 and is flagged as missing. Explicit 0 confirms no charge; select **No other expenses this month** to confirm an empty Others list. The dashboard warns that missing amounts may overstate net income. Monthly expense history is retained when editing another month; stale updates require review and preserve other months from the latest record. Up to 50 Other items per month and 1,200 months per unit are supported.
+
+Existing shared expense records still count in overall totals. Staff should enter each cost under the appropriate property and remove its old shared entry to avoid double counting. There is no new global expense creation button. Fixed and monthly costs are stored within the property record in the existing portfolio file/Redis hash, with no additional environment variables or data migration required.
