@@ -78,7 +78,7 @@ Short names fit the narrow inventory columns: `{{q1}}` is quantity, `{{g1}}` is 
 | 9 | Wall decor frame |
 | 10 | Rubbish bin |
 | 11 | Blanket |
-| 12 | Mattress cover |
+| 12 | Bedsheet cover |
 | 13 | Air conditioner |
 | 14 | Air conditioner remote |
 | 15 | Ceiling fan |

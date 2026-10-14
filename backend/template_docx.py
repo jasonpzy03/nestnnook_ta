@@ -94,7 +94,7 @@ def tenure(d, prorated=True):
     return f'{(d.end_date-d.start_date).days+1} Days'
 def amount(v,zero='-'):return f'RM{v:,.2f}' if v else zero
 
-INVENTORY_NAMES=['Bedframe / Divan','Mattress','Pillow','Study table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Mattress cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key','Lamp']
+INVENTORY_NAMES=['Bedframe / Divan','Mattress','Pillow','Study table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Bedsheet cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key','Lamp']
 
 def fill_docx(kind,d:Details):
     from .placeholders import fields_for,fill_package

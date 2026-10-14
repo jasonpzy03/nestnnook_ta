@@ -27,8 +27,8 @@ class InventoryItem(StrictModel):
     remarks: Text = ''
     @field_validator('name')
     @classmethod
-    def migrate_table_name(cls, value):
-        return 'Study table' if value == 'Makeup table' else value
+    def migrate_inventory_name(cls, value):
+        return {'Makeup table': 'Study table', 'Mattress cover': 'Bedsheet cover'}.get(value, value)
 class Details(StrictModel):
     tenant_name: Text = ''
     tenant_id: Text = ''
