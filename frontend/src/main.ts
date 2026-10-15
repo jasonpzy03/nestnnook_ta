@@ -5,7 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { expiryDate, tenancyExpiryDate, proratedRental } from './dates';
 import { parseTenantMessage, TenantImport } from './tenant-import';
 import { Language, LanguagePreference, LANGUAGE_COOKIE, detectLanguage, readLanguagePreference, translate } from './language';
-import { Portfolio, RentalInput, PropertyRecord } from './portfolio';
+import { DateInput, displayDate } from './date-input';
+import { Portfolio } from './portfolio';
+import type { RentalInput, PropertyRecord } from './portfolio';
 
 
 interface Field { key: string; label: string; type?: string; required?: boolean; placeholder?: string; wide?: boolean; }
@@ -13,7 +15,7 @@ interface Inventory { name: string; quantity: number; condition: string; remarks
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const inventoryNames = ['Bedframe / Divan','Mattress','Pillow','Study table','Chair','Plant decor','Curtain','Wardrobe','Wall decor frame','Rubbish bin','Blanket','Bedsheet cover','Air conditioner','Air conditioner remote','Ceiling fan','Fan remote','Access card','Room key','Main door key','Lamp'];
 const fresh = (): Record<string, any> => ({carpark_lot:'',carpark_address:'',carpark_agreement_date:today(),carpark_start_date:today(),carpark_end_date:'',carpark_rent:300,carpark_deposit:null,carpark_earnest_deposit:null,tenant_name:'',tenant_id:'',nationality:'Malaysian',phone:'',email:'',occupation:'',employer:'',vehicle:'',emergency_name:'',emergency_id:'',emergency_relationship:'',emergency_phone:'',guardian_name:'',guardian_id:'',property:'',room:'',address:'',agreement_date:today(),start_date:today(),end_date:'',aircon:true,tenancy_type:'new',aircon_kwh:42.86,rent:null,parking:null,security_deposit:null,access_deposit:null,advance_rent:null,agreement_fee:null,reference:'',special_conditions:'',room_condition:'Good',room_remarks:'',meter_reading:'',include_aml:true,inventory:inventoryNames.map(name=>({name,quantity:1,condition:'Good',remarks:''})),company:{name:'NEST & NOOK PROPERTY CARE',registration:'202603156166 (KT0615852-M)',address:'#16-03, Trellis Residences, 80100, J.B, Johor.',contact:'Cheryl Pua',phone:'+60111-3380335',email:'pzhenying@gmail.com',bank:'OCBC BANK',account_name:'NEST & NOOK PROPERTY CARE',account_number:'7101403930'}});
-@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,Portfolio],templateUrl:'./app.html'})
+@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,Portfolio,DateInput],templateUrl:'./app.html'})
 export class App implements OnInit, OnDestroy {
 
   languagePreference:LanguagePreference=readLanguagePreference(document.cookie);
@@ -32,7 +34,7 @@ export class App implements OnInit, OnDestroy {
   }
   get stepCaption(){return this.language==='zh'?`第 ${this.stepNumber} 步，共 ${this.activeSteps.length} 步`:`STEP 0${this.stepNumber} OF 0${this.activeSteps.length}`;}
   fillCaption(count:number){return this.language==='zh'?`填入 ${count} 项资料`:`Fill ${count} fields`;}
-  displayDate(value:string){if(!value)return '';const [y,m,d]=value.split('-').map(Number);return new Intl.DateTimeFormat(this.language==='zh'?'zh-CN':'en-GB',{year:'numeric',month:'short',day:'numeric'}).format(new Date(y,m-1,d));}
+  displayDate=displayDate;
   pageCaption(page:number){const total=this.previewLoading?'…':this.previewPages.length;return this.language==='zh'?`第 ${page} 页，共 ${total} 页`:`Page ${page} of ${total}`;}
   get templateCaption(){return this.language==='zh'?`使用完整的${this.d['aircon']?'有冷气':'无冷气'}模板，包括付款日期及通知期限。`:`Uses the full ${this.d['aircon']?'AC':'non-AC'} template, including its payment dates and notice periods.`;}
   get shareCaption(){return this.language==='zh'?`${this.shareFiles.length} 份独立 PDF 已准备好。请在分享菜单中选择 WhatsApp，然后选择客户。`:`${this.shareFiles.length} separate PDF${this.shareFiles.length===1?'':'s'} ready. Choose WhatsApp in the share sheet, then select your customer.`;}
@@ -59,7 +61,7 @@ export class App implements OnInit, OnDestroy {
   addresses:string[]=[]; newAddress=''; addingAddress=false; savingAddress=false; addressError=''; expiryMonths=0; carparkExpiryMonths=0; carparkLotInitialized=false;
   d = fresh(); step=0; page='templates'; settings=false; resetPrompt=false; busy=false; status=''; error=''; format='pdf'; ready=false;
   mobileToolsOpen=false;
-  navigateTool(tool:'studio'|'templates'|'income'|'settings'){
+  navigateTool(tool:'studio'|'templates'|'income'|'properties'|'settings'){
     this.mobileToolsOpen=false;
     if(tool==='settings'){this.settings=true;return;}
     this.page=tool==='studio'&&!this.selected.length?'templates':tool;

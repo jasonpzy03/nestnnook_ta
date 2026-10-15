@@ -15,6 +15,9 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Property units':'物业单位','Manage property details, expenses and room rentals.':'管理物业资料、开支及房间租赁。',
+  'Back to property units':'返回物业单位','Search units or addresses':'搜索单位或地址','No property units found':'没有找到物业单位',
+  'View rentals and details':'查看租赁与详情','Unlinked rentals':'未关联的租赁','Review rentals':'查看租赁',
   'Parking rentals overlap beyond this unit’s car-park capacity. Correct the parking amounts, tenancy dates or space count before saving.':'停车租赁的重叠日期超过此单位的车位容量。请更正停车租金、租期或车位数量后再保存。',
   'The portfolio changed while checking parking availability. Try saving again.':'检查车位时租赁资料已更改，请重新保存。',
   "Monthly car park rental per space (RM)":"每个停车位月租（RM）",
@@ -159,7 +162,7 @@ export const chinese:Record<string,string> = {
   'Guardian details':'监护人资料','For tenants under 18':'适用于未满18岁的租客','Guardian name':'监护人姓名','Guardian IC / Passport':'监护人身份证／护照号码',
   'ROOM & AGREEMENT':'房间与租约','With air conditioning':'有冷气','Without air conditioning':'无冷气','Uses the full':'使用完整的','template, including its payment dates and notice periods.':'模板，包括付款日期及通知期限。',
   'Select an address':'选择物业地址','(from draft)':'（来自草稿）','The unit number is added before this address in the tenancy agreement.':'租约中会在此地址前加上单位号码。','New property address':'新物业地址',
-  '6 months':'6个月','1 year':'1年','Expiry rounds up to the first day of the month. A partial move-in month is pro-rated and excluded from the term.':'到期日向上取整至每月1日。入住当月不足整月的租金按比例计算，不计入正式租期。',
+  '6 months':'6个月','1 year':'1年','Expiry is the last day of the month. A partial move-in month is pro-rated and excluded from the term.':'到期日为每月最后一天。入住当月不足整月的租金按比例计算，不计入正式租期。',
   'Rental & deposits':'租金与押金','Enter the agreed amounts. Leave unused amounts blank; documents show a dash.':'输入双方同意的金额。不适用的项目请留空，文件中将显示横线。','Total payable on offer letter':'租赁要约书应付总额','Deposits + advance rental + one-time fees':'押金＋预付租金＋一次性费用',
   'The non-AC agreement has no access deposit or agreement fee row. The offer lists the agreement fee separately.':'无冷气租约没有门禁卡押金或合约费栏位。租赁要约书会单独列出合约费。',
   'Special conditions for the offer letter':'租赁要约书附加条款','Signing date':'签署日期','Room condition':'房间状况','Not recorded':'未记录','Good':'良好','Fair':'一般','Damaged':'损坏','Room remarks':'房间备注','Not applicable':'不适用','Starting electricity meter reading':'入住时电表读数','Room inventory':'房间物品清单','items':'件物品',

@@ -260,3 +260,5 @@ app-root { display: block; min-width: 0; }
   .portfolio .portfolio-toolbar input[type=month],.portfolio .portfolio-toolbar .button{height:48px;min-height:48px;margin-bottom:0}
   .portfolio .portfolio-toolbar input[type=month]{appearance:none;min-inline-size:0;width:100%}
 }
+
+.property-directory{padding:24px;min-width:0}.property-search{display:block;max-width:420px;margin:16px 0 24px}.property-back{margin:8px 0 20px}.property-directory nz-table{display:block;min-width:0}.property-directory .ant-table{font-family:inherit;color:inherit}.property-directory .ant-table-cell{overflow-wrap:anywhere}.property-directory .ant-pagination{display:flex;flex-wrap:wrap;gap:4px}.portfolio{min-width:0}@media(max-width:700px){.property-directory{padding:16px}.property-directory .portfolio-list-heading{align-items:flex-start;gap:12px;flex-wrap:wrap}.property-directory .ant-table-cell{padding:12px!important}}

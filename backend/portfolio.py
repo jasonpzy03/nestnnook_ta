@@ -427,12 +427,6 @@ def add_room(value: Rental):
 @router.put('/rooms/{identifier}')
 def update_room(identifier: str, value: RentalUpdate):
     destination = room_key(value.unit, value.room)
-    if destination != identifier:
-        old = next((row for row in records() if row['kind']=='room' and row['id']==identifier), None)
-        if old is None:
-            raise HTTPException(404, 'This record no longer exists. Refresh the dashboard.')
-        if room_key(value.unit, old['room']) != destination:
-            raise HTTPException(422, 'The room number cannot be changed. Add a different room instead.')
     return mutate('room', identifier, value.model_dump(mode='json', exclude={'revision'}), value.revision, destination=destination)
 
 

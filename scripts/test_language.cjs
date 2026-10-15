@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 function load(name,globals={}){
   const mod={exports:{}};
   const source=ts.transpileModule(fs.readFileSync(`frontend/src/${name}.ts`,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,experimentalDecorators:true}}).outputText;
-  vm.runInNewContext(source,{exports:mod.exports,require:id=>id.startsWith('./')?load(id.slice(2)):id==='@angular/core'?{Component:()=>()=>{},HostListener:()=>()=>{},Input:()=>()=>{},Output:()=>()=>{},EventEmitter:class{emit(){}}}:id==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:{},Date,console,...globals});
+  vm.runInNewContext(source,{exports:mod.exports,require:id=>id.startsWith('./')?load(id.slice(2)):id==='@angular/core'?{Component:()=>()=>{},Optional:()=>()=>{},Directive:()=>()=>{},forwardRef:fn=>fn,HostListener:()=>()=>{},Input:()=>()=>{},Output:()=>()=>{},EventEmitter:class{emit(){}}}:id==='@angular/platform-browser'?{bootstrapApplication:()=>Promise.resolve()}:{},Date,console,...globals});
   return mod.exports;
 }
 const language=load('language');

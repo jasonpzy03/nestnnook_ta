@@ -16,6 +16,8 @@
             "tsConfig": "tsconfig.json",
             "index": "src/index.html",
             "styles": [
+              "node_modules/ng-zorro-antd/table/style/index.min.css",
+              "node_modules/ng-zorro-antd/pagination/style/index.min.css",
               "src/styles.css"
             ],
             "outputPath": "dist/nest-and-nook",

@@ -123,9 +123,9 @@ def test_room_identity_and_validation(client):
     for month in ('2026-13','2026-00','0000-01','Oct 2026'):
         assert client.get('/api/portfolio',params={'month':month}).status_code == 422
     first = client.post('/api/portfolio/rooms',json=rental()).json()
-    assert client.put('/api/portfolio/rooms/'+first['id'],json={**rental(),'room':'03','revision':first['revision']}).status_code == 422
+    assert client.put('/api/portfolio/rooms/'+first['id'],json={**rental(),'room':'03','revision':first['revision']}).status_code == 200
     assert client.post('/api/portfolio/rooms',json={**rental(),'unit':'17-03'}).status_code == 200
-    assert client.post('/api/portfolio/rooms',json={**rental(),'room':'03'}).status_code == 200
+    assert client.post('/api/portfolio/rooms',json={**rental(),'room':'04'}).status_code == 200
     assert len(client.get('/api/portfolio?month=2026-11').json()['rooms']) == 3
 
 
@@ -416,3 +416,23 @@ def test_redis_capacity_snapshot_rejects_intervening_reservation(client,monkeypa
     assert result.status_code == 409 and 'Try saving again' in result.json()['detail']
     rows = client.get('/api/portfolio?month=2026-10').json()['rooms']
     assert len(rows)==1 and rows[0]['room']=='2'
+
+
+def test_room_number_correction_preserves_income_and_guards(client):
+    client.post('/api/portfolio/units',json=property_unit())
+    saved = client.post('/api/portfolio/rooms',json=rental()).json()
+    url = '/api/portfolio/rooms/'+saved['id']
+    correction = {**rental(),'room':'01','revision':saved['revision']}
+    moved = client.put(url,json=correction)
+    assert moved.status_code == 200
+    row = moved.json()
+    assert row['id'] == portfolio.room_key('16-03','01')
+    data = client.get('/api/portfolio?month=2026-10').json()
+    assert len(data['rooms']) == 1 and data['rental_income'] == 770
+    assert next(r for r in data['units'][0]['room_rows'] if r['room']=='01')['rental']['id'] == row['id']
+    assert client.put(url,json=correction).status_code == 404
+    client.post('/api/portfolio/rooms',json={**rental(),'parking':0})
+    url = '/api/portfolio/rooms/'+row['id']
+    assert client.put(url,json={**rental(),'revision':row['revision']}).status_code == 409
+    assert client.put(url,json={**correction,'room':'99','revision':row['revision']}).status_code == 422
+    assert client.put(url,json={**correction,'revision':saved['revision']}).status_code == 409

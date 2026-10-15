@@ -1,6 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzI18nService, en_GB, zh_CN } from 'ng-zorro-antd/i18n';
+import { DateInput, displayDate } from './date-input';
 import { Language, translate } from './language';
 
 export interface RentalInput { unit:string; room:string; rent:number|null; parking:number|null; start_date:string; last_rental_date:string; active:boolean; tenant_name?:string; }
@@ -17,26 +20,37 @@ const emptyRental=():RentalInput=>({unit:'',room:'',rent:null,parking:0,start_da
 const emptyMonthly=():MonthlyCosts=>({electricity:null,water:null,cleaning:null,others:null});
 const emptyProperty=():PropertyInput=>({standard_parking_rent:null,fixed_costs:{house_rental:0,wifi:0,indah_water:0},monthly_costs:{},unit:'',property_name:'',address:'',bathrooms:0,carparks:0,notes:'',rooms:[{room:'01',standard_rent:null}]});
 
-@Component({selector:'rental-portfolio',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./portfolio.html'})
-export class Portfolio implements OnInit, OnDestroy {
+@Component({selector:'rental-portfolio',standalone:true,imports:[CommonModule,FormsModule,NzTableModule,DateInput],templateUrl:'./portfolio.html'})
+export class Portfolio implements OnInit, OnDestroy, OnChanges {
+  constructor(@Optional() private i18n:NzI18nService|null=null){}
+  ngOnChanges(){this.i18n?.setLocale(this.language==='zh'?zh_CN:en_GB);}
   @Input() language:Language='en';
   @Input() addresses:string[]=[];
   @Input() addressError='';
-  @Input() mode:'dashboard'|'capture'='dashboard';
+  @Input() mode:'dashboard'|'properties'|'capture'='dashboard';
   @Input() seed:RentalInput|null=null;
   @Output() saved=new EventEmitter<void>();
   @Output() cancelled=new EventEmitter<void>();
   month=(()=>{const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Singapore',year:'numeric',month:'2-digit'}).formatToParts(new Date());return parts.find(p=>p.type==='year')!.value+'-'+parts.find(p=>p.type==='month')!.value;})();
   data:Projection|null=null; loading=false; saving=false; error=''; notice='';
   editor:''|'room'|'expense'|'unit'=''; rental=emptyRental(); expense={name:'',amount:null as number|null}; property=emptyProperty(); bedroomCount=1;
-  unitFilter='';
+  unitFilter=''; selectedUnitId=''; search=''; showUnlinked=false;
+  displayDate=displayDate;
+  get selectedUnit(){return this.data?.units.find(u=>u.id===this.selectedUnitId);}
+  get filteredProperties(){const query=this.search.trim().toLowerCase();return (this.data?.units||[]).filter(u=>(u.unit+' '+u.address).toLowerCase().includes(query));}
+  get unitRentals(){if(this.showUnlinked){const ids=new Set(this.data?.units.flatMap(u=>u.room_rows.map(r=>r.id)));return (this.data?.rooms||[]).filter(r=>!ids.has(r.id));}return (this.data?.rooms||[]).filter(r=>this.normaliseUnit(r.unit)===this.normaliseUnit(this.selectedUnit?.unit||''));}
+  normaliseUnit(value:string){return value.trim().replace(/^(?:unit\s+|#)/i,'').replace(/\s+/g,'').toLowerCase();}
+  openUnit(id:string){this.clearEditor();this.selectedUnitId=id;this.showUnlinked=false;}
+  backToUnits(){this.clearEditor();this.selectedUnitId='';this.showUnlinked=false;}
+  addUnitRental(){this.editRoom();this.rental.unit=this.selectedUnit?.unit||'';}
+
   expenseMonth=''; monthlyCosts=emptyMonthly(); otherCosts:{name:string;amount:number|null}[]=[]; othersReviewed=false;
   fixedCostFields:{key:keyof FixedCosts;label:string}[]=[{key:'house_rental',label:'House Rental'},{key:'wifi',label:'WIFI'},{key:'indah_water',label:'Indah Water (sewerage)'}];
   editId=''; revision=''; conflict:RentalRecord|ExpenseRecord|PropertyRecord|null=null;
   removal:RentalRecord|ExpenseRecord|PropertyRecord|null=null;
   private loadVersion=0; private destroyed=false;
   t(value:string){return translate(value,this.language);}
-  get visibleUnits(){return this.data?.units?.filter(u=>!this.unitFilter||u.id===this.unitFilter)||[];}
+  get visibleUnits(){return this.mode==='properties'&&this.selectedUnit?[this.selectedUnit]:[];}
   get occupancySummary(){const unit=this.data?.units?.find(u=>u.id===this.unitFilter);return unit?{occupancy_rate:unit.occupancy_rate,vacancy_loss:unit.vacancy_loss,bedrooms:unit.bedrooms,carparks:unit.carparks}:{occupancy_rate:this.data?.occupancy_rate??null,vacancy_loss:this.data?.vacancy_loss||0,bedrooms:this.data?.total_bedrooms||0,carparks:this.data?.total_carparks||0};}
   editProperty(row?:PropertyRecord){
     this.clearEditor();this.editor='unit';this.expenseMonth=this.month;this.focusEditor();
@@ -78,7 +92,7 @@ export class Portfolio implements OnInit, OnDestroy {
   async load(){
     const version=++this.loadVersion;this.error='';this.loading=true;this.data=null;
     if(!/^(?:19|[2-9]\d)\d{2}-(?:0[1-9]|1[0-2])$/.test(this.month)){this.error='Choose a valid month.';this.loading=false;return;}
-    try{const result=await this.request('?month='+this.month);if(version===this.loadVersion){this.data=result;if(this.unitFilter&&!result.units?.some((u:PropertyRecord)=>u.id===this.unitFilter))this.unitFilter='';}}
+    try{const result=await this.request('?month='+this.month);if(version===this.loadVersion){this.data=result;if(this.selectedUnitId&&!result.units?.some((u:PropertyRecord)=>u.id===this.selectedUnitId))this.selectedUnitId='';if(this.unitFilter&&!result.units?.some((u:PropertyRecord)=>u.id===this.unitFilter))this.unitFilter='';}}
     catch(e){if(version===this.loadVersion)this.error=e instanceof Error?e.message:'Rental portfolio is unavailable. Please try again.';}
     finally{if(version===this.loadVersion)this.loading=false;}
   }

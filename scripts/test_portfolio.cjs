@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 let fetchImpl;const exportsObject={};
 const source=ts.transpileModule(fs.readFileSync('frontend/src/portfolio.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,experimentalDecorators:true}}).outputText;
 class Emitter{count=0;emit(){this.count++;}}
-vm.runInNewContext(source,{exports:exportsObject,require:name=>name==='@angular/core'?{Component:()=>()=>{},Input:()=>()=>{},Output:()=>()=>{},EventEmitter:Emitter}:name==='./language'?{translate:text=>text}:{},fetch:(...args)=>fetchImpl(...args),console,Date,Intl,Error});
+vm.runInNewContext(source,{exports:exportsObject,require:name=>name==='@angular/core'?{Component:()=>()=>{},Optional:()=>()=>{},Input:()=>()=>{},Output:()=>()=>{},EventEmitter:Emitter}:name==='./language'?{translate:text=>text}:{},fetch:(...args)=>fetchImpl(...args),console,Date,Intl,Error});
 const {Portfolio}=exportsObject;
 const response=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
 const seed={unit:'16-03',room:'02',rent:1200,parking:150,start_date:'2026-10-25',last_rental_date:'2027-04-30',active:true};
@@ -58,7 +58,8 @@ const seed={unit:'16-03',room:'02',rent:1200,parking:150,start_date:'2026-10-25'
   inventory.editProperty(property);assert.equal(inventory.property.standard_parking_rent,null,'Older units need an advertised parking price');inventory.property.rooms[0].standard_rent=950;assert.equal(property.rooms[0].standard_rent,900,'Editing must not mutate loaded records');
   calls=[];await inventory.save();assert.equal(calls[0].method,'PUT');assert.equal(JSON.parse(calls[0].body).revision,'p1');
   inventory.data={units:[property],occupancy_rate:25,vacancy_loss:900,total_bedrooms:2,total_carparks:3};
-  assert.equal(inventory.occupancySummary.bedrooms,2);inventory.unitFilter='unit-id';assert.equal(inventory.visibleUnits.length,1);assert.equal(inventory.occupancySummary.occupancy_rate,50);
+  assert.equal(inventory.occupancySummary.bedrooms,2);inventory.unitFilter='unit-id';assert.equal(inventory.visibleUnits.length,0);inventory.mode='properties';inventory.openUnit('unit-id');assert.equal(inventory.visibleUnits.length,1);assert.equal(inventory.occupancySummary.occupancy_rate,50);
+  inventory.data.rooms=[{...existing,unit:' Unit A ',room:'1'}];assert.equal(inventory.unitRentals.length,1);inventory.search='street';assert.equal(inventory.filteredProperties.length,1);inventory.search='missing';assert.equal(inventory.filteredProperties.length,0);inventory.addUnitRental();assert.equal(inventory.rental.unit,'A');inventory.backToUnits();assert.equal(inventory.selectedUnitId,'');
   inventory.assignRental(property,{room:'1',standard_rent:900,rental:null});assert.equal(inventory.rental.unit,'A');assert.equal(inventory.rental.rent,900);
   inventory.assignRental(property,{rental:{...existing,tenant_name:'Alex'}});assert.equal(inventory.editId,existing.id);assert.equal(inventory.rental.tenant_name,'Alex');
   const costs=new Portfolio();costs.month='2026-10';
