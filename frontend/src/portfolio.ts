@@ -7,6 +7,8 @@ import { DateInput, displayDate } from './date-input';
 import { Language, translate } from './language';
 
 export interface RentalInput { unit:string; room:string; rent:number|null; parking:number|null; start_date:string; last_rental_date:string; active:boolean; tenant_name?:string; }
+interface ParkingInput {unit:string;space:string;rent:number|null;start_date:string;last_rental_date:string;active:boolean;tenant_name:string;}
+interface ParkingRecord extends ParkingInput {id:string;revision:string;kind:'parking';rent:number;expected:number;rental_days:number;}
 interface FixedCosts {house_rental:number|null;wifi:number|null;indah_water:number|null;}
 interface MonthlyCosts {cleaning:number|null;electricity:number|null;water:number|null;others:{name:string;amount:number|null}[]|null;}
 export interface PropertyInput {standard_parking_rent:number|null;fixed_costs:FixedCosts;monthly_costs:Record<string,MonthlyCosts>;unit:string; property_name:string; address:string; bathrooms:number; carparks:number; notes:string; rooms:{room:string;standard_rent:number|null}[];}
@@ -15,8 +17,9 @@ interface OccupancyRoom {id:string;room:string;standard_rent:number;tenant_name:
 interface UnitProjection extends PropertyRecord {parking_rate_missing:boolean;parking_over_capacity:boolean;fixed_costs:FixedCosts;selected_month_costs:MonthlyCosts;fixed_expenses:number;variable_expenses:number;total_expenses:number;net_income:number;missing_expenses:string[];bedrooms:number;room_rows:OccupancyRoom[];occupied_room_days:number;available_room_days:number;occupancy_rate:number;vacancy_loss:number;potential_room_rent:number;expected_income:number;}
 interface RentalRecord extends RentalInput {id:string; revision:string; kind:'room'; rent:number; parking:number; expected:number; rental_days:number;}
 interface ExpenseRecord {id:string; revision:string; kind:'expense'; name:string; amount:number;}
-interface Projection {parking_rate_missing_units:number;variable_expenses:number;total_expenses:number;missing_expense_units:number;month:string; rooms:RentalRecord[]; expenses:ExpenseRecord[]; rental_income:number; fixed_expenses:number; net_income:number; earning_rooms:number;units:UnitProjection[];total_bedrooms:number;total_carparks:number;occupancy_rate:number|null;vacancy_loss:number;unlinked_rentals:number;occupied_room_days:number;available_room_days:number;}
+interface Projection {parking:ParkingRecord[];earning_parking:number;parking_rate_missing_units:number;variable_expenses:number;total_expenses:number;missing_expense_units:number;month:string; rooms:RentalRecord[]; expenses:ExpenseRecord[]; rental_income:number; fixed_expenses:number; net_income:number; earning_rooms:number;units:UnitProjection[];total_bedrooms:number;total_carparks:number;occupancy_rate:number|null;vacancy_loss:number;unlinked_rentals:number;occupied_room_days:number;available_room_days:number;}
 const emptyRental=():RentalInput=>({unit:'',room:'',rent:null,parking:0,start_date:'',last_rental_date:'',active:true,tenant_name:''});
+const emptyParking=():ParkingInput=>({unit:'',space:'',rent:null,start_date:'',last_rental_date:'',active:true,tenant_name:''});
 const emptyMonthly=():MonthlyCosts=>({electricity:null,water:null,cleaning:null,others:null});
 const emptyProperty=():PropertyInput=>({standard_parking_rent:null,fixed_costs:{house_rental:0,wifi:0,indah_water:0},monthly_costs:{},unit:'',property_name:'',address:'',bathrooms:0,carparks:0,notes:'',rooms:[{room:'01',standard_rent:null}]});
 
@@ -33,12 +36,18 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
   @Output() cancelled=new EventEmitter<void>();
   month=(()=>{const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Singapore',year:'numeric',month:'2-digit'}).formatToParts(new Date());return parts.find(p=>p.type==='year')!.value+'-'+parts.find(p=>p.type==='month')!.value;})();
   data:Projection|null=null; loading=false; saving=false; error=''; notice='';
-  editor:''|'room'|'expense'|'unit'=''; rental=emptyRental(); expense={name:'',amount:null as number|null}; property=emptyProperty(); bedroomCount=1;
+  editor:''|'room'|'parking'|'expense'|'unit'=''; rental=emptyRental(); parking=emptyParking(); expense={name:'',amount:null as number|null}; property=emptyProperty(); bedroomCount=1;
   unitFilter=''; selectedUnitId=''; search=''; showUnlinked=false;
   displayDate=displayDate;
   get selectedUnit(){return this.data?.units.find(u=>u.id===this.selectedUnitId);}
   get filteredProperties(){const query=this.search.trim().toLowerCase();return (this.data?.units||[]).filter(u=>(u.unit+' '+u.address).toLowerCase().includes(query));}
   get unitRentals(){if(this.showUnlinked){const ids=new Set(this.data?.units.flatMap(u=>u.room_rows.map(r=>r.id)));return (this.data?.rooms||[]).filter(r=>!ids.has(r.id));}return (this.data?.rooms||[]).filter(r=>this.normaliseUnit(r.unit)===this.normaliseUnit(this.selectedUnit?.unit||''));}
+  get unitParking(){return (this.data?.parking||[]).filter(r=>this.normaliseUnit(r.unit)===this.normaliseUnit(this.selectedUnit?.unit||''));}
+  editParking(row?:ParkingRecord){
+    this.clearEditor();this.editor='parking';this.parking={...emptyParking(),unit:this.selectedUnit?.unit||'',rent:this.selectedUnit?.standard_parking_rent??null};
+    if(row){this.parking={unit:this.data?.units.find(u=>this.normaliseUnit(u.unit)===this.normaliseUnit(row.unit))?.unit||row.unit,space:row.space,rent:Number(row.rent),start_date:row.start_date||'',last_rental_date:row.last_rental_date||'',active:row.active,tenant_name:row.tenant_name||''};this.editId=row.id;this.revision=row.revision;}
+    this.focusEditor();
+  }
   normaliseUnit(value:string){return value.trim().replace(/^(?:unit\s+|#)/i,'').replace(/\s+/g,'').toLowerCase();}
   openUnit(id:string){this.clearEditor();this.selectedUnitId=id;this.showUnlinked=false;}
   backToUnits(){this.clearEditor();this.selectedUnitId='';this.showUnlinked=false;}
@@ -46,8 +55,8 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
 
   expenseMonth=''; monthlyCosts=emptyMonthly(); otherCosts:{name:string;amount:number|null}[]=[]; othersReviewed=false;
   fixedCostFields:{key:keyof FixedCosts;label:string}[]=[{key:'house_rental',label:'House Rental'},{key:'wifi',label:'WIFI'},{key:'indah_water',label:'Indah Water (sewerage)'}];
-  editId=''; revision=''; conflict:RentalRecord|ExpenseRecord|PropertyRecord|null=null;
-  removal:RentalRecord|ExpenseRecord|PropertyRecord|null=null;
+  editId=''; revision=''; conflict:RentalRecord|ParkingRecord|ExpenseRecord|PropertyRecord|null=null;
+  removal:RentalRecord|ParkingRecord|ExpenseRecord|PropertyRecord|null=null;
   private loadVersion=0; private destroyed=false;
   t(value:string){return translate(value,this.language);}
   get visibleUnits(){return this.mode==='properties'&&this.selectedUnit?[this.selectedUnit]:[];}
@@ -72,7 +81,7 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
   resizeBedrooms(){
     const count=Number(this.bedroomCount);if(!Number.isInteger(count)||count<1||count>30)return;
     // Keep entered rows until staff explicitly remove them; reducing a count must not discard values.
-    while(this.property.rooms.length<count){let number=this.property.rooms.length+1;while(this.property.rooms.some(r=>Number(r.room.replace(/^(?:room\s*|r)/i,''))===number))number++;this.property.rooms.push({room:String(number).padStart(2,'0'),standard_rent:null});}
+    while(this.property.rooms.length<count){let number=this.property.rooms.length+1;while(number===4||this.property.rooms.some(r=>Number(r.room.replace(/^(?:room\s*|r)/i,''))===number))number++;this.property.rooms.push({room:String(number).padStart(2,'0'),standard_rent:null});}
     this.bedroomCount=this.property.rooms.length;this.conflict=null;
   }
   removePropertyRoom(index:number){if(this.property.rooms.length>1){this.property.rooms.splice(index,1);this.bedroomCount=this.property.rooms.length;this.conflict=null;}}
@@ -101,19 +110,19 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
     if(row){this.rental={unit:row.unit,room:row.room,rent:Number(row.rent),parking:Number(row.parking),start_date:row.start_date||'',last_rental_date:row.last_rental_date||'',active:row.active,tenant_name:row.tenant_name||''};this.editId=row.id;this.revision=row.revision;}
   }
   editExpense(row?:ExpenseRecord){this.clearEditor();this.editor='expense';this.focusEditor();if(row){this.expense={name:row.name,amount:Number(row.amount)};this.editId=row.id;this.revision=row.revision;}}
-  clearEditor(){this.monthlyCosts=emptyMonthly();this.otherCosts=[];this.othersReviewed=false;this.expenseMonth='';this.editor='';this.rental=emptyRental();this.expense={name:'',amount:null};this.property=emptyProperty();this.bedroomCount=1;this.editId='';this.revision='';this.conflict=null;this.error='';this.notice='';this.removal=null;}
+  clearEditor(){this.monthlyCosts=emptyMonthly();this.otherCosts=[];this.othersReviewed=false;this.expenseMonth='';this.editor='';this.rental=emptyRental();this.parking=emptyParking();this.expense={name:'',amount:null};this.property=emptyProperty();this.bedroomCount=1;this.editId='';this.revision='';this.conflict=null;this.error='';this.notice='';this.removal=null;}
   cancel(){if(this.saving)return;this.clearEditor();if(this.mode==='capture')this.cancelled.emit();}
   async save(replace=false){
     if(this.saving)return;
     const conflict=replace?this.conflict:null;
     if(replace&&!conflict)return;
-    const collection=this.editor==='room'?'rooms':this.editor==='unit'?'units':'expenses';
+    const collection=this.editor==='parking'?'parking':this.editor==='room'?'rooms':this.editor==='unit'?'units':'expenses';
     const id=conflict?.id||this.editId;const revision=conflict?.revision||this.revision;
     if(this.editor==='unit'){
       const history=conflict?.kind==='unit'?conflict.monthly_costs:this.property.monthly_costs;
       this.property.monthly_costs={...(history||{}),[this.expenseMonth]:{cleaning:this.monthlyCosts.cleaning??null,electricity:this.monthlyCosts.electricity??null,water:this.monthlyCosts.water??null,others:this.othersReviewed?this.otherCosts.map(item=>({...item})):null}};
     }
-    const payload=this.editor==='room'?{...this.rental,parking:this.rental.parking??0,start_date:this.rental.start_date||null,last_rental_date:this.rental.last_rental_date||null}:this.editor==='unit'?{...this.property}:{...this.expense};
+    const payload=this.editor==='parking'?{...this.parking,start_date:this.parking.start_date||null,last_rental_date:this.parking.last_rental_date||null}:this.editor==='room'?{...this.rental,parking:this.rental.parking??0,start_date:this.rental.start_date||null,last_rental_date:this.rental.last_rental_date||null}:this.editor==='unit'?{...this.property}:{...this.expense};
     this.saving=true;this.error='';this.conflict=null;
     try{
       await this.request('/'+collection+(id?'/'+id:''),{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,...(id?{revision}:{})})});
@@ -126,7 +135,7 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
   async remove(){
     if(!this.removal||this.saving)return;
     const row=this.removal;this.saving=true;this.error='';this.conflict=null;
-    try{await this.request('/'+(row.kind==='room'?'rooms':row.kind==='unit'?'units':'expenses')+'/'+row.id+'?revision='+encodeURIComponent(row.revision),{method:'DELETE'});
+    try{await this.request('/'+(row.kind==='parking'?'parking':row.kind==='room'?'rooms':row.kind==='unit'?'units':'expenses')+'/'+row.id+'?revision='+encodeURIComponent(row.revision),{method:'DELETE'});
       this.removal=null;this.notice='Record removed.';await this.load();
     }catch(e){this.removal=null;this.conflict=null;this.error=e instanceof Error?e.message:'Could not save the rental portfolio. Please try again.';}
     finally{this.saving=false;}

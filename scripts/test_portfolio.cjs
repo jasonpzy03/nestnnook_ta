@@ -81,5 +81,14 @@ const seed={unit:'16-03',room:'02',rent:1200,parking:150,start_date:'2026-10-25'
   fetchImpl=async(url,options)=>{calls.push({url,...options});return response({detail:'A rental already exists for the corrected unit and room. No records were changed.'},409);};
   await correction.save();assert.equal(calls[0].url,'/api/portfolio/rooms/room-id');assert.equal(JSON.parse(calls[0].body).unit,'Corrected');
   assert.equal(correction.conflict,null,'A destination collision must not offer to replace the other rental');assert.equal(correction.rental.unit,'Corrected');
+  const numbering=new Portfolio();numbering.editProperty();numbering.bedroomCount=7;numbering.resizeBedrooms();
+  assert.equal(numbering.property.rooms.map(r=>r.room).join(','),'01,02,03,05,06,07,08');
+  numbering.property.rooms[0].room='04';numbering.bedroomCount=8;numbering.resizeBedrooms();assert.equal(numbering.property.rooms[0].room,'04','Do not rename saved or manually entered rooms');assert.equal(numbering.property.rooms[7].room,'09');
+  const parking=new Portfolio();parking.mode='properties';parking.data={units:[{...property,standard_parking_rent:250}],rooms:[],parking:[]};parking.openUnit('unit-id');parking.editParking();
+  assert.equal(parking.parking.unit,'A');assert.equal(parking.parking.rent,250);assert.equal(parking.editor,'parking');
+  parking.parking.space='P01';calls=[];fetchImpl=async(url,options)=>{calls.push({url,...options});return response(options?{}:{units:[property],parking:[]});};
+  await parking.save();assert.equal(calls[0].url,'/api/portfolio/parking');const parkingPayload=JSON.parse(calls[0].body);assert.equal(parkingPayload.start_date,null);assert.equal(parkingPayload.rent,250);assert(!('room' in parkingPayload));
+  const parkingRow={...parkingPayload,id:'parking-id',revision:'v1',kind:'parking',active:true};parking.editParking(parkingRow);parking.parking.space='P02';calls=[];await parking.save();assert.equal(calls[0].method,'PUT');assert.equal(calls[0].url,'/api/portfolio/parking/parking-id');assert.equal(JSON.parse(calls[0].body).space,'P02');
+  parking.removal=parkingRow;calls=[];await parking.remove();assert.equal(calls[0].method,'DELETE');assert.equal(calls[0].url,'/api/portfolio/parking/parking-id?revision=v1');
   console.log('Portfolio capture, explicit duplicate updates, save errors, double-tap protection, monthly refresh races and revision-aware removal passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

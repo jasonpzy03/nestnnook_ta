@@ -131,3 +131,12 @@ Room rental records support unit-number corrections in **Edit room rental**. Sav
 Room and parking vacancy losses are combined in the existing **Potential rent lost to vacancy** total, both per unit and overall. Existing units without an advertised parking rate are flagged until staff set it in **Edit property**; their parking loss is not yet included. Enter 0 explicitly if parking has no advertised rental value. A lower agreed parking rent is not vacancy loss. The current parking occupancy model assumes one paid space per room tenancy, with the same rental dates.
 
 Parking capacity is enforced when saving room rentals (including date/amount edits and unit corrections) and property units (including reductions in space count). Active rentals with positive parking rent may not overlap beyond the registered unit’s capacity. Missing dates are open-ended; the last rental day is inclusive. Local writes validate under the storage lock; Redis verifies the checked portfolio snapshot atomically, rejecting concurrent changes for retry. Rentals entered before property registration are checked when that property is added.
+
+
+### Standalone car-park rentals
+
+Open **Property units**, select a unit, and use **Add car-park rental** for someone renting only a parking space. Enter the space number, monthly rent, optional tenant name and inclusive rental dates. Do not duplicate parking already included in a room rental. There is one standalone tenancy record per unit and space; editing it changes historical projections, as with room rentals.
+
+Standalone parking income is pro-rated by day and included in overall and per-unit net income. Its occupied days reduce the combined potential rent lost to vacancy, using the unit's advertised parking rate; bedroom occupancy is unchanged. Active standalone rentals occupy one space even at zero rent. Capacity checks combine standalone rentals and room rentals with parking, with atomic protection in local storage and Redis. A property cannot be deleted while it has standalone parking records. These records use the existing portfolio store with no new environment variables.
+
+New room numbers skip 04 (01, 02, 03, 05, 06, ...). Existing and manually entered room numbers remain unchanged.

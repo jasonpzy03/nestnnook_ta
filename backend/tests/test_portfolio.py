@@ -436,3 +436,83 @@ def test_room_number_correction_preserves_income_and_guards(client):
     assert client.put(url,json={**rental(),'revision':row['revision']}).status_code == 409
     assert client.put(url,json={**correction,'room':'99','revision':row['revision']}).status_code == 422
     assert client.put(url,json={**correction,'revision':saved['revision']}).status_code == 409
+
+
+def parking_rental(**patch):
+    return {**dict(unit='16-03',space='P01',rent=310,start_date='2026-10-25',last_rental_date='2027-04-30',tenant_name='Parking tenant'),**patch}
+
+
+def test_standalone_parking_income_vacancy_and_bedroom_occupancy(client):
+    client.post('/api/portfolio/units',json=property_unit(carparks=1,standard_parking_rent=620))
+    saved=client.post('/api/portfolio/parking',json=parking_rental())
+    assert saved.status_code==200
+    result=client.get('/api/portfolio?month=2026-10').json()
+    assert result['rental_income']==70 and result['net_income']==70
+    assert result['rooms']==[] and result['earning_rooms']==0 and result['earning_parking']==1
+    assert result['occupancy_rate']==0 and result['unlinked_rentals']==0
+    assert result['parking'][0]['rental_days']==7
+    assert result['units'][0]['expected_income']==70 and result['units'][0]['net_income']==70
+    assert result['vacancy_loss']==4650+480
+    full=client.get('/api/portfolio?month=2026-11').json()
+    assert full['rental_income']==310 and full['vacancy_loss']==4650
+    expired=client.get('/api/portfolio?month=2027-05').json()
+    assert expired['rental_income']==0 and expired['vacancy_loss']==5270
+
+
+def test_mixed_parking_capacity_both_directions_and_unit_reduction(client):
+    unit=client.post('/api/portfolio/units',json=property_unit(carparks=1)).json()
+    car=client.post('/api/portfolio/parking',json=parking_rental()).json()
+    assert client.post('/api/portfolio/rooms',json=rental()).status_code==422
+    assert client.post('/api/portfolio/parking',json=parking_rental(space='P02')).status_code==422
+    assert client.put('/api/portfolio/units/'+unit['id'],json={**property_unit(carparks=0),'revision':unit['revision']}).status_code==422
+    assert client.delete('/api/portfolio/units/'+unit['id'],params={'revision':unit['revision']}).status_code==422
+    # Adjacent, non-overlapping dates share the same unit capacity.
+    room=client.post('/api/portfolio/rooms',json={**rental(),'start_date':'2026-10-01','last_rental_date':'2026-10-24'}).json()
+    assert 'id' in room
+    assert client.put('/api/portfolio/parking/'+car['id'],json={**parking_rental(start_date='2026-10-24'),'revision':car['revision']}).status_code==422
+    assert client.delete('/api/portfolio/parking/'+car['id'],params={'revision':car['revision']}).status_code==200
+    assert client.post('/api/portfolio/parking',json=parking_rental(start_date='2026-10-24')).status_code==422
+    assert client.delete('/api/portfolio/rooms/'+room['id'],params={'revision':room['revision']}).status_code==200
+    assert client.delete('/api/portfolio/units/'+unit['id'],params={'revision':unit['revision']}).status_code==200
+
+
+def test_standalone_parking_validation_corrections_and_revisions(client):
+    assert client.post('/api/portfolio/parking',json=parking_rental()).status_code==422
+    client.post('/api/portfolio/units',json=property_unit(carparks=3))
+    for patch in [{'space':' '},{'rent':-1},{'rent':1.001},{'last_rental_date':'2026-10-24'}]:
+        assert client.post('/api/portfolio/parking',json=parking_rental(**patch)).status_code==422
+    first=client.post('/api/portfolio/parking',json=parking_rental(space='01')).json()
+    assert client.post('/api/portfolio/parking',json=parking_rental(unit=' Unit 16-03 ',space='Lot 1')).status_code==409
+    other=client.post('/api/portfolio/parking',json=parking_rental(space='02')).json()
+    url='/api/portfolio/parking/'+first['id']
+    assert client.put(url,json={**parking_rental(space='02'),'revision':first['revision']}).status_code==409
+    corrected=client.put(url,json={**parking_rental(space='03'),'revision':first['revision']}).json()
+    assert corrected['id']==portfolio.parking_key('16-03','03')
+    assert client.put(url,json={**parking_rental(space='04'),'revision':first['revision']}).status_code==404
+    url='/api/portfolio/parking/'+corrected['id']
+    assert client.delete(url,params={'revision':first['revision']}).status_code==409
+    assert client.put(url,json={**parking_rental(space='03',active=False),'revision':corrected['revision']}).status_code==200
+    result=client.get('/api/portfolio?month=2026-11').json()
+    assert result['rental_income']==310 and result['earning_parking']==1
+
+
+def test_free_standalone_parking_and_leap_month(client):
+    client.post('/api/portfolio/units',json=property_unit(carparks=1,standard_parking_rent=290))
+    car=client.post('/api/portfolio/parking',json=parking_rental(rent=0,start_date='2024-02-29',last_rental_date='2024-02-29')).json()
+    result=client.get('/api/portfolio?month=2024-02').json()
+    assert result['vacancy_loss']==4650+280 and result['rental_income']==0
+    assert result['occupancy_rate']==0
+    assert client.post('/api/portfolio/parking',json=parking_rental(space='P02',start_date=None,last_rental_date=None)).status_code==422
+    assert client.put('/api/portfolio/parking/'+car['id'],json={**parking_rental(rent=290,start_date='2024-02-29',last_rental_date='2024-02-29'),'revision':car['revision']}).status_code==200
+    assert client.get('/api/portfolio?month=2024-02').json()['rental_income']==10
+
+
+def test_concurrent_room_and_standalone_parking_share_capacity(client):
+    client.post('/api/portfolio/units',json=property_unit(carparks=1))
+    def add(kind):
+        return client.post('/api/portfolio/'+kind,json=rental() if kind=='rooms' else parking_rental()).status_code
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        statuses=list(pool.map(add,['rooms','parking']))
+    assert statuses.count(200)==1 and all(s in (200,409,422) for s in statuses)
+    result=client.get('/api/portfolio?month=2026-11').json()
+    assert len(result['rooms'])+len(result['parking'])==1

@@ -21,11 +21,9 @@ LOCK = Lock()
 Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 
 
-class Rental(StrictModel):
+class RentalPeriod(StrictModel):
     unit: Label
-    room: Label
     rent: Money
-    parking: Money = Decimal('0')
     start_date: date | None = None
     last_rental_date: date | None = None
     active: bool = True
@@ -36,6 +34,19 @@ class Rental(StrictModel):
         if self.start_date and self.last_rental_date and self.last_rental_date < self.start_date:
             raise ValueError('Last rental day must be on or after the move-in date.')
         return self
+
+
+class Rental(RentalPeriod):
+    room: Label
+    parking: Money = Decimal('0')
+
+
+class ParkingRental(RentalPeriod):
+    space: Label
+
+
+class ParkingUpdate(ParkingRental):
+    revision: str = Field(min_length=1, max_length=40)
 
 
 class PropertyRoom(StrictModel):
@@ -117,6 +128,16 @@ def unit_key(unit):
     return room_key(unit, '__property__')
 
 
+def parking_key(unit, space):
+    space = re.sub(r'^(?:lot|space)\s+', '', space.strip(), flags=re.I)
+    space = re.sub(r'\s+', '', space).casefold()
+    if not space:
+        raise HTTPException(422, 'Enter a car-park space number.')
+    if space.isdecimal():
+        space = str(int(space))
+    return room_key(unit, '__parking__'+space)
+
+
 def read_local():
     try:
         if not FILE.exists():
@@ -141,27 +162,31 @@ def records():
             with LOCK:
                 data = list(read_local().values())
         for row in data:
-            model = {'room':Rental,'expense':Expense,'unit':PropertyUnit}.get(row['kind'])
+            model = {'room':Rental,'parking':ParkingRental,'expense':Expense,'unit':PropertyUnit}.get(row['kind'])
             if model is None or not isinstance(row['id'], str) or not isinstance(row['revision'], str):
                 raise ValueError()
-            model.model_validate({k:v for k,v in row.items() if k not in ('id','kind','revision','room_ids')})
+            model.model_validate({k:v for k,v in row.items() if k not in ('id','kind','revision','room_ids','unit_id')})
         return data
     except (StorageError, ValueError, KeyError, TypeError):
         raise HTTPException(503, 'Rental portfolio is unavailable. Please try again.') from None
 
 
 def validate_parking_capacity(data, field, record):
-    if not record or record['kind'] not in ('unit', 'room'):
+    if not record or record['kind'] not in ('unit', 'room', 'parking'):
         return
     candidate = {key:value for key,value in data.items() if key != field}
     candidate[record['kind']+':'+record['id']] = record
     unit_id = record['id'] if record['kind']=='unit' else unit_key(record['unit'])
     unit = candidate.get('unit:'+unit_id)
     if not unit:
+        if record['kind']=='parking':
+            raise HTTPException(422, 'Register the property unit before adding a car-park rental.')
         return  # Legacy rentals may be entered before their property is registered.
     events = {}
     for rental in candidate.values():
-        if rental['kind']!='room' or unit_key(rental['unit'])!=unit_id or not rental.get('active',True) or Decimal(str(rental.get('parking',0)))<=0:
+        if rental['kind'] not in ('room','parking') or unit_key(rental['unit'])!=unit_id or not rental.get('active',True):
+            continue
+        if rental['kind']=='room' and Decimal(str(rental.get('parking',0)))<=0:
             continue
         start = date.fromisoformat(rental['start_date']).toordinal() if rental.get('start_date') else date.min.toordinal()
         end = date.fromisoformat(rental['last_rental_date']).toordinal() if rental.get('last_rental_date') else date.max.toordinal()
@@ -182,12 +207,14 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
     record = None if delete else {**payload, 'kind':kind, 'id':destination, 'revision':uuid.uuid4().hex}
     if record and kind == 'unit':
         record['room_ids'] = [room_key(payload['unit'], room['room']) for room in payload['rooms']]
+    if record and kind == 'parking':
+        record['unit_id'] = unit_key(payload['unit'])
     unit_field = 'unit:'+unit_key(payload['unit']) if payload and kind == 'room' else ''
     try:
         if cloud_enabled():
             store = RedisStore()
             snapshot = {}
-            if record and kind in ('unit','room'):
+            if record and kind in ('unit','room','parking'):
                 for raw in store.command('HVALS', store.key('portfolio')):
                     row = json.loads(raw)
                     snapshot[row['kind']+':'+row['id']] = raw
@@ -219,6 +246,12 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
                 end
             end
             if ARGV[5]=='unit' and old then
+                if ARGV[3]=='delete' then
+                    for _,raw in ipairs(redis.call('HVALS',KEYS[1])) do
+                        local rental=cjson.decode(raw)
+                        if rental.kind=='parking' and rental.unit_id==cjson.decode(old).id then return {427,''} end
+                    end
+                end
                 local keep={}
                 if ARGV[3]~='delete' then for _,id in ipairs(cjson.decode(ARGV[4]).room_ids) do keep[id]=true end end
                 for _,id in ipairs(cjson.decode(old).room_ids) do
@@ -233,7 +266,7 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
             return {200,''}"""
             code, old = store.command('EVAL', script, 1, store.key('portfolio'), field,
                                       expected or '', 'delete' if delete else 'save', json.dumps(record), kind, unit_field, destination, destination_field,
-                                      json.dumps(snapshot) if record and kind in ('unit','room') else '')
+                                      json.dumps(snapshot) if record and kind in ('unit','room','parking') else '')
             old = json.loads(old) if old else None
         else:
             with LOCK:
@@ -243,10 +276,12 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
                     404 if not old else 409 if old['revision'] != expected else 200)
                 if code == 200:
                     if destination_field != field and destination_field in data:
-                        raise HTTPException(409, 'A rental already exists for the corrected unit and room. No records were changed.')
+                        raise HTTPException(409, 'A rental already exists for the corrected unit and space. No records were changed.' if kind=='parking' else 'A rental already exists for the corrected unit and room. No records were changed.')
                     if kind == 'room' and not delete and unit_field in data and destination not in data[unit_field]['room_ids']:
                         raise HTTPException(422, 'This room is not in the property inventory. Add the room to the unit first.')
                     if kind == 'unit' and old:
+                        if delete and any(row['kind']=='parking' and unit_key(row['unit'])==identifier for row in data.values()):
+                            raise HTTPException(422, 'Remove linked car-park rentals before removing this property.')
                         removed = set(old['room_ids']) - set(record['room_ids'] if record else [])
                         if any('room:'+key in data for key in removed):
                             raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
@@ -270,9 +305,11 @@ def mutate(kind, identifier, payload=None, expected=None, delete=False, destinat
         if code == 424:
             raise HTTPException(422, 'Remove linked rental records before removing their rooms or property.')
         if code == 425:
-            raise HTTPException(409, 'A rental already exists for the corrected unit and room. No records were changed.')
+            raise HTTPException(409, 'A rental already exists for the corrected unit and space. No records were changed.' if kind=='parking' else 'A rental already exists for the corrected unit and room. No records were changed.')
         if code == 426:
             raise HTTPException(409, 'The portfolio changed while checking parking availability. Try saving again.')
+        if code == 427:
+            raise HTTPException(422, 'Remove linked car-park rentals before removing this property.')
         if code != 200:
             raise HTTPException(422, 'The rental portfolio is full.')
         return record or {'deleted':True}
@@ -288,7 +325,7 @@ def project(data, month):
     year, number = map(int, month.split('-'))
     first = date(year, number, 1)
     last = date(year, number, monthrange(year, number)[1])
-    rooms, expenses = [], []
+    rooms, parking, expenses = [], [], []
     total_rent = Decimal('0')
     total_expenses = Decimal('0')
     for row in data:
@@ -300,11 +337,18 @@ def project(data, month):
             expected = money(rental.rent*days/last.day) + money(rental.parking*days/last.day)
             rooms.append({**row, 'rent':float(rental.rent), 'parking':float(rental.parking), 'rental_days':days, 'expected':float(expected)})
             total_rent += expected
+        elif row['kind'] == 'parking':
+            rental = ParkingRental.model_validate({k:v for k,v in row.items() if k not in ('id','kind','revision','unit_id')})
+            start, end = max(first, rental.start_date or first), min(last, rental.last_rental_date or last)
+            days = max(0, (end-start).days+1) if rental.active else 0
+            expected = money(rental.rent*days/last.day)
+            parking.append({**row, 'rent':float(rental.rent), 'rental_days':days, 'expected':float(expected)})
+            total_rent += expected
         elif row['kind'] == 'expense':
             amount = Decimal(str(row['amount']))
             total_expenses += amount
             expenses.append({**row, 'amount':float(amount)})
-    occupancy = occupancy_projection(data, rooms, first, last.day)
+    occupancy = occupancy_projection(data, rooms, first, last.day, parking)
     variable_total = Decimal('0')
     for unit in occupancy['units']:
         costs = property_costs(unit, month)
@@ -313,6 +357,8 @@ def project(data, month):
         total_expenses += Decimal(str(costs['fixed_expenses']))
         variable_total += Decimal(str(costs['variable_expenses']))
     return {**occupancy, 'month':month, 'rooms':sorted(rooms, key=lambda r:(r['unit'].casefold(),r['room'].casefold())),
+            'parking':sorted(parking, key=lambda r:(r['unit'].casefold(),r['space'].casefold())),
+            'earning_parking':sum(r['rental_days']>0 for r in parking),
             'expenses':sorted(expenses, key=lambda e:e['name'].casefold()),
             'rental_income':float(total_rent), 'fixed_expenses':float(total_expenses),
             'variable_expenses':float(variable_total), 'total_expenses':float(total_expenses+variable_total),
@@ -337,9 +383,11 @@ def parking_vacancy(unit, rentals, first, days_in_month):
     capacity = unit['carparks']
     daily = [0]*days_in_month
     for rental in rentals:
-        if unit_key(rental['unit']) != unit['id'] or rental['parking'] <= 0 or not rental['rental_days']:
+        if unit_key(rental['unit']) != unit['id'] or not rental['rental_days']:
             continue
-        # A tenancy with parking rent occupies one space during its rental dates.
+        if rental['kind']=='room' and rental['parking'] <= 0:
+            continue
+        # Both bundled parking and standalone parking occupy one space during their rental dates.
         start = max(first, date.fromisoformat(rental['start_date']) if rental.get('start_date') else first)
         last = first.replace(day=days_in_month)
         end = min(last, date.fromisoformat(rental['last_rental_date']) if rental.get('last_rental_date') else last)
@@ -351,7 +399,7 @@ def parking_vacancy(unit, rentals, first, days_in_month):
     return loss, bool(capacity and rate is None), any(count>capacity for count in daily)
 
 
-def occupancy_projection(data, rentals, first, days_in_month):
+def occupancy_projection(data, rentals, first, days_in_month, parking=()):
     by_room = {row['id']:row for row in rentals}
     units = []
     linked = set()
@@ -380,7 +428,8 @@ def occupancy_projection(data, rentals, first, days_in_month):
             potential += standard
             expected += amount
         available_days = len(room_rows)*days_in_month
-        parking_loss, missing_rate, over_capacity = parking_vacancy(row, rentals, first, days_in_month)
+        expected += sum((Decimal(str(r['expected'])) for r in parking if unit_key(r['unit'])==row['id']),Decimal('0'))
+        parking_loss, missing_rate, over_capacity = parking_vacancy(row, [*rentals,*parking], first, days_in_month)
         loss += parking_loss
         units.append({**row, 'rooms':[{**r,'standard_rent':float(r['standard_rent'])} for r in row['rooms']],
                       'room_rows':room_rows, 'bedrooms':len(room_rows), 'occupied_room_days':occupied_days,
@@ -435,6 +484,17 @@ def add_expense(value: Expense):
     return mutate('expense', uuid.uuid4().hex, value.model_dump(mode='json'))
 
 
+@router.post('/parking')
+def add_parking(value: ParkingRental):
+    return mutate('parking', parking_key(value.unit, value.space), value.model_dump(mode='json'))
+
+
+@router.put('/parking/{identifier}')
+def update_parking(identifier: str, value: ParkingUpdate):
+    return mutate('parking', identifier, value.model_dump(mode='json',exclude={'revision'}), value.revision,
+                  destination=parking_key(value.unit, value.space))
+
+
 @router.put('/expenses/{identifier}')
 def update_expense(identifier: str, value: ExpenseUpdate):
     return mutate('expense', identifier, value.model_dump(mode='json', exclude={'revision'}), value.revision)
@@ -442,6 +502,6 @@ def update_expense(identifier: str, value: ExpenseUpdate):
 
 @router.delete('/{collection}/{identifier}')
 def remove_record(collection: str, identifier: str, revision: Annotated[str, Query(min_length=1, max_length=40)]):
-    if collection not in ('rooms', 'expenses', 'units'):
+    if collection not in ('rooms', 'parking', 'expenses', 'units'):
         raise HTTPException(404, 'Not found')
-    return mutate({'rooms':'room','expenses':'expense','units':'unit'}[collection], identifier, expected=revision, delete=True)
+    return mutate({'rooms':'room','parking':'parking','expenses':'expense','units':'unit'}[collection], identifier, expected=revision, delete=True)

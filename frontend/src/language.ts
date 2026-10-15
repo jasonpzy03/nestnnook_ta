@@ -15,6 +15,18 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Standalone car-park rentals':'独立停车位租赁','standalone car-park rentals':'独立停车位租赁',
+  'Add car-park rental':'添加停车位租赁','Edit car-park rental':'编辑停车位租赁','＋ Add car-park rental':'＋ 添加停车位租赁',
+  'Car-park space number':'停车位号码','Include this car park in projections':'将此停车位计入预测',
+  'One standalone tenancy per unit and space. Do not add parking already included in a room rental. Each active rental occupies one space, even when rent is zero.':'每个单位的每个停车位保留一份独立租赁记录。请勿重复添加已包含在房间租赁中的停车位。每份有效租赁占用一个停车位，即使租金为零。',
+  'Leave dates blank for an ongoing rental. Partial months are pro-rated, including the last rental day.':'长期租赁可留空日期。不足整月按天计算，包含最后租赁日。',
+  'Parking included in room rentals is already counted. Add only separate car-park tenants here. Both types share the unit’s parking capacity.':'房间租赁中的停车位已计入。此处仅添加独立停车位租客。两种租赁共用该单位的停车位数量。',
+  'Add car-park capacity in Edit property before adding a rental.':'请先在编辑物业中添加停车位数量，再添加租赁。',
+  'No standalone car-park rentals yet.':'暂无独立停车位租赁。',
+  'Register the property unit before adding a car-park rental.':'请先登记物业单位，再添加停车位租赁。',
+  'Remove linked car-park rentals before removing this property.':'请先移除关联的停车位租赁，再移除此物业。',
+  'Enter a car-park space number.':'请输入停车位号码。',
+  'A rental already exists for the corrected unit and space. No records were changed.':'更正后的单位和停车位已有租赁记录，未更改任何记录。',
   'Property units':'物业单位','Manage property details, expenses and room rentals.':'管理物业资料、开支及房间租赁。',
   'Back to property units':'返回物业单位','Search units or addresses':'搜索单位或地址','No property units found':'没有找到物业单位',
   'View rentals and details':'查看租赁与详情','Unlinked rentals':'未关联的租赁','Review rentals':'查看租赁',
