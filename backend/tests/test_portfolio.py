@@ -62,7 +62,7 @@ def test_free_or_discounted_rent_is_still_occupied(client):
     client.post('/api/portfolio/units',json=property_unit(rooms=[{'room':'1','standard_rent':1200}]))
     saved = client.post('/api/portfolio/rooms',json={'unit':'16-03','room':'1','rent':0,'start_date':'2024-02-29'}).json()
     result = client.get('/api/portfolio?month=2024-02').json()
-    assert result['occupancy_rate'] == 3.45 and result['vacancy_loss'] == 1158.62
+    assert result['occupancy_rate'] == 1.15 and result['vacancy_loss'] == 1158.62
     assert client.get('/api/portfolio?month=2024-03').json()['vacancy_loss'] == 0
     client.put('/api/portfolio/rooms/'+saved['id'],json={'unit':'16-03','room':'1','rent':800,'active':False,'revision':saved['revision']})
     result = client.get('/api/portfolio?month=2024-03').json()
@@ -304,7 +304,7 @@ def test_parking_loss_is_combined_with_room_loss_at_advertised_rate(client):
     # Room loss 3950 + 55 vacant parking-space days * 310 / 31.
     assert result['vacancy_loss'] == 4500
     assert result['units'][0]['vacancy_loss'] == 4500
-    assert result['occupancy_rate'] == 11.29  # Bedroom occupancy unchanged.
+    assert result['occupancy_rate'] == 11.29  # Seven occupied bedroom-days plus seven parking-space days out of 124.
     assert result['rental_income'] == 722.58  # Income uses the agreed 100, not advertised 310.
     assert result['parking_rate_missing_units'] == 0
     full = client.get('/api/portfolio?month=2026-11').json()
@@ -449,7 +449,7 @@ def test_standalone_parking_income_vacancy_and_bedroom_occupancy(client):
     result=client.get('/api/portfolio?month=2026-10').json()
     assert result['rental_income']==70 and result['net_income']==70
     assert result['rooms']==[] and result['earning_rooms']==0 and result['earning_parking']==1
-    assert result['occupancy_rate']==0 and result['unlinked_rentals']==0
+    assert result['occupancy_rate']==7.53 and result['unlinked_rentals']==0
     assert result['parking'][0]['rental_days']==7
     assert result['units'][0]['expected_income']==70 and result['units'][0]['net_income']==70
     assert result['vacancy_loss']==4650+480
@@ -501,7 +501,7 @@ def test_free_standalone_parking_and_leap_month(client):
     car=client.post('/api/portfolio/parking',json=parking_rental(rent=0,start_date='2024-02-29',last_rental_date='2024-02-29')).json()
     result=client.get('/api/portfolio?month=2024-02').json()
     assert result['vacancy_loss']==4650+280 and result['rental_income']==0
-    assert result['occupancy_rate']==0
+    assert result['occupancy_rate']==1.15
     assert client.post('/api/portfolio/parking',json=parking_rental(space='P02',start_date=None,last_rental_date=None)).status_code==422
     assert client.put('/api/portfolio/parking/'+car['id'],json={**parking_rental(rent=290,start_date='2024-02-29',last_rental_date='2024-02-29'),'revision':car['revision']}).status_code==200
     assert client.get('/api/portfolio?month=2024-02').json()['rental_income']==10
@@ -516,3 +516,21 @@ def test_concurrent_room_and_standalone_parking_share_capacity(client):
     assert statuses.count(200)==1 and all(s in (200,409,422) for s in statuses)
     result=client.get('/api/portfolio?month=2026-11').json()
     assert len(result['rooms'])+len(result['parking'])==1
+
+
+def test_combined_occupancy_weights_rooms_parking_and_units(client):
+    client.post('/api/portfolio/units',json=property_unit(unit='A',carparks=1,rooms=[{'room':str(n),'standard_rent':1000} for n in range(1,5)]))
+    client.post('/api/portfolio/units',json=property_unit(unit='B',carparks=0,rooms=[{'room':'1','standard_rent':1000}]))
+    for room in ['1','2','3']:
+        assert client.post('/api/portfolio/rooms',json={'unit':'A','room':room,'rent':1000}).status_code==200
+    car=client.post('/api/portfolio/parking',json=parking_rental(unit='A',start_date=None,last_rental_date=None)).json()
+    result=client.get('/api/portfolio?month=2026-10').json()
+    assert result['units'][0]['occupancy_rate']==80  # Three bedrooms plus one parking space out of five.
+    assert result['units'][1]['occupancy_rate']==0
+    assert result['occupancy_rate']==66.67  # Four occupied spaces out of six overall, not (80+0)/2.
+    assert result['occupied_capacity_days']==124 and result['available_capacity_days']==186
+    assert result['occupied_room_days']==93 and result['occupied_parking_days']==31
+    assert result['available_room_days']==155 and result['available_parking_days']==31
+    assert client.put('/api/portfolio/parking/'+car['id'],json={**parking_rental(unit='A',active=False),'revision':car['revision']}).status_code==200
+    result=client.get('/api/portfolio?month=2026-10').json()
+    assert result['units'][0]['occupancy_rate']==60 and result['occupancy_rate']==50

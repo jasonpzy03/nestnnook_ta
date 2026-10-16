@@ -104,11 +104,11 @@
       @else{
         @if(mode==='dashboard'){<label class="unit-filter">{{t('Occupancy view')}}<select [(ngModel)]="unitFilter"><option value="">{{t('All units')}}</option>@for(unit of data.units;track unit.id){<option [value]="unit.id">{{unit.unit}}</option>}</select></label>
         <div class="income-cards occupancy-cards" aria-live="polite">
-          <article class="card income-card"><span>{{t('Monthly occupancy')}}</span><strong>{{occupancySummary.occupancy_rate|number:'1.0-1'}}%</strong><small>{{t('Based on occupied room-days')}}</small></article>
+          <article class="card income-card"><span>{{t('Monthly occupancy')}}</span><strong>{{occupancySummary.occupancy_rate|number:'1.0-1'}}%</strong><small>{{t('Rooms and car parks, weighted by occupied days')}}</small></article>
           <article class="card income-card"><span>{{t('Potential rent lost to vacancy')}}</span><strong>{{occupancySummary.vacancy_loss|currency:'MYR':'RM ':'1.2-2'}}</strong><small>{{t('Room and car-park rent lost during vacant days')}}</small></article>
           <article class="card income-card"><span>{{t('Registered capacity')}}</span><strong>{{occupancySummary.bedrooms}} {{t('Bedrooms')}}</strong><small>{{occupancySummary.carparks}} {{t('Car parks')}}</small></article>
         </div>
-        <p class="field-hint">{{t('Vacancy loss combines vacant rooms and car-park spaces at their advertised rents, pro-rated by day. Occupancy measures bedrooms only. Discounted agreed rent is not vacancy loss.')}}</p>
+        <p class="field-hint">{{t('Vacancy loss combines vacant rooms and car-park spaces at their advertised rents, pro-rated by day. Occupancy includes bedrooms and car-park spaces. Discounted agreed rent is not vacancy loss.')}}</p>
         @if(data.parking_rate_missing_units){<p class="notice" role="status">{{t('Some units have no advertised car-park rent. Add it in Edit property to include their parking vacancy loss in the total.')}}</p>}
         }
         @for(unit of visibleUnits;track unit.id){

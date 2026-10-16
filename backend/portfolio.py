@@ -396,7 +396,8 @@ def parking_vacancy(unit, rentals, first, days_in_month):
     vacant_days = sum(max(0, capacity-count) for count in daily)
     rate = unit.get('standard_parking_rent')
     loss = money(Decimal(str(rate))*vacant_days/days_in_month) if rate is not None else Decimal('0')
-    return loss, bool(capacity and rate is None), any(count>capacity for count in daily)
+    occupied_days = capacity*days_in_month-vacant_days
+    return loss, bool(capacity and rate is None), any(count>capacity for count in daily), occupied_days
 
 
 def occupancy_projection(data, rentals, first, days_in_month, parking=()):
@@ -429,18 +430,28 @@ def occupancy_projection(data, rentals, first, days_in_month, parking=()):
             expected += amount
         available_days = len(room_rows)*days_in_month
         expected += sum((Decimal(str(r['expected'])) for r in parking if unit_key(r['unit'])==row['id']),Decimal('0'))
-        parking_loss, missing_rate, over_capacity = parking_vacancy(row, [*rentals,*parking], first, days_in_month)
+        parking_loss, missing_rate, over_capacity, occupied_parking_days = parking_vacancy(row, [*rentals,*parking], first, days_in_month)
+        available_parking_days = row['carparks']*days_in_month
+        occupied_capacity_days = occupied_days+occupied_parking_days
+        available_capacity_days = available_days+available_parking_days
         loss += parking_loss
         units.append({**row, 'rooms':[{**r,'standard_rent':float(r['standard_rent'])} for r in row['rooms']],
                       'room_rows':room_rows, 'bedrooms':len(room_rows), 'occupied_room_days':occupied_days,
-                      'available_room_days':available_days, 'occupancy_rate':round(100*occupied_days/available_days,2),
+                      'available_room_days':available_days,
+                      'occupied_parking_days':occupied_parking_days, 'available_parking_days':available_parking_days,
+                      'occupied_capacity_days':occupied_capacity_days, 'available_capacity_days':available_capacity_days,
+                      'occupancy_rate':round(100*occupied_capacity_days/available_capacity_days,2),
                       'vacancy_loss':float(loss), 'potential_room_rent':float(potential), 'expected_income':float(expected),
                       'parking_rate_missing':missing_rate, 'parking_over_capacity':over_capacity})
-    occupied = sum(unit['occupied_room_days'] for unit in units)
-    available = sum(unit['available_room_days'] for unit in units)
+    occupied = sum(unit['occupied_capacity_days'] for unit in units)
+    available = sum(unit['available_capacity_days'] for unit in units)
     return {'units':sorted(units,key=lambda u:u['unit'].casefold()), 'total_bedrooms':sum(u['bedrooms'] for u in units),
             'total_carparks':sum(u['carparks'] for u in units), 'occupancy_rate':round(100*occupied/available,2) if available else None,
-            'occupied_room_days':occupied, 'available_room_days':available,
+            'occupied_capacity_days':occupied, 'available_capacity_days':available,
+            'occupied_room_days':sum(u['occupied_room_days'] for u in units),
+            'available_room_days':sum(u['available_room_days'] for u in units),
+            'occupied_parking_days':sum(u['occupied_parking_days'] for u in units),
+            'available_parking_days':sum(u['available_parking_days'] for u in units),
             'vacancy_loss':float(sum((Decimal(str(u['vacancy_loss'])) for u in units),Decimal('0'))),
             'parking_rate_missing_units':sum(u['parking_rate_missing'] for u in units),
             'unlinked_rentals':sum(row['id'] not in linked for row in rentals)}
