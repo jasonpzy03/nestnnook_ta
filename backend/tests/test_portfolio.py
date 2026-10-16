@@ -534,3 +534,47 @@ def test_combined_occupancy_weights_rooms_parking_and_units(client):
     assert client.put('/api/portfolio/parking/'+car['id'],json={**parking_rental(unit='A',active=False),'revision':car['revision']}).status_code==200
     result=client.get('/api/portfolio?month=2026-10').json()
     assert result['units'][0]['occupancy_rate']==60 and result['occupancy_rate']==50
+
+
+def test_room_deposits_persist_after_expiry_without_changing_projection(client):
+    client.post('/api/portfolio/units',json=property_unit())
+    saved=client.post('/api/portfolio/rooms',json={**rental(),'security_deposit':1500.50,'access_deposit':100}).json()
+    current=client.get('/api/portfolio?month=2026-10').json()
+    assert current['rental_income']==770 and current['net_income']==770
+    assert current['rooms'][0]['security_deposit']==1500.50 and current['rooms'][0]['access_deposit']==100
+    expired=client.get('/api/portfolio?month=2028-01').json()
+    assert expired['rental_income']==0 and expired['rooms'][0]['security_deposit']==1500.50
+    assert expired['units'][0]['room_rows'][1]['rental']['access_deposit']==100
+    url='/api/portfolio/rooms/'+saved['id']
+    # An old client correcting the room number must not silently erase deposits.
+    moved=client.put(url,json={**rental(),'room':'01','revision':saved['revision']}).json()
+    assert float(moved['security_deposit'])==1500.50 and moved['access_deposit']=='100'
+    changed=client.put('/api/portfolio/rooms/'+moved['id'],json={**rental(),'room':'01','security_deposit':0,'access_deposit':None,'revision':moved['revision']}).json()
+    assert changed['security_deposit']=='0' and changed['access_deposit'] is None
+
+
+def test_parking_deposit_and_legacy_unknown_values(client):
+    client.post('/api/portfolio/units',json=property_unit())
+    car=client.post('/api/portfolio/parking',json=parking_rental(carpark_deposit=500)).json()
+    response=client.get('/api/portfolio?month=2026-10').json()
+    assert response['parking'][0]['carpark_deposit']==500 and response['rental_income']==70
+    changed=client.put('/api/portfolio/parking/'+car['id'],json={**parking_rental(space='P02'),'revision':car['revision']}).json()
+    assert changed['carpark_deposit']=='500'
+    expired=client.get('/api/portfolio?month=2028-01').json()
+    assert expired['parking'][0]['carpark_deposit']==500 and expired['rental_income']==0
+    client.post('/api/portfolio/rooms',json={**rental(),'parking':0})
+    older=client.get('/api/portfolio?month=2026-10').json()['rooms'][0]
+    assert older['security_deposit'] is None and older['access_deposit'] is None
+    # Truly old records have no deposit keys at all.
+    legacy={k:v for k,v in older.items() if k not in ('security_deposit','access_deposit','expected','rental_days')}
+    projected=portfolio.project([legacy],'2026-10')['rooms'][0]
+    assert projected['security_deposit'] is None and projected['access_deposit'] is None
+
+
+@pytest.mark.parametrize('field',['security_deposit','access_deposit','carpark_deposit'])
+def test_deposit_validation(client,field):
+    client.post('/api/portfolio/units',json=property_unit())
+    parking=field=='carpark_deposit'
+    for value in [-1,'1.001',1000001]:
+        payload=parking_rental() if parking else rental()
+        assert client.post('/api/portfolio/'+('parking' if parking else 'rooms'),json={**payload,field:value}).status_code==422

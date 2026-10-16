@@ -140,3 +140,10 @@ Open **Property units**, select a unit, and use **Add car-park rental** for some
 Standalone parking income is pro-rated by day and included in overall and per-unit net income. Its occupied days reduce the combined potential rent lost to vacancy, using the unit's advertised parking rate; its occupied days also count toward combined room-and-parking occupancy. Active standalone rentals occupy one space even at zero rent. Capacity checks combine standalone rentals and room rentals with parking, with atomic protection in local storage and Redis. A property cannot be deleted while it has standalone parking records. These records use the existing portfolio store with no new environment variables.
 
 New room numbers skip 04 (01, 02, 03, 05, 06, ...). Existing and manually entered room numbers remain unchanged.
+
+
+### Refundable deposits
+
+Room rental records hold the refundable room/security deposit and access-card deposit. Standalone parking rentals hold their car-park deposit. These values are informational only: they never affect projected income, expenses, occupancy or vacancy loss. The rental lists show deposit totals **before deductions**, with room/card breakdowns; the values remain available after expiry or when excluded from projections. No deductions or refund-payment tracking is applied automatically.
+
+Saving a tenancy agreement to the portfolio pre-fills the room and access-card deposits. Staff can edit these values for existing rentals. Blank or legacy missing values mean unknown, while an explicit 0 means no deposit. A room total is only shown when both amounts are recorded. Deposit changes use the same revision checks and local/Redis storage as the rental; room/unit/space corrections preserve the recorded amounts. No migration or new configuration is required.

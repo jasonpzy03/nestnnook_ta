@@ -15,6 +15,10 @@ export function readLanguagePreference(cookie:string):LanguagePreference {
 }
 
 export const chinese:Record<string,string> = {
+  'Refundable deposits':'可退还押金','Refundable car-park deposit':'可退还停车位押金',
+  'Record deposits held for return at the end of the tenancy, before any deductions. Excluded from income. Leave blank if unknown; enter 0 if none.':'记录租期结束时可退还的押金（扣款前）。押金不计入收入。未知金额请留空，无押金请输入0。',
+  'Deposit total before deductions':'押金总额（扣款前）','Deposit details incomplete':'押金资料不完整',
+  'Before deductions':'扣款前','Room deposit':'房间押金','Access-card deposit':'门禁卡押金',
   'Standalone car-park rentals':'独立停车位租赁','standalone car-park rentals':'独立停车位租赁',
   'Add car-park rental':'添加停车位租赁','Edit car-park rental':'编辑停车位租赁','＋ Add car-park rental':'＋ 添加停车位租赁',
   'Car-park space number':'停车位号码','Include this car park in projections':'将此停车位计入预测',

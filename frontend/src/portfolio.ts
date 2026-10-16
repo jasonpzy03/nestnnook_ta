@@ -6,8 +6,8 @@ import { NzI18nService, en_GB, zh_CN } from 'ng-zorro-antd/i18n';
 import { DateInput, displayDate } from './date-input';
 import { Language, translate } from './language';
 
-export interface RentalInput { unit:string; room:string; rent:number|null; parking:number|null; start_date:string; last_rental_date:string; active:boolean; tenant_name?:string; }
-interface ParkingInput {unit:string;space:string;rent:number|null;start_date:string;last_rental_date:string;active:boolean;tenant_name:string;}
+export interface RentalInput {security_deposit?:number|null;access_deposit?:number|null; unit:string; room:string; rent:number|null; parking:number|null; start_date:string; last_rental_date:string; active:boolean; tenant_name?:string; }
+interface ParkingInput {carpark_deposit?:number|null;unit:string;space:string;rent:number|null;start_date:string;last_rental_date:string;active:boolean;tenant_name:string;}
 interface ParkingRecord extends ParkingInput {id:string;revision:string;kind:'parking';rent:number;expected:number;rental_days:number;}
 interface FixedCosts {house_rental:number|null;wifi:number|null;indah_water:number|null;}
 interface MonthlyCosts {cleaning:number|null;electricity:number|null;water:number|null;others:{name:string;amount:number|null}[]|null;}
@@ -18,8 +18,8 @@ interface UnitProjection extends PropertyRecord {parking_rate_missing:boolean;pa
 interface RentalRecord extends RentalInput {id:string; revision:string; kind:'room'; rent:number; parking:number; expected:number; rental_days:number;}
 interface ExpenseRecord {id:string; revision:string; kind:'expense'; name:string; amount:number;}
 interface Projection {parking:ParkingRecord[];earning_parking:number;parking_rate_missing_units:number;variable_expenses:number;total_expenses:number;missing_expense_units:number;month:string; rooms:RentalRecord[]; expenses:ExpenseRecord[]; rental_income:number; fixed_expenses:number; net_income:number; earning_rooms:number;units:UnitProjection[];total_bedrooms:number;total_carparks:number;occupancy_rate:number|null;vacancy_loss:number;unlinked_rentals:number;occupied_room_days:number;available_room_days:number;}
-const emptyRental=():RentalInput=>({unit:'',room:'',rent:null,parking:0,start_date:'',last_rental_date:'',active:true,tenant_name:''});
-const emptyParking=():ParkingInput=>({unit:'',space:'',rent:null,start_date:'',last_rental_date:'',active:true,tenant_name:''});
+const emptyRental=():RentalInput=>({security_deposit:null,access_deposit:null,unit:'',room:'',rent:null,parking:0,start_date:'',last_rental_date:'',active:true,tenant_name:''});
+const emptyParking=():ParkingInput=>({carpark_deposit:null,unit:'',space:'',rent:null,start_date:'',last_rental_date:'',active:true,tenant_name:''});
 const emptyMonthly=():MonthlyCosts=>({electricity:null,water:null,cleaning:null,others:null});
 const emptyProperty=():PropertyInput=>({standard_parking_rent:null,fixed_costs:{house_rental:0,wifi:0,indah_water:0},monthly_costs:{},unit:'',property_name:'',address:'',bathrooms:0,carparks:0,notes:'',rooms:[{room:'01',standard_rent:null}]});
 
@@ -45,9 +45,10 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
   get unitParking(){return (this.data?.parking||[]).filter(r=>this.normaliseUnit(r.unit)===this.normaliseUnit(this.selectedUnit?.unit||''));}
   editParking(row?:ParkingRecord){
     this.clearEditor();this.editor='parking';this.parking={...emptyParking(),unit:this.selectedUnit?.unit||'',rent:this.selectedUnit?.standard_parking_rent??null};
-    if(row){this.parking={unit:this.data?.units.find(u=>this.normaliseUnit(u.unit)===this.normaliseUnit(row.unit))?.unit||row.unit,space:row.space,rent:Number(row.rent),start_date:row.start_date||'',last_rental_date:row.last_rental_date||'',active:row.active,tenant_name:row.tenant_name||''};this.editId=row.id;this.revision=row.revision;}
+    if(row){this.parking={carpark_deposit:row.carpark_deposit==null?null:Number(row.carpark_deposit),unit:this.data?.units.find(u=>this.normaliseUnit(u.unit)===this.normaliseUnit(row.unit))?.unit||row.unit,space:row.space,rent:Number(row.rent),start_date:row.start_date||'',last_rental_date:row.last_rental_date||'',active:row.active,tenant_name:row.tenant_name||''};this.editId=row.id;this.revision=row.revision;}
     this.focusEditor();
   }
+  depositTotal(row:RentalInput|ParkingInput):number|null{const amounts='space' in row?[row.carpark_deposit]:[row.security_deposit,row.access_deposit];return amounts.some(amount=>amount==null)?null:Math.round(amounts.reduce<number>((sum,amount)=>sum+Number(amount),0)*100)/100;}
   normaliseUnit(value:string){return value.trim().replace(/^(?:unit\s+|#)/i,'').replace(/\s+/g,'').toLowerCase();}
   openUnit(id:string){this.clearEditor();this.selectedUnitId=id;this.showUnlinked=false;}
   backToUnits(){this.clearEditor();this.selectedUnitId='';this.showUnlinked=false;}
@@ -107,7 +108,7 @@ export class Portfolio implements OnInit, OnDestroy, OnChanges {
   }
   editRoom(row?:RentalRecord){
     this.clearEditor();this.editor='room';this.focusEditor();
-    if(row){this.rental={unit:row.unit,room:row.room,rent:Number(row.rent),parking:Number(row.parking),start_date:row.start_date||'',last_rental_date:row.last_rental_date||'',active:row.active,tenant_name:row.tenant_name||''};this.editId=row.id;this.revision=row.revision;}
+    if(row){this.rental={security_deposit:row.security_deposit==null?null:Number(row.security_deposit),access_deposit:row.access_deposit==null?null:Number(row.access_deposit),unit:row.unit,room:row.room,rent:Number(row.rent),parking:Number(row.parking),start_date:row.start_date||'',last_rental_date:row.last_rental_date||'',active:row.active,tenant_name:row.tenant_name||''};this.editId=row.id;this.revision=row.revision;}
   }
   editExpense(row?:ExpenseRecord){this.clearEditor();this.editor='expense';this.focusEditor();if(row){this.expense={name:row.name,amount:Number(row.amount)};this.editId=row.id;this.revision=row.revision;}}
   clearEditor(){this.monthlyCosts=emptyMonthly();this.otherCosts=[];this.othersReviewed=false;this.expenseMonth='';this.editor='';this.rental=emptyRental();this.parking=emptyParking();this.expense={name:'',amount:null};this.property=emptyProperty();this.bedroomCount=1;this.editId='';this.revision='';this.conflict=null;this.error='';this.notice='';this.removal=null;}

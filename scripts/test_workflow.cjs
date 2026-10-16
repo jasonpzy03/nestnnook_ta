@@ -18,7 +18,7 @@ console.log('Team Tools navigation, chooser fallback and unsaved form preservati
 app.propertyUnits=[{id:'unit1',unit:'A-01',address:'Test street',rooms:[{room:'02',standard_rent:'1200'}]}];
 app.d.tenant_name='Alex';app.chooseProperty('unit1');app.choosePropertyRoom('02');
 assert.equal(app.d.property,'A-01');assert.equal(app.d.address,'Test street');assert.equal(app.d.room,'02');assert.equal(app.d.rent,1200);assert.equal(app.d.tenant_name,'Alex');
-assert.equal(app.rentalSnapshot().tenant_name,'Alex');assert(!('tenant_id' in app.rentalSnapshot()));
+app.d.security_deposit=1500.50;app.d.access_deposit=100;assert.equal(app.rentalSnapshot().security_deposit,1500.50);assert.equal(app.rentalSnapshot().access_deposit,100);assert.equal(app.rentalSnapshot().tenant_name,'Alex');assert(!('tenant_id' in app.rentalSnapshot()));
 app.chooseProperty('');assert.equal(app.d.room,'02','Manual mode preserves entered details');
 app.reset();
 const form={reportValidity:()=>true};

@@ -39,10 +39,13 @@ class RentalPeriod(StrictModel):
 class Rental(RentalPeriod):
     room: Label
     parking: Money = Decimal('0')
+    security_deposit: Money | None = None
+    access_deposit: Money | None = None
 
 
 class ParkingRental(RentalPeriod):
     space: Label
+    carpark_deposit: Money | None = None
 
 
 class ParkingUpdate(ParkingRental):
@@ -335,14 +338,17 @@ def project(data, month):
             days = max(0, (end-start).days+1) if rental.active else 0
             # Match the document's pro-rated room rent; round each charge to cents.
             expected = money(rental.rent*days/last.day) + money(rental.parking*days/last.day)
-            rooms.append({**row, 'rent':float(rental.rent), 'parking':float(rental.parking), 'rental_days':days, 'expected':float(expected)})
+            rooms.append({**row, 'security_deposit':float(rental.security_deposit) if rental.security_deposit is not None else None,
+                          'access_deposit':float(rental.access_deposit) if rental.access_deposit is not None else None,
+                          'rent':float(rental.rent), 'parking':float(rental.parking), 'rental_days':days, 'expected':float(expected)})
             total_rent += expected
         elif row['kind'] == 'parking':
             rental = ParkingRental.model_validate({k:v for k,v in row.items() if k not in ('id','kind','revision','unit_id')})
             start, end = max(first, rental.start_date or first), min(last, rental.last_rental_date or last)
             days = max(0, (end-start).days+1) if rental.active else 0
             expected = money(rental.rent*days/last.day)
-            parking.append({**row, 'rent':float(rental.rent), 'rental_days':days, 'expected':float(expected)})
+            parking.append({**row, 'carpark_deposit':float(rental.carpark_deposit) if rental.carpark_deposit is not None else None,
+                            'rent':float(rental.rent), 'rental_days':days, 'expected':float(expected)})
             total_rent += expected
         elif row['kind'] == 'expense':
             amount = Decimal(str(row['amount']))
@@ -487,7 +493,19 @@ def add_room(value: Rental):
 @router.put('/rooms/{identifier}')
 def update_room(identifier: str, value: RentalUpdate):
     destination = room_key(value.unit, value.room)
-    return mutate('room', identifier, value.model_dump(mode='json', exclude={'revision'}), value.revision, destination=destination)
+    return mutate('room', identifier, rental_update_payload(value, identifier, 'room'), value.revision, destination=destination)
+
+
+def rental_update_payload(value, identifier, kind):
+    payload = value.model_dump(mode='json', exclude={'revision'})
+    fields = ('security_deposit','access_deposit') if kind=='room' else ('carpark_deposit',)
+    missing = [name for name in fields if name not in value.model_fields_set]
+    if missing:
+        # Older open clients omit these fields. Preserve them; revisions still protect the write.
+        old = next((row for row in records() if row['kind']==kind and row['id']==identifier), {})
+        for name in missing:
+            payload[name] = old.get(name)
+    return payload
 
 
 @router.post('/expenses')
@@ -502,7 +520,7 @@ def add_parking(value: ParkingRental):
 
 @router.put('/parking/{identifier}')
 def update_parking(identifier: str, value: ParkingUpdate):
-    return mutate('parking', identifier, value.model_dump(mode='json',exclude={'revision'}), value.revision,
+    return mutate('parking', identifier, rental_update_payload(value, identifier, 'parking'), value.revision,
                   destination=parking_key(value.unit, value.space))
 
 

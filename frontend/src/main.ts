@@ -238,7 +238,7 @@ export class App implements OnInit, OnDestroy {
   rentalSnapshot():RentalInput{
     let last=this.d['end_date']||'';
     if(last.endsWith('-01')){const [y,m]=last.split('-').map(Number);const previous=new Date(y,m-1,0);last=`${previous.getFullYear()}-${String(previous.getMonth()+1).padStart(2,'0')}-${String(previous.getDate()).padStart(2,'0')}`;}
-    return {unit:this.d['property']||'',room:this.d['room']||'',tenant_name:this.d['tenant_name']||'',rent:this.d['rent'],parking:this.d['parking']||0,start_date:this.d['start_date']||'',last_rental_date:last,active:true};
+    return {security_deposit:this.d['security_deposit']??null,access_deposit:this.d['access_deposit']??null,unit:this.d['property']||'',room:this.d['room']||'',tenant_name:this.d['tenant_name']||'',rent:this.d['rent'],parking:this.d['parking']||0,start_date:this.d['start_date']||'',last_rental_date:last,active:true};
   }
   download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
   saveDraft(){this.download(new Blob([JSON.stringify({version:1,details:{...this.d,advance_rent:this.proratedRent,carpark_earnest_deposit:this.carparkEarnest},documents:this.selected.map(doc=>doc.id)},null,2)],{type:'application/json'}),'nest-and-nook-draft.json');this.status='Draft saved to your device. It contains the tenant’s personal details.';}
